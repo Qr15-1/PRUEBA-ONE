@@ -26,7 +26,7 @@ if (!existsSync(dataDir)) {
 const dbPath = process.env.DATABASE_PATH || join(dataDir, 'rojasfitt.db');
 
 // Crear instancia de la base de datos
-const db = new Database(dbPath);
+export const db = new Database(dbPath);
 console.log(`✅ Base de datos SQLite inicializada correctamente en: ${dbPath}`);
 
 // =================================================================
