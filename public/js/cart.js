@@ -12,7 +12,12 @@ class ShoppingCart {
         this.bindEvents();
         this.updateCartDisplay();
         this.updateCartIcon();
-        console.log('🛒 Sistema de carrito inicializado con', this.items.length, 'items');
+        
+        if (this.isUserAuthenticated()) {
+            console.log('🛒 Sistema de carrito inicializado con', this.items.length, 'items');
+        } else {
+            console.log('🔐 Usuario no autenticado - carrito oculto');
+        }
     }
 
     bindEvents() {
@@ -253,9 +258,16 @@ class ShoppingCart {
     updateCartIcon() {
         const cartIcon = document.querySelector('.navbar__cart-count');
         if (cartIcon) {
-            cartIcon.textContent = this.items.length;
-            cartIcon.style.display = this.items.length > 0 ? 'block' : 'none';
-            console.log('🛒 Contador actualizado:', this.items.length);
+            // Solo mostrar el contador si el usuario está autenticado
+            if (this.isUserAuthenticated()) {
+                cartIcon.textContent = this.items.length;
+                cartIcon.style.display = this.items.length > 0 ? 'block' : 'none';
+                console.log('🛒 Contador actualizado:', this.items.length);
+            } else {
+                // Si no está autenticado, ocultar el contador
+                cartIcon.style.display = 'none';
+                console.log('🔐 Usuario no autenticado - ocultando contador del carrito');
+            }
         } else {
             console.warn('⚠️ No se encontró el contador del carrito');
         }
