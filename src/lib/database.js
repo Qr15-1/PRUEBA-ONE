@@ -5,25 +5,29 @@
 import Database from 'better-sqlite3';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { mkdirSync } from 'fs';
+import { mkdirSync, existsSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Ruta de la base de datos
-const dbPath = join(__dirname, '../../data/rojasfitt.db');
-const dataDir = join(__dirname, '../../data');
+// --- CÓDIGO MODIFICADO PARA RENDER ---
+// Define la ruta a la carpeta de datos
+const dataDir = process.env.DATABASE_PATH ? 
+    dirname(process.env.DATABASE_PATH) : 
+    join(__dirname, '../../data');
 
-// Crear la carpeta data si no existe
-try {
+// Asegúrate de que la carpeta de datos exista
+if (!existsSync(dataDir)) {
     mkdirSync(dataDir, { recursive: true });
-    console.log('✅ Carpeta data creada/verificada');
-} catch (error) {
-    console.log('⚠️ Error creando carpeta data:', error.message);
+    console.log(`✅ Carpeta de datos creada/verificada en: ${dataDir}`);
 }
+
+// Define la ruta completa de la base de datos
+const dbPath = process.env.DATABASE_PATH || join(dataDir, 'rojasfitt.db');
 
 // Crear instancia de la base de datos
 const db = new Database(dbPath);
+console.log(`✅ Base de datos SQLite inicializada correctamente en: ${dbPath}`);
 
 // =================================================================
 // CREAR TABLAS
