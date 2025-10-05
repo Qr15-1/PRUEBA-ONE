@@ -543,4 +543,64 @@ export const orderItemQueries = {
     }
 };
 
+// =================================================================
+// UTILIDADES Y FUNCIONES AUXILIARES
+// =================================================================
+
+export const utils = {
+    getAdminStats: () => {
+        try {
+            // Obtener estadísticas de usuarios
+            const totalUsers = db.prepare('SELECT COUNT(*) as count FROM users').get();
+            
+            // Obtener estadísticas de cursos
+            const totalCourses = db.prepare('SELECT COUNT(*) as count FROM courses WHERE is_active = 1').get();
+            
+            // Obtener estadísticas de módulos
+            const totalModules = db.prepare('SELECT COUNT(*) as count FROM course_modules').get();
+            
+            // Obtener estadísticas de productos
+            const totalProducts = db.prepare('SELECT COUNT(*) as count FROM products WHERE is_active = 1').get();
+            
+            // Obtener estadísticas de órdenes
+            const totalOrders = db.prepare('SELECT COUNT(*) as count FROM orders').get();
+            
+            // Obtener usuarios recientes (últimos 7 días)
+            const recentUsers = db.prepare(`
+                SELECT COUNT(*) as count 
+                FROM users 
+                WHERE created_at >= datetime('now', '-7 days')
+            `).get();
+            
+            return {
+                users: {
+                    total: totalUsers.count,
+                    recent: recentUsers.count
+                },
+                courses: {
+                    total: totalCourses.count
+                },
+                modules: {
+                    total: totalModules.count
+                },
+                products: {
+                    total: totalProducts.count
+                },
+                orders: {
+                    total: totalOrders.count
+                }
+            };
+        } catch (error) {
+            console.error('Error obteniendo estadísticas:', error);
+            return {
+                users: { total: 0, recent: 0 },
+                courses: { total: 0 },
+                modules: { total: 0 },
+                products: { total: 0 },
+                orders: { total: 0 }
+            };
+        }
+    }
+};
+
 console.log('✅ Base de datos y queries inicializados correctamente');
