@@ -3,7 +3,7 @@
 // =================================================================
 
 import { adminQueries } from '../../../lib/database.js';
-import { createHash } from 'crypto';
+import { hashPassword } from '../../../lib/auth.js';
 
 export async function POST({ request }) {
     try {
@@ -27,7 +27,7 @@ export async function POST({ request }) {
         }
 
         // Crear admin
-        const hashedPassword = createHash('sha256').update(password).digest('hex');
+        const hashedPassword = hashPassword(password);
         const result = adminQueries.create({
             username: username,
             email: email,
