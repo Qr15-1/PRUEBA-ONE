@@ -5,12 +5,22 @@
 import Database from 'better-sqlite3';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { mkdirSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Ruta de la base de datos
 const dbPath = join(__dirname, '../../data/rojasfitt.db');
+const dataDir = join(__dirname, '../../data');
+
+// Crear la carpeta data si no existe
+try {
+    mkdirSync(dataDir, { recursive: true });
+    console.log('✅ Carpeta data creada/verificada');
+} catch (error) {
+    console.log('⚠️ Error creando carpeta data:', error.message);
+}
 
 // Crear instancia de la base de datos
 const db = new Database(dbPath);
