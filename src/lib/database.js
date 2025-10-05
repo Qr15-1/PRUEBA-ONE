@@ -604,3 +604,4 @@ export const utils = {
 };
 
 console.log('✅ Base de datos y queries inicializados correctamente');
+console.log('🔧 Versión con utils exportado correctamente');
