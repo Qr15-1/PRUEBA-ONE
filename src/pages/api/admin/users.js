@@ -2,8 +2,7 @@
 // API ENDPOINT: OBTENER USUARIOS REGISTRADOS
 // =================================================================
 
-import { userQueries, adminQueries } from '../../../lib/database.js';
-import db from '../../../lib/database.js';
+import { db, userQueries, adminQueries } from '../../../lib/database.js';
 
 export async function GET({ cookies }) {
     try {
