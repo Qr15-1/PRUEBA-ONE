@@ -1,0 +1,347 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Registrarse - RojasFitt" description="Crea tu cuenta para acceder a todos los cursos">
+  <div class="register-page">
+    <div class="register-container">
+      <div class="register-header">
+        <h1 class="register-title">Crear Cuenta</h1>
+        <p class="register-subtitle">Únete a nuestra comunidad fitness</p>
+      </div>
+
+      <form class="register-form" id="registerForm">
+        <div class="form-group">
+          <label for="name" class="form-label">Nombre Completo</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            class="form-input" 
+            placeholder="Tu nombre completo"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            class="form-input" 
+            placeholder="tu@email.com"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Contraseña</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            class="form-input" 
+            placeholder="Mínimo 6 caracteres"
+            required
+            minlength="6"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+          <input 
+            type="password" 
+            id="confirmPassword" 
+            name="confirmPassword" 
+            class="form-input" 
+            placeholder="Repite tu contraseña"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="newsletter" name="newsletter" class="checkbox-input">
+            <span class="checkbox-text">Quiero recibir noticias y ofertas especiales</span>
+          </label>
+        </div>
+
+        <button type="submit" class="register-btn" id="registerBtn">
+          <span class="btn-text">Crear Cuenta</span>
+          <span class="btn-loading" style="display: none;">Creando...</span>
+        </button>
+
+        <div class="register-links">
+          <a href="/login" class="register-link">¿Ya tienes cuenta? Inicia sesión</a>
+        </div>
+      </form>
+
+      <div id="errorMessage" class="error-message" style="display: none;"></div>
+    </div>
+  </div>
+
+  <style>
+    .register-page {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .register-page::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(153, 255, 0, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .register-container {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid rgba(153, 255, 0, 0.2);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 1;
+    }
+
+    .register-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .register-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #99FF00;
+      margin-bottom: 10px;
+      text-shadow: 0 0 20px rgba(153, 255, 0, 0.3);
+    }
+
+    .register-subtitle {
+      color: #b0b0b0;
+      font-size: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      color: #ffffff;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      color: #ffffff;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #99FF00;
+      box-shadow: 0 0 0 3px rgba(153, 255, 0, 0.1);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .form-input::placeholder {
+      color: #666;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      color: #b0b0b0;
+      font-size: 0.9rem;
+    }
+
+    .checkbox-input {
+      width: 18px;
+      height: 18px;
+      accent-color: #99FF00;
+    }
+
+    .checkbox-text {
+      line-height: 1.4;
+    }
+
+    .register-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #99FF00, #7ACC00);
+      color: #0a0a0a;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(153, 255, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .register-btn:hover {
+      background: linear-gradient(135deg, #7ACC00, #99FF00);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(153, 255, 0, 0.4);
+    }
+
+    .register-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-loading {
+      display: none;
+    }
+
+    .register-links {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .register-link {
+      color: #99FF00;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s ease;
+    }
+
+    .register-link:hover {
+      color: #7ACC00;
+    }
+
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .register-container {
+        padding: 30px 20px;
+        margin: 10px;
+      }
+      
+      .register-title {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const registerForm = document.getElementById('registerForm');
+      const registerBtn = document.getElementById('registerBtn');
+      const btnText = registerBtn.querySelector('.btn-text');
+      const btnLoading = registerBtn.querySelector('.btn-loading');
+      const errorMessage = document.getElementById('errorMessage');
+      const passwordInput = document.getElementById('password');
+      const confirmPasswordInput = document.getElementById('confirmPassword');
+
+      // Validar contraseñas coincidan
+      function validatePasswords() {
+        if (passwordInput.value !== confirmPasswordInput.value) {
+          confirmPasswordInput.setCustomValidity('Las contraseñas no coinciden');
+        } else {
+          confirmPasswordInput.setCustomValidity('');
+        }
+      }
+
+      passwordInput.addEventListener('input', validatePasswords);
+      confirmPasswordInput.addEventListener('input', validatePasswords);
+
+      registerForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Validar contraseñas
+        if (passwordInput.value !== confirmPasswordInput.value) {
+          errorMessage.textContent = 'Las contraseñas no coinciden';
+          errorMessage.style.display = 'block';
+          return;
+        }
+        
+        // Mostrar estado de carga
+        registerBtn.disabled = true;
+        btnText.style.display = 'none';
+        btnLoading.style.display = 'inline';
+        errorMessage.style.display = 'none';
+
+        const formData = new FormData(registerForm);
+        const registerData = {
+          name: formData.get('name'),
+          email: formData.get('email'),
+          password: formData.get('password'),
+          newsletter: formData.get('newsletter') === 'on'
+        };
+
+        try {
+          const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(registerData)
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            // Registro exitoso
+            console.log('✅ Registro exitoso:', result);
+            
+            // Guardar datos del usuario en localStorage
+            localStorage.setItem('user_data', JSON.stringify(result.user));
+            
+            // Redirigir al inicio
+            window.location.href = '/';
+          } else {
+            // Error en el registro
+            errorMessage.textContent = result.message || 'Error al crear la cuenta';
+            errorMessage.style.display = 'block';
+          }
+        } catch (error) {
+          console.error('❌ Error en registro:', error);
+          errorMessage.textContent = 'Error de conexión. Intenta de nuevo.';
+          errorMessage.style.display = 'block';
+        } finally {
+          // Restaurar estado del botón
+          registerBtn.disabled = false;
+          btnText.style.display = 'inline';
+          btnLoading.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</Layout>
