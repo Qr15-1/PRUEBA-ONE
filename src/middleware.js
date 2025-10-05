@@ -18,8 +18,8 @@ export const onRequest = defineMiddleware(async ({ request }, next) => {
   if (isStaticFile) {
     // Intentar múltiples rutas posibles
     const possiblePaths = [
-      join(process.cwd(), 'public', pathname),
       join(process.cwd(), 'dist', 'client', pathname),
+      join(process.cwd(), 'public', pathname),
       join(process.cwd(), 'src', 'public', pathname)
     ];
 
