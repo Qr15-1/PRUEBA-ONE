@@ -262,8 +262,8 @@ export async function loginAdmin(username, password) {
             };
         }
 
-        // Actualizar último login
-        adminQueries.updateLastLogin(admin.id);
+        // Actualizar último login (comentado temporalmente - función no implementada)
+        // adminQueries.updateLastLogin(admin.id);
 
         return {
             success: true,
