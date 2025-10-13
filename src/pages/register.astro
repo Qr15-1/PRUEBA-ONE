@@ -165,6 +165,13 @@ import Layout from '../layouts/Layout.astro';
       background: rgba(255, 255, 255, 0.15);
     }
 
+    /* Estado de error para inputs */
+    .form-input.input-error {
+      border-color: #ef4444 !important;
+      background: rgba(239, 68, 68, 0.12) !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.22) !important;
+    }
+
     .form-input::placeholder {
       color: #666;
     }
@@ -262,31 +269,33 @@ import Layout from '../layouts/Layout.astro';
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const registerForm = document.getElementById('registerForm');
-      const registerBtn = document.getElementById('registerBtn');
-      const btnText = registerBtn.querySelector('.btn-text');
-      const btnLoading = registerBtn.querySelector('.btn-loading');
-      const errorMessage = document.getElementById('errorMessage');
-      const passwordInput = document.getElementById('password');
-      const confirmPasswordInput = document.getElementById('confirmPassword');
+      const registerForm = document.getElementById('registerForm') as HTMLFormElement | null;
+      const registerBtn = document.getElementById('registerBtn') as HTMLButtonElement | null;
+      const btnText = registerBtn?.querySelector('.btn-text') as HTMLSpanElement | null;
+      const btnLoading = registerBtn?.querySelector('.btn-loading') as HTMLSpanElement | null;
+      const errorMessage = document.getElementById('errorMessage') as HTMLDivElement | null;
+      const passwordInput = document.getElementById('password') as HTMLInputElement | null;
+      const confirmPasswordInput = document.getElementById('confirmPassword') as HTMLInputElement | null;
+
+      if (!registerForm || !registerBtn || !btnText || !btnLoading || !errorMessage || !passwordInput || !confirmPasswordInput) {
+        return;
+      }
 
       // Validar contraseñas coincidan
       function validatePasswords() {
-        if (passwordInput.value !== confirmPasswordInput.value) {
-          confirmPasswordInput.setCustomValidity('Las contraseñas no coinciden');
-        } else {
-          confirmPasswordInput.setCustomValidity('');
-        }
+        const mismatch = passwordInput!.value !== confirmPasswordInput!.value;
+        confirmPasswordInput!.classList.toggle('input-error', mismatch);
+        confirmPasswordInput!.setCustomValidity(mismatch ? 'Las contraseñas no coinciden' : '');
       }
 
-      passwordInput.addEventListener('input', validatePasswords);
-      confirmPasswordInput.addEventListener('input', validatePasswords);
+      passwordInput!.addEventListener('input', validatePasswords);
+      confirmPasswordInput!.addEventListener('input', validatePasswords);
 
       registerForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         // Validar contraseñas
-        if (passwordInput.value !== confirmPasswordInput.value) {
+        if (passwordInput!.value !== confirmPasswordInput!.value) {
           errorMessage.textContent = 'Las contraseñas no coinciden';
           errorMessage.style.display = 'block';
           return;
@@ -303,6 +312,7 @@ import Layout from '../layouts/Layout.astro';
           name: formData.get('name'),
           email: formData.get('email'),
           password: formData.get('password'),
+          confirmPassword: formData.get('confirmPassword'),
           newsletter: formData.get('newsletter') === 'on'
         };
 

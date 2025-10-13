@@ -33,9 +33,7 @@ const currentPath = Astro.url.pathname;
                     <a href="/admin/users" class={`nav-link ${currentPath.startsWith('/admin/users') ? 'active' : ''}`}>
                         👥 Usuarios
                     </a>
-                    <a href="/admin/stats" class={`nav-link ${currentPath.startsWith('/admin/stats') ? 'active' : ''}`}>
-                        📊 Estadísticas
-                    </a>
+                    
                 </div>
                 <div class="nav-right">
                     <button class="logout-btn" onclick="logout()">

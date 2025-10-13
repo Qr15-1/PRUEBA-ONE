@@ -5,14 +5,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 <AdminLayout title="Gestionar Cursos - Admin">
     <div class="admin-page">
         <main class="admin-main">
-            <!-- Header -->
-            <div class="page-header">
-                <h1 class="page-title">🎓 Gestionar Cursos</h1>
-                <p class="page-subtitle">Administra todos los cursos de tu plataforma</p>
-                <button id="addCourseBtn" class="add-btn">
-                    ➕ Nuevo Curso
-                </button>
-            </div>
+            
 
             <!-- Estados de carga -->
             <div id="loading" class="loading-state">
@@ -768,8 +761,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
 <script>
     // Variables globales
-    let courses = [];
-    let editingCourseId = null;
+    let courses: Array<any> = [];
+    let editingCourseId: string | null = null;
 
     // Función de logout
     function logout() {
@@ -834,7 +827,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         if (error) error.style.display = 'none';
         if (container) {
             container.style.display = 'grid';
-            container.innerHTML = courses.map(course => `
+            container.innerHTML = courses.map((course: any) => `
                 <div class="course-card" style="background: #1C1C1E; border-radius: 15px; overflow: hidden; border: 1px solid #38383A; display: flex; flex-direction: column; box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1); margin: 0; padding: 0; width: 100%; height: auto; position: relative;">
                     <div class="course-image-container" style="height: 160px; width: 100%; overflow: hidden; position: relative; background: #000;">
                         <img src="${course.image}" alt="${course.title}" class="course-image" style="width: 100%; height: 100%; object-fit: cover; display: block;">
@@ -871,7 +864,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
     // Abrir modal
     function openModal() {
-        const modal = document.getElementById('courseModal');
+        const modal = document.getElementById('courseModal') as HTMLElement | null;
         if (modal) {
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
@@ -881,7 +874,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     // Cerrar modal
     function closeModal() {
         console.log('closeModal() called'); // Debug log
-        const modal = document.getElementById('courseModal');
+        const modal = document.getElementById('courseModal') as HTMLElement | null;
         if (modal) {
             modal.style.display = 'none';
             document.body.style.overflow = 'auto';
@@ -891,20 +884,20 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         }
         
         // Limpiar formulario
-        const form = document.getElementById('courseForm');
+        const form = document.getElementById('courseForm') as HTMLFormElement | null;
         if (form) {
             form.reset();
         }
         
         editingCourseId = null;
-        const modalTitle = document.getElementById('modalTitle');
+        const modalTitle = document.getElementById('modalTitle') as HTMLElement | null;
         if (modalTitle) {
             modalTitle.textContent = 'Nuevo Curso';
         }
     }
 
     // Editar curso
-    function editCourse(courseId) {
+    function editCourse(courseId: string) {
         console.log('Editando curso:', courseId);
         const course = courses.find(c => c.id == courseId);
         if (!course) {
@@ -915,16 +908,16 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         editingCourseId = courseId;
         
         // Llenar formulario
-        const titleInput = document.getElementById('title');
-        const descriptionInput = document.getElementById('description');
-        const categoryInput = document.getElementById('category');
-        const imageInput = document.getElementById('image');
-        const priceInput = document.getElementById('price');
-        const originalPriceInput = document.getElementById('originalPrice');
-        const durationInput = document.getElementById('duration');
-        const levelInput = document.getElementById('level');
-        const studentsInput = document.getElementById('students');
-        const modalTitle = document.getElementById('modalTitle');
+        const titleInput = document.getElementById('title') as HTMLInputElement | null;
+        const descriptionInput = document.getElementById('description') as HTMLTextAreaElement | null;
+        const categoryInput = document.getElementById('category') as HTMLInputElement | null;
+        const imageInput = document.getElementById('image') as HTMLInputElement | null;
+        const priceInput = document.getElementById('price') as HTMLInputElement | null;
+        const originalPriceInput = document.getElementById('originalPrice') as HTMLInputElement | null;
+        const durationInput = document.getElementById('duration') as HTMLInputElement | null;
+        const levelInput = document.getElementById('level') as HTMLSelectElement | null;
+        const studentsInput = document.getElementById('students') as HTMLInputElement | null;
+        const modalTitle = document.getElementById('modalTitle') as HTMLElement | null;
         
         if (titleInput) titleInput.value = course.title || '';
         if (descriptionInput) descriptionInput.value = course.description || '';
@@ -942,13 +935,13 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
 
     // Gestionar curso
-    function manageCourse(courseId) {
+    function manageCourse(courseId: string) {
         console.log('Gestionando curso:', courseId);
         window.location.href = `/admin/courses/${courseId}/manage`;
     }
 
     // Eliminar curso
-    async function deleteCourse(courseId) {
+    async function deleteCourse(courseId: string) {
         console.log('Eliminando curso:', courseId);
         if (!confirm('¿Estás seguro de que quieres eliminar este curso?')) {
             return;
@@ -973,7 +966,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     }
 
     // Mostrar mensaje
-    function showMessage(message, type) {
+    function showMessage(message: string, type: string) {
         const messageEl = document.getElementById('message');
         if (messageEl) {
             messageEl.textContent = message;
@@ -986,12 +979,12 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     }
 
     // Hacer funciones globales para que funcionen desde el HTML
-    window.editCourse = editCourse;
-    window.manageCourse = manageCourse;
-    window.deleteCourse = deleteCourse;
+    (window as any).editCourse = editCourse;
+    (window as any).manageCourse = manageCourse;
+    (window as any).deleteCourse = deleteCourse;
 
     // Mostrar error
-    function showError(message) {
+    function showError(message: string) {
         const error = document.getElementById('error');
         if (error) {
             error.textContent = message;
@@ -1023,10 +1016,10 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
         const courseForm = document.getElementById('courseForm');
         if (courseForm) {
-            courseForm.addEventListener('submit', async (e) => {
+            courseForm.addEventListener('submit', async (e: SubmitEvent) => {
                 e.preventDefault();
                 
-                const formData = new FormData(e.target);
+                const formData = new FormData(e.target as HTMLFormElement);
                 const courseData = Object.fromEntries(formData.entries());
 
                 try {

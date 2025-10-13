@@ -3,13 +3,34 @@ import { createHash, randomBytes } from 'crypto';
 
 export async function POST({ request }) {
     try {
-        const { name, email, password, newsletter } = await request.json();
+        const { name, email, password, confirmPassword, newsletter } = await request.json();
 
         // Validar datos de entrada
         if (!name || !email || !password) {
             return new Response(JSON.stringify({
                 success: false,
                 message: 'Nombre, email y contraseña son requeridos'
+            }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // Validar confirmación de contraseña
+        if (typeof confirmPassword === 'undefined') {
+            return new Response(JSON.stringify({
+                success: false,
+                message: 'Debes confirmar la contraseña'
+            }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        if (password !== confirmPassword) {
+            return new Response(JSON.stringify({
+                success: false,
+                message: 'Las contraseñas no coinciden'
             }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' }

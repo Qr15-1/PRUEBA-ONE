@@ -5,11 +5,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 <AdminLayout title="Dashboard Admin - RojasFitt">
     <div class="admin-page">
         <main class="admin-main">
-            <!-- Header -->
-            <div class="page-header">
-                <h1 class="page-title">Dashboard de Administración</h1>
-                <p class="page-subtitle">Panel de control para la gestión de la tienda</p>
-            </div>
+            
 
             <!-- Contenido principal -->
             <div id="dashboardContent">
@@ -36,23 +32,10 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
                         <h3>Ver Pedidos</h3>
                         <p>Revisa pedidos y ventas</p>
                     </a>
-                    <a href="/admin/settings" class="action-card">
-                        <div class="action-icon">⚙️</div>
-                        <h3>Configuración</h3>
-                        <p>Configura la plataforma</p>
-                    </a>
+                    
                 </div>
 
-                <!-- Sección de usuarios registrados -->
-                <div class="users-section">
-                    <h2 class="section-title">👥 Usuarios Registrados</h2>
-                    <div id="usersList" class="users-list">
-                        <div class="loading-state">
-                            <div class="loading-spinner"></div>
-                            <p>Cargando usuarios...</p>
-                        </div>
-                    </div>
-                </div>
+                
             </div>
         </main>
     </div>
@@ -258,53 +241,5 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
 <script>
 
-    // Cargar usuarios
-    async function loadUsers() {
-        try {
-            const response = await fetch('/api/admin/users', {
-                credentials: 'include'
-            });
-            
-            if (!response.ok) {
-                throw new Error('Error al cargar usuarios');
-            }
-            
-            const users = await response.json();
-            displayUsers(users);
-        } catch (error) {
-            console.error('Error:', error);
-            showUsersError();
-        }
-    }
-
-    // Mostrar usuarios
-    function displayUsers(users) {
-        const container = document.getElementById('usersList');
-        if (container) {
-            container.innerHTML = users.map(user => `
-                <div class="user-item">
-                    <div class="user-info">
-                        <div class="user-name">${user.name}</div>
-                        <div class="user-email">${user.email}</div>
-                        <div class="user-date">Registrado: ${new Date(user.created_at).toLocaleDateString()}</div>
-                    </div>
-                    ${user.newsletter ? '<span class="user-newsletter">Newsletter</span>' : ''}
-                </div>
-            `).join('');
-        }
-    }
-
-
-    // Mostrar error de usuarios
-    function showUsersError() {
-        const usersList = document.getElementById('usersList');
-        if (usersList) {
-            usersList.innerHTML = '<div class="error-state"><div class="error-icon">⚠️</div><p>Error al cargar los usuarios</p></div>';
-        }
-    }
-
-    // Cargar usuarios al cargar la página
-    document.addEventListener('DOMContentLoaded', () => {
-        loadUsers();
-    });
+    // (Se removió la sección de "Usuarios Registrados", por lo tanto no cargamos nada aquí)
 </script>

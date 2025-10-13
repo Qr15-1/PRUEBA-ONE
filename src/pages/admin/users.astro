@@ -15,7 +15,6 @@ const users = await userQueries.getAll() as Array<{
   updated_at: string;
 }>;
 const totalUsers = users.length;
-const activeUsers = users.filter(user => user.is_active === 1).length;
 const newUsersThisMonth = users.filter(user => {
   const userDate = new Date(user.created_at);
   const now = new Date();
@@ -23,50 +22,15 @@ const newUsersThisMonth = users.filter(user => {
 }).length;
 
 // Estadísticas adicionales
-const usersWithNewsletter = users.filter(user => user.newsletter === 1).length;
 const usersWithPhone = users.filter(user => user.phone && user.phone.trim() !== '').length;
 ---
 
 <AdminLayout title="Gestión de Usuarios - RojasFitt">
   <div class="admin-page">
     <main class="admin-main">
-      <!-- Header -->
-      <div class="page-header">
-        <h1 class="page-title">👥 Gestión de Usuarios</h1>
-        <p class="page-subtitle">Administra los usuarios registrados en la plataforma</p>
-      </div>
+      
 
-      <!-- Estadísticas -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">👥</div>
-          <div class="stat-content">
-            <h3>Total de Usuarios</h3>
-            <p class="stat-number">{totalUsers}</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">✅</div>
-          <div class="stat-content">
-            <h3>Usuarios Activos</h3>
-            <p class="stat-number">{activeUsers}</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">🆕</div>
-          <div class="stat-content">
-            <h3>Nuevos este Mes</h3>
-            <p class="stat-number">{newUsersThisMonth}</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">📧</div>
-          <div class="stat-content">
-            <h3>Con Newsletter</h3>
-            <p class="stat-number">{usersWithNewsletter}</p>
-          </div>
-        </div>
-      </div>
+      
 
       <!-- Filtros y búsqueda -->
       <div class="filters-section">
@@ -76,8 +40,6 @@ const usersWithPhone = users.filter(user => user.phone && user.phone.trim() !== 
         </div>
         <div class="filter-buttons">
           <button class="filter-btn active" data-filter="all">Todos ({totalUsers})</button>
-          <button class="filter-btn" data-filter="active">Activos ({activeUsers})</button>
-          <button class="filter-btn" data-filter="newsletter">Newsletter ({usersWithNewsletter})</button>
           <button class="filter-btn" data-filter="phone">Con Teléfono ({usersWithPhone})</button>
         </div>
       </div>
@@ -100,7 +62,6 @@ const usersWithPhone = users.filter(user => user.phone && user.phone.trim() !== 
                 <div class="avatar-circle">
                   {user.first_name.charAt(0).toUpperCase()}{user.last_name.charAt(0).toUpperCase()}
                 </div>
-                <div class={`status-indicator ${user.is_active ? 'active' : 'inactive'}`}></div>
               </div>
               <div class="user-info">
                 <h3 class="user-name">{user.first_name} {user.last_name}</h3>
@@ -109,11 +70,7 @@ const usersWithPhone = users.filter(user => user.phone && user.phone.trim() !== 
                 <p class="user-date">📅 Registrado: {new Date(user.created_at).toLocaleDateString('es-ES')}</p>
               </div>
               <div class="user-badges">
-                {user.newsletter === 1 && <span class="badge newsletter">📧 Newsletter</span>}
                 {user.phone && <span class="badge phone">📞 Teléfono</span>}
-                <span class={`badge status ${user.is_active ? 'active' : 'inactive'}`}>
-                  {user.is_active ? '✅ Activo' : '❌ Inactivo'}
-                </span>
               </div>
               <div class="user-actions">
                 <button class="action-btn view" onclick={`viewUser(${user.id})`}>👁️ Ver</button>
@@ -133,8 +90,7 @@ const usersWithPhone = users.filter(user => user.phone && user.phone.trim() !== 
                 <th>Nombre</th>
                 <th>Email</th>
                 <th>Teléfono</th>
-                <th>Newsletter</th>
-                <th>Estado</th>
+                
                 <th>Registro</th>
                 <th>Acciones</th>
               </tr>
@@ -146,12 +102,7 @@ const usersWithPhone = users.filter(user => user.phone && user.phone.trim() !== 
                   <td>{user.first_name} {user.last_name}</td>
                   <td>{user.email}</td>
                   <td>{user.phone || '-'}</td>
-                  <td>{user.newsletter === 1 ? '✅' : '❌'}</td>
-                  <td>
-                    <span class={`status-badge ${user.is_active ? 'active' : 'inactive'}`}>
-                      {user.is_active ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </td>
+                  
                   <td>{new Date(user.created_at).toLocaleDateString('es-ES')}</td>
                   <td>
                     <button class="action-btn view" onclick={`viewUser(${user.id})`}>👁️</button>
@@ -400,24 +351,7 @@ const usersWithPhone = users.filter(user => user.phone && user.phone.trim() !== 
       color: white;
     }
 
-    .status-indicator {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      position: absolute;
-      top: 15px;
-      right: 15px;
-    }
-
-    .status-indicator.active {
-      background: #22c55e;
-      box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
-    }
-
-    .status-indicator.inactive {
-      background: #ef4444;
-      box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
-    }
+    
 
     .user-info h3 {
       font-size: 1.3rem;
@@ -458,17 +392,7 @@ const usersWithPhone = users.filter(user => user.phone && user.phone.trim() !== 
       border: 1px solid rgba(59, 130, 246, 0.3);
     }
 
-    .badge.status.active {
-      background: rgba(34, 197, 94, 0.2);
-      color: #22c55e;
-      border: 1px solid rgba(34, 197, 94, 0.3);
-    }
-
-    .badge.status.inactive {
-      background: rgba(239, 68, 68, 0.2);
-      color: #ef4444;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-    }
+    
 
     .user-actions {
       display: flex;
@@ -538,22 +462,7 @@ const usersWithPhone = users.filter(user => user.phone && user.phone.trim() !== 
       color: #ffffff;
     }
 
-    .status-badge {
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-
-    .status-badge.active {
-      background: rgba(34, 197, 94, 0.2);
-      color: #22c55e;
-    }
-
-    .status-badge.inactive {
-      background: rgba(239, 68, 68, 0.2);
-      color: #ef4444;
-    }
+    
 
     @media (max-width: 768px) {
       .users-grid {
