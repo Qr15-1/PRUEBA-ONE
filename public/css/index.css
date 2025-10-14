@@ -686,23 +686,23 @@ body {
     .hero-slider {
         height: auto;
         min-height: 100vh;
-        padding-top: 50px; /* Reducir espacio para navbar */
+        padding-top: 30px; /* Reducir más el espacio para navbar */
     }
     
     .slider__content {
         flex-direction: column;
         padding: 0 10px 0 15px;
         height: auto;
-        min-height: calc(100vh - 50px); /* Ajustar altura */
+        min-height: calc(100vh - 30px); /* Ajustar altura */
     }
     
     .slider__left-content {
         flex-basis: auto;
         display: flex;
-        align-items: center;
+        align-items: flex-start; /* Cambiar a flex-start para acercar más */
         justify-content: center;
         width: 100%;
-        padding: 10px 0; /* Reducir padding vertical */
+        padding: 5px 0; /* Reducir más el padding vertical */
     }
     
     .slider__right-content {
@@ -715,14 +715,21 @@ body {
     
     .slider__texts {
         text-align: center;
-        padding: 10px; /* Reducir padding */
+        padding: 5px 15px; /* Reducir padding vertical */
         height: auto;
+        width: 100%; /* Asegurar ancho completo */
+        box-sizing: border-box; /* Incluir padding en el ancho */
+        overflow: hidden; /* Prevenir overflow */
     }
     
     .text-item__title {
-        font-size: 1.8rem; /* Reducir tamaño */
-        line-height: 1.1; /* Mejorar legibilidad */
+        font-size: 1.6rem; /* Reducir tamaño para evitar corte */
+        line-height: 1.2; /* Mejorar legibilidad */
         margin-bottom: 10px; /* Reducir margen */
+        word-wrap: break-word; /* Permitir salto de palabra */
+        overflow-wrap: break-word; /* Forzar salto si es necesario */
+        max-width: 100%; /* Asegurar que no exceda el ancho */
+        padding: 0 5px; /* Agregar padding horizontal */
     }
     
     .text-item__description {
@@ -789,23 +796,23 @@ body {
     .hero-slider {
         height: auto;
         min-height: 100vh;
-        padding-top: 45px; /* Reducir espacio para navbar */
+        padding-top: 25px; /* Reducir más el espacio para navbar */
     }
     
     .slider__content {
         flex-direction: column;
         padding: 0 8px;
         height: auto;
-        min-height: calc(100vh - 45px);
+        min-height: calc(100vh - 25px);
         position: relative;
     }
     
     .slider__left-content {
         flex-basis: auto;
         order: 1;
-        padding: 5px 0; /* Reducir padding */
+        padding: 0; /* Eliminar padding vertical */
         display: flex;
-        align-items: center;
+        align-items: flex-start; /* Cambiar a flex-start */
         justify-content: center;
         position: relative;
         z-index: 2;
@@ -824,10 +831,14 @@ body {
     
     .slider__texts {
         text-align: center;
-        padding: 0 5px;
+        padding: 0 8px; /* Mantener padding horizontal */
         max-width: 100%;
+        width: 100%; /* Asegurar ancho completo */
         position: relative;
         height: auto;
+        box-sizing: border-box; /* Incluir padding en el ancho */
+        overflow: hidden; /* Prevenir overflow */
+        margin-top: 0; /* Eliminar margen superior */
     }
     
     .text-item__supertitle {
@@ -840,11 +851,16 @@ body {
     }
     
     .text-item__title {
-        font-size: 1.6rem; /* Aumentar tamaño */
-        line-height: 1.1; /* Mejorar legibilidad */
+        font-size: 1.4rem; /* Reducir tamaño para evitar corte */
+        line-height: 1.2; /* Mejorar legibilidad */
         margin-bottom: 6px; /* Reducir margen */
-        letter-spacing: -0.2px;
+        letter-spacing: -0.1px; /* Reducir espaciado */
         text-shadow: 0 0 8px rgba(153, 255, 0, 0.3);
+        word-wrap: break-word; /* Permitir salto de palabra */
+        overflow-wrap: break-word; /* Forzar salto si es necesario */
+        hyphens: auto; /* Permitir guiones automáticos */
+        max-width: 100%; /* Asegurar que no exceda el ancho */
+        padding: 0 5px; /* Agregar padding horizontal */
     }
     
     .text-item__description {
@@ -2499,36 +2515,45 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 20px 0;
-    padding: 0 20px;
+    margin: 15px 0;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(153, 255, 0, 0.2);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 /* Botones de navegación con flechitas */
 .nav-btn {
-    background: linear-gradient(135deg, #99FF00, #7ACC00) !important;
-    color: #0a0a0a !important;
-    border: none !important;
-    padding: 12px 20px;
-    border-radius: 25px;
-    font-weight: 600;
-    font-size: 14px;
+    background: rgba(153, 255, 0, 0.1) !important;
+    color: #99FF00 !important;
+    border: 1px solid rgba(153, 255, 0, 0.3) !important;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 8px;
-    box-shadow: 0 4px 15px rgba(153, 255, 0, 0.3) !important;
+    gap: 6px;
+    backdrop-filter: blur(5px);
+    min-width: 80px;
+    justify-content: center;
 }
 
 .nav-btn:hover {
-    background: linear-gradient(135deg, #7ACC00, #99FF00) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(153, 255, 0, 0.4) !important;
+    background: rgba(153, 255, 0, 0.2) !important;
+    border-color: rgba(153, 255, 0, 0.5) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(153, 255, 0, 0.2) !important;
 }
 
 .nav-btn:disabled {
-    background: #333;
-    color: #666;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
@@ -2562,13 +2587,80 @@ body {
 
 /* Contador de módulos */
 .module-counter {
-    background: rgba(153, 255, 0, 0.1);
+    background: rgba(153, 255, 0, 0.15);
     color: #99FF00;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 11px;
     border: 1px solid rgba(153, 255, 0, 0.3);
+    backdrop-filter: blur(5px);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ======================================= */
+/* === RESPONSIVE PARA NAVEGACIÓN DE MÓDULOS === */
+/* ======================================= */
+
+/* Tablet Portrait (768px y menos) */
+@media (max-width: 768px) {
+    .module-navigation {
+        margin: 8px 0; /* Reducir mucho el margen */
+        padding: 6px 8px; /* Reducir mucho el padding */
+    }
+    
+    .nav-btn {
+        padding: 4px 6px; /* Reducir mucho el padding */
+        font-size: 9px; /* Reducir mucho el tamaño */
+        min-width: 50px; /* Reducir mucho el ancho */
+        gap: 3px; /* Reducir gap */
+    }
+    
+    .module-counter {
+        padding: 2px 4px; /* Reducir mucho el padding */
+        font-size: 8px; /* Reducir mucho el tamaño */
+    }
+}
+
+/* Mobile Large (480px y menos) */
+@media (max-width: 480px) {
+    .module-navigation {
+        margin: 4px 0; /* Reducir al mínimo el margen */
+        padding: 4px 6px; /* Reducir al mínimo el padding */
+    }
+    
+    .nav-btn {
+        padding: 3px 4px; /* Reducir al mínimo el padding */
+        font-size: 8px; /* Reducir al mínimo el tamaño */
+        min-width: 40px; /* Reducir al mínimo el ancho */
+        gap: 2px; /* Reducir al mínimo el gap */
+    }
+    
+    .module-counter {
+        padding: 1px 3px; /* Reducir al mínimo el padding */
+        font-size: 7px; /* Reducir al mínimo el tamaño */
+    }
+}
+
+/* Mobile Extra Small (360px y menos) */
+@media (max-width: 360px) {
+    .module-navigation {
+        margin: 2px 0; /* Mínimo absoluto */
+        padding: 2px 4px; /* Mínimo absoluto */
+    }
+    
+    .nav-btn {
+        padding: 2px 3px; /* Mínimo absoluto */
+        font-size: 7px; /* Mínimo absoluto */
+        min-width: 35px; /* Mínimo absoluto */
+        gap: 1px; /* Mínimo absoluto */
+    }
+    
+    .module-counter {
+        padding: 1px 2px; /* Mínimo absoluto */
+        font-size: 6px; /* Mínimo absoluto */
+    }
 }
 
 /* Forzar color de marca en todos los botones de navegación */

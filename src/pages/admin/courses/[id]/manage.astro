@@ -51,7 +51,7 @@ const modules = await moduleQueries.getByCourse(courseId);
               <div class="module-meta">
                 <span class="meta-tag">⏱️ {module.duration}</span>
                 <span class={`meta-tag ${module.isFree === 1 ? 'free' : 'premium'}`}>
-                  {module.isFree === 1 ? '🆓 Gratis' : '🔒 Premium'}
+                  {module.isFree === 1 ? 'Gratis' : 'Premium'}
                 </span>
                 <span class="meta-tag video-info">
                   🎥 {module.videoUrl ? 'Video disponible' : 'Sin video'}

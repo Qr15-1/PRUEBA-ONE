@@ -156,7 +156,7 @@ const courseData = {
                 <h2>{currentModule ? currentModule.title : 'Video de Presentación'}</h2>
                 <p>{currentModule ? currentModule.description : 'Este es el video de introducción al curso. Aquí aprenderás los conceptos básicos y te prepararás para el contenido completo.'}</p>
                 {currentModule && currentModule.isFree === 1 && (
-                  <div class="free-badge">🆓 GRATIS</div>
+                  <div class="free-badge">GRATIS</div>
                 )}
               </div>
             </div>
@@ -178,9 +178,9 @@ const courseData = {
                           {module.duration}
                         </span>
                         {module.isFree ? (
-                          <span class="meta-tag free">🆓 Gratis</span>
+                          <span class="meta-tag free">Gratis</span>
                         ) : (
-                          <span class="meta-tag locked">🔒 Bloqueado</span>
+                          <span class="meta-tag locked">Bloqueado</span>
                         )}
                       </div>
                     </div>
