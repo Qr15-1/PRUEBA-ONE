@@ -884,6 +884,95 @@ const courseData = {
     }
   }
 
+  /* ===== REPRODUCTOR DE VIDEO PERSONALIZADO ===== */
+  .video-js {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+  }
+
+  /* Ocultar controles innecesarios */
+  .video-js .vjs-playback-rate,
+  .video-js .vjs-chapters-button,
+  .video-js .vjs-descriptions-button,
+  .video-js .vjs-subtitles-button,
+  .video-js .vjs-captions-button,
+  .video-js .vjs-audio-button,
+  .video-js .vjs-picture-in-picture-control {
+    display: none !important;
+  }
+
+  /* Personalizar barra de controles */
+  .video-js .vjs-control-bar {
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    height: 50px;
+    padding: 0 15px;
+  }
+
+  /* Estilo para botones de control */
+  .video-js .vjs-control {
+    color: #fff;
+    font-size: 16px;
+  }
+
+  .video-js .vjs-control:hover {
+    color: #99FF00;
+  }
+
+  /* Personalizar barra de progreso */
+  .video-js .vjs-progress-control {
+    height: 4px;
+    margin: 0 10px;
+  }
+
+  .video-js .vjs-progress-holder {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+  }
+
+  .video-js .vjs-play-progress {
+    background: #99FF00;
+    border-radius: 2px;
+  }
+
+  /* Personalizar botón de play grande */
+  .video-js .vjs-big-play-button {
+    background: rgba(0, 0, 0, 0.7);
+    border: 3px solid #99FF00;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    font-size: 30px;
+    color: #99FF00;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .video-js .vjs-big-play-button:hover {
+    background: rgba(153, 255, 0, 0.2);
+    border-color: #fff;
+    color: #fff;
+  }
+
+  /* Personalizar panel de volumen */
+  .video-js .vjs-volume-panel {
+    margin-right: 10px;
+  }
+
+  .video-js .vjs-volume-control {
+    width: 60px;
+  }
+
+  /* Personalizar tiempo de video */
+  .video-js .vjs-time-control {
+    font-size: 12px;
+    color: #fff;
+    font-weight: 500;
+  }
+
   /* ===== NAVEGACIÓN DE MÓDULOS ===== */
   .module-navigation {
     display: flex;
@@ -933,7 +1022,32 @@ const courseData = {
           const player = videojs('my-video-player', {
             fluid: true,
             responsive: true,
-            playbackRates: [0.5, 1, 1.5, 2]
+            controls: true,
+            // Configuración de controles personalizada
+            controlBar: {
+              // Solo mostrar los controles esenciales
+              children: [
+                'playToggle',
+                'currentTimeDisplay',
+                'timeDivider',
+                'durationDisplay',
+                'progressControl',
+                'volumePanel',
+                'fullscreenToggle'
+              ]
+            },
+            // Ocultar controles innecesarios
+            playbackRates: false, // Sin velocidades de reproducción
+            textTrackDisplay: false, // Sin subtítulos por defecto
+            loadingSpinner: true,
+            bigPlayButton: true,
+            // Configuración de volumen
+            volumePanel: {
+              inline: false,
+              volumeControl: {
+                vertical: false
+              }
+            }
           });
           
           console.log('Reproductor Video.js inicializado correctamente.');
