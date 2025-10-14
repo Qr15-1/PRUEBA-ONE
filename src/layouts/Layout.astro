@@ -51,11 +51,18 @@ const { title, description = "Cursus Fitness - Transforma tu cuerpo y mente" } =
         </div>
         
         <!-- Navegación (Centro) -->
-        <div class="navbar__nav">
+        <div class="navbar__nav" id="navbarNav">
           <a href="/" class="navbar__link" data-page="inicio">Inicio</a>
           <a href="/cursos" class="navbar__link" data-page="cursos">Cursos</a>
           <a href="/sobre-mi" class="navbar__link" data-page="sobre-mi">Sobre Mi</a>
         </div>
+        
+        <!-- Botón Hamburguesa (Solo visible en móvil) -->
+        <button class="navbar__hamburger" id="hamburgerBtn" aria-label="Menú">
+          <span class="hamburger__line"></span>
+          <span class="hamburger__line"></span>
+          <span class="hamburger__line"></span>
+        </button>
         
         <!-- Acciones (Esquina Derecha) -->
         <div class="navbar__actions">
@@ -93,6 +100,33 @@ const { title, description = "Cursus Fitness - Transforma tu cuerpo y mente" } =
         </div>
       </div>
     </nav>
+
+    <!-- Menú Móvil -->
+    <div class="navbar__mobile-menu" id="mobileMenu">
+      <a href="/" class="navbar__mobile-link" data-page="inicio">Inicio</a>
+      <a href="/cursos" class="navbar__mobile-link" data-page="cursos">Cursos</a>
+      <a href="/sobre-mi" class="navbar__mobile-link" data-page="sobre-mi">Sobre Mi</a>
+      
+      <div class="navbar__mobile-actions">
+        <button class="navbar__mobile-cart" aria-label="Carrito de compras">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          Carrito
+        </button>
+        
+        <button class="navbar__mobile-login" id="openLoginModalMobile" aria-label="Iniciar sesión" style="display: none;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10,17 15,12 10,7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
+          Login
+        </button>
+      </div>
+    </div>
 
     <!-- Contenido principal -->
     <main>
@@ -532,7 +566,93 @@ const { title, description = "Cursus Fitness - Transforma tu cuerpo y mente" } =
             // Verificar estado de login al cargar
             checkLoginStatus();
             
+            // ======================================= */
+            // === MENÚ HAMBURGUESA RESPONSIVE === */
+            // ======================================= */
+            
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileLoginBtn = document.getElementById('openLoginModalMobile');
+            
+            if (hamburgerBtn && mobileMenu) {
+              // Toggle del menú móvil
+              hamburgerBtn.addEventListener('click', function() {
+                hamburgerBtn.classList.toggle('active');
+                mobileMenu.classList.toggle('active');
+                
+                // Prevenir scroll del body cuando el menú está abierto
+                if (mobileMenu.classList.contains('active')) {
+                  document.body.style.overflow = 'hidden';
+                } else {
+                  document.body.style.overflow = '';
+                }
+              });
+              
+              // Cerrar menú al hacer clic en un enlace
+              const mobileLinks = mobileMenu.querySelectorAll('.navbar__mobile-link');
+              mobileLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                  hamburgerBtn.classList.remove('active');
+                  mobileMenu.classList.remove('active');
+                  document.body.style.overflow = '';
+                });
+              });
+              
+              // Cerrar menú al hacer clic fuera
+              mobileMenu.addEventListener('click', function(e) {
+                if (e.target === mobileMenu) {
+                  hamburgerBtn.classList.remove('active');
+                  mobileMenu.classList.remove('active');
+                  document.body.style.overflow = '';
+                }
+              });
+              
+              // Cerrar menú con ESC
+              document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+                  hamburgerBtn.classList.remove('active');
+                  mobileMenu.classList.remove('active');
+                  document.body.style.overflow = '';
+                }
+              });
+            }
+            
+            // Sincronizar botón de login móvil con el desktop
+            if (mobileLoginBtn) {
+              mobileLoginBtn.addEventListener('click', function() {
+                // Cerrar menú móvil
+                if (hamburgerBtn && mobileMenu) {
+                  hamburgerBtn.classList.remove('active');
+                  mobileMenu.classList.remove('active');
+                  document.body.style.overflow = '';
+                }
+                
+                // Abrir modal de login
+                const loginModal = document.getElementById('loginModal');
+                if (loginModal) {
+                  loginModal.style.display = 'flex';
+                  document.body.style.overflow = 'hidden';
+                }
+              });
+            }
+            
+            // Actualizar estado del botón de login móvil
+            function updateMobileLoginButton() {
+              const userData = localStorage.getItem('user_data');
+              if (mobileLoginBtn) {
+                if (userData) {
+                  mobileLoginBtn.style.display = 'none';
+                } else {
+                  mobileLoginBtn.style.display = 'flex';
+                }
+              }
+            }
+            
+            // Llamar la función al cargar
+            updateMobileLoginButton();
+            
             console.log('✅ Modales de login/registro inicializados');
+            console.log('✅ Menú hamburguesa inicializado');
           });
         </script>
       </body>

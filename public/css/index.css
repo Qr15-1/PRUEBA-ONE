@@ -228,6 +228,146 @@ body {
     box-shadow: 0 4px 15px rgba(255, 68, 68, 0.4);
 }
 
+/* ======================================= */
+/* === MENÚ HAMBURGUESA RESPONSIVE === */
+/* ======================================= */
+
+/* Botón hamburguesa - Solo visible en móvil */
+.navbar__hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1001;
+    position: relative;
+}
+
+.hamburger__line {
+    width: 100%;
+    height: 3px;
+    background: #99FF00;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    transform-origin: center;
+}
+
+/* Animación del botón hamburguesa cuando está activo */
+.navbar__hamburger.active .hamburger__line:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+}
+
+.navbar__hamburger.active .hamburger__line:nth-child(2) {
+    opacity: 0;
+}
+
+.navbar__hamburger.active .hamburger__line:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* Menú móvil overlay */
+.navbar__mobile-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    padding: 80px 20px 20px;
+}
+
+.navbar__mobile-menu.active {
+    display: flex;
+}
+
+.navbar__mobile-link {
+    color: white;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding: 15px 30px;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    text-align: center;
+    min-width: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid transparent;
+}
+
+.navbar__mobile-link:hover {
+    color: #99FF00;
+    background: rgba(153, 255, 0, 0.1);
+    border-color: #99FF00;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(153, 255, 0, 0.3);
+}
+
+.navbar__mobile-link.active {
+    color: #0a0a0a;
+    background: #99FF00;
+    border-color: #99FF00;
+    box-shadow: 0 8px 25px rgba(153, 255, 0, 0.4);
+}
+
+/* Acciones móviles */
+.navbar__mobile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+    align-items: center;
+}
+
+.navbar__mobile-cart {
+    background: rgba(153, 255, 0, 0.2);
+    color: #99FF00;
+    border: 2px solid #99FF00;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.navbar__mobile-cart:hover {
+    background: #99FF00;
+    color: #0a0a0a;
+    transform: translateY(-2px);
+}
+
+.navbar__mobile-login {
+    background: #99FF00;
+    color: #0a0a0a;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.navbar__mobile-login:hover {
+    background: #88ee00;
+    transform: translateY(-2px);
+}
+
 .navbar__cart svg,
 .navbar__login svg {
     width: 22px;
@@ -276,12 +416,11 @@ body {
     
     .navbar__container {
         padding: 0 12px;
-        flex-wrap: wrap;
-        gap: 15px;
+        justify-content: space-between;
+        align-items: center;
     }
     
     .navbar__logo {
-        order: 1;
         flex: 1;
     }
     
@@ -289,12 +428,29 @@ body {
         font-size: 1.3rem;
     }
     
+    /* Ocultar navegación desktop */
     .navbar__nav {
+        display: none;
+    }
+    
+    /* Mostrar botón hamburguesa */
+    .navbar__hamburger {
+        display: flex;
+        order: 2;
+    }
+    
+    .navbar__actions {
         order: 3;
-        width: 100%;
-        justify-content: center;
-        gap: 20px;
-        margin-top: 10px;
+        gap: 10px;
+    }
+    
+    .navbar__login span,
+    .navbar__logout span {
+        display: none;
+    }
+    
+    .navbar__user-name {
+        display: none;
     }
     
     .navbar__actions {
