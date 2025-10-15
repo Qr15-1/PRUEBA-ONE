@@ -6,18 +6,10 @@ import Layout from '../layouts/Layout.astro';
   <section class="about-hero">
     <div class="about-hero__container">
       <div class="about-hero__content">
-        <h1 class="about-hero__title">Built for Your <span class="accent-text">Fitness</span> Lifestyle.</h1>
+        <h1 class="about-hero__title">Construido para tu <span class="accent-text">Estilo de Vida</span> Fitness.</h1>
         <p class="about-hero__description">
-          Your goals, your pace, our proven programs – crafted to help you train with purpose and transform with confidence.
+          Tus objetivos, tu ritmo, nuestros programas probados diseñados para ayudarte a entrenar con propósito y transformarte con confianza.
         </p>
-        <div class="about-hero__actions">
-          <a href="/cursos" class="btn btn--primary">BOOK NOW</a>
-          <button class="btn btn--circular" aria-label="Explorar más">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </button>
-        </div>
       </div>
       <div class="about-hero__image-wrapper">
         <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=800" alt="Athlete performing side plank - RojasFitt" class="about-hero__image" loading="lazy" />
@@ -25,28 +17,22 @@ import Layout from '../layouts/Layout.astro';
     </div>
   </section>
 
-  <!-- Franja Verde -->
-  <div class="green-stripe">
-    <div class="green-stripe__content">
-      <span class="green-stripe__text">WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT</span>
-    </div>
-  </div>
 
   <!-- Sección About RojasFitt -->
   <section class="about-section">
     <div class="about-section__container">
       <div class="about-section__content">
-        <div class="about-section__tag">About RojasFitt</div>
+        <div class="about-section__tag">Mi Filosofía de Entrenamiento</div>
         <h2 class="about-section__title">
-          Discover a Gym That Trains You to Be 
-          <span class="accent-text">Stronger, Fitter,</span> and 
-          <span class="accent-text">More Focused</span>
+          Descubre un Método que te Impulsa a Ser 
+          <span class="accent-text">Más Fuerte, Más Definido,</span> y 
+          <span class="accent-text">Más Constante</span>
         </h2>
         <p class="about-section__description">
-          At RojasFitt, our community isn't just showing up - they're leveling up. From newcomers to elite athletes, every member pushes harder, lifts stronger, and supports one another through every rep.
+          Conmigo, no solo entrenas, te unes a una comunidad de campeones. Mi enfoque se adapta a todos, desde principiantes hasta atletas de élite. Juntos nos esforzamos más, levantamos más fuerte y celebramos cada repetición.
         </p>
         <button class="about-section__cta">
-          Read More About Us
+          Leer Más Sobre Mí
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
@@ -62,9 +48,9 @@ import Layout from '../layouts/Layout.astro';
             </svg>
           </div>
           <div class="stats-card__content">
-            <h3 class="stats-card__title">Trusted by Over</h3>
+            <h3 class="stats-card__title">Vidas Transformadas</h3>
             <p class="stats-card__number">1,000+</p>
-            <p class="stats-card__subtitle">Members</p>
+            <p class="stats-card__subtitle">Clientes Exitosos</p>
           </div>
           <div class="stats-card__avatars">
             <div class="avatar avatar--1"></div>
@@ -75,6 +61,19 @@ import Layout from '../layouts/Layout.astro';
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- Sección What We Offer -->
+  <section class="what-we-offer">
+    <div class="what-we-offer__container">
+      <div class="what-we-offer__tag">Lo Que Ofrecemos</div>
+      <h2 class="what-we-offer__title">
+        Entrena <span class="accent-text">Más Inteligente.</span> Rinde <span class="accent-text">Mejor.</span> Crece <span class="accent-text">Más Fuerte.</span>
+      </h2>
+      <p class="what-we-offer__description">
+        Ya sea que estés comenzando o persiguiendo el máximo rendimiento, nuestros programas dirigidos por expertos están diseñados para superar tus límites.
+      </p>
     </div>
   </section>
 </Layout>
@@ -95,7 +94,7 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .about-hero__container {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 0 20px;
     display: flex;
@@ -111,11 +110,11 @@ import Layout from '../layouts/Layout.astro';
   .about-hero__content {
     flex: 1;
     text-align: center;
-    max-width: 600px;
+    max-width: 800px;
   }
 
   .about-hero__title {
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: 800;
     line-height: 1.1;
     margin-bottom: 15px;
@@ -127,13 +126,19 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .about-hero__description {
-    font-size: 0.9rem;
-    line-height: 1.4;
+    font-size: 0.95rem;
+    line-height: 1.5;
     margin-bottom: 25px;
-    max-width: 500px;
-    color: #e0e0e0;
+    max-width: 100%;
+    color: #f0f0f0;
     margin-left: auto;
     margin-right: auto;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    padding: 0 20px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
 
   .highlight-text {
@@ -141,54 +146,6 @@ import Layout from '../layouts/Layout.astro';
     font-weight: 600;
   }
 
-  .about-hero__actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .btn {
-    font-weight: 700;
-    font-size: 0.8rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border: none;
-  }
-
-  .btn--primary {
-    background: #99FF00;
-    color: #0a0a0a;
-    padding: 8px 16px;
-    border-radius: 50px;
-    box-shadow: 0 2px 8px rgba(153, 255, 0, 0.3);
-  }
-
-  .btn--primary:hover {
-    background: #7ACC00;
-    transform: translateY(-1px);
-    box-shadow: 0 3px 12px rgba(153, 255, 0, 0.5);
-  }
-
-  .btn--circular {
-    background: #99FF00;
-    color: #0a0a0a;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(153, 255, 0, 0.3);
-  }
-
-  .btn--circular:hover {
-    background: #7ACC00;
-    transform: translateY(-1px);
-    box-shadow: 0 3px 12px rgba(153, 255, 0, 0.5);
-  }
 
   .about-hero__image-wrapper {
     flex: 1;
@@ -197,18 +154,18 @@ import Layout from '../layouts/Layout.astro';
     align-items: center;
     position: relative;
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
     margin-top: 10px;
   }
 
   .about-hero__image {
     width: 100%;
-    height: 220px; /* Altura ultra reducida */
+    height: 180px; /* Altura reducida */
     object-fit: cover;
     object-position: center;
     filter: grayscale(100%) brightness(90%); /* Blanco y negro */
     transition: all 0.5s ease;
-    border-radius: 110px; /* Forma de píldora ultra pequeña */
+    border-radius: 90px; /* Forma de píldora más ancha */
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   }
 
@@ -221,7 +178,7 @@ import Layout from '../layouts/Layout.astro';
     right: -8px;
     bottom: -8px;
     background: rgba(153, 255, 0, 0.05);
-    border-radius: 130px; /* Píldora ultra pequeña */
+    border-radius: 100px; /* Píldora más ancha */
     z-index: -1;
     transition: all 0.5s ease;
     box-shadow: 0 0 15px rgba(153, 255, 0, 0.2);
@@ -229,7 +186,7 @@ import Layout from '../layouts/Layout.astro';
 
   .about-hero__image-wrapper:hover::before {
     background: rgba(153, 255, 0, 0.1);
-    border-radius: 150px;
+    border-radius: 120px;
     transform: scale(1.01);
   }
 
@@ -255,36 +212,27 @@ import Layout from '../layouts/Layout.astro';
     }
 
     .about-hero__title {
-      font-size: 2rem;
+      font-size: 2.2rem;
       margin-bottom: 10px;
     }
 
     .about-hero__description {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       margin-bottom: 15px;
+      letter-spacing: 0.2px;
+      padding: 0 15px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
-    .about-hero__actions {
-      gap: 6px;
-    }
-
-    .btn--primary {
-      padding: 6px 12px;
-      font-size: 0.75rem;
-    }
-
-    .btn--circular {
-      width: 35px;
-      height: 35px;
-    }
 
     .about-hero__image {
-      height: 180px;
-      border-radius: 90px; /* Píldora ultra pequeña en tablet */
+      height: 140px;
+      border-radius: 70px; /* Píldora más ancha en tablet */
     }
 
     .about-hero__image-wrapper::before {
-      border-radius: 110px;
+      border-radius: 80px;
     }
   }
 
@@ -301,36 +249,27 @@ import Layout from '../layouts/Layout.astro';
     }
 
     .about-hero__title {
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       margin-bottom: 8px;
     }
 
     .about-hero__description {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       margin-bottom: 12px;
+      letter-spacing: 0.2px;
+      padding: 0 10px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
-    .about-hero__actions {
-      gap: 5px;
-    }
-
-    .btn--primary {
-      padding: 5px 10px;
-      font-size: 0.7rem;
-    }
-
-    .btn--circular {
-      width: 30px;
-      height: 30px;
-    }
 
     .about-hero__image {
-      height: 140px;
-      border-radius: 70px; /* Píldora mini en móvil */
+      height: 120px;
+      border-radius: 60px; /* Píldora más ancha en móvil */
     }
 
     .about-hero__image-wrapper::before {
-      border-radius: 90px;
+      border-radius: 70px;
     }
   }
 
@@ -345,73 +284,34 @@ import Layout from '../layouts/Layout.astro';
     }
 
     .about-hero__title {
-      font-size: 1.4rem;
+      font-size: 1.5rem;
     }
 
     .about-hero__description {
-      font-size: 0.75rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.1px;
+      padding: 0 8px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
-    .btn--primary {
-      padding: 4px 8px;
-      font-size: 0.65rem;
-    }
-
-    .btn--circular {
-      width: 25px;
-      height: 25px;
-    }
 
     .about-hero__image {
-      height: 120px;
-      border-radius: 60px; /* Píldora micro */
+      height: 100px;
+      border-radius: 50px; /* Píldora más ancha en móvil pequeño */
     }
 
     .about-hero__image-wrapper::before {
-      border-radius: 80px;
+      border-radius: 60px;
     }
   }
 
-  /* ======================================= */
-  /* === FRANJA VERDE === */
-  /* ======================================= */
-  .green-stripe {
-    background: #99FF00;
-    color: #0a0a0a;
-    padding: 15px 0;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .green-stripe__content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-
-  .green-stripe__text {
-      font-size: 1.1rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    animation: slideText 3s ease-in-out infinite;
-  }
-
-  @keyframes slideText {
-    0%, 100% {
-      transform: translateX(0);
-    }
-    50% {
-      transform: translateX(10px);
-    }
-  }
 
   /* ======================================= */
   /* === SECCIÓN ABOUT ROJASFITT === */
   /* ======================================= */
   .about-section {
-    background: #0a0a0a;
+    background: #1a1a1a;
     color: #fff;
     padding: 30px 0;
     position: relative;
@@ -581,8 +481,8 @@ import Layout from '../layouts/Layout.astro';
     .about-section__container {
       flex-direction: column;
       gap: 40px;
-      text-align: center;
-    }
+    text-align: center;
+  }
 
     .about-section__content {
       order: 2;
@@ -679,36 +579,95 @@ import Layout from '../layouts/Layout.astro';
   }
 
   /* ======================================= */
-  /* === RESPONSIVE - FRANJA VERDE === */
+  /* === SECCIÓN WHAT WE OFFER === */
+  /* ======================================= */
+  .what-we-offer {
+    background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
+    color: #fff;
+    padding: 60px 0;
+    position: relative;
+  }
+
+  .what-we-offer__container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+    text-align: center;
+  }
+
+  .what-we-offer__tag {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .what-we-offer__title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 25px;
+    color: #fff;
+  }
+
+  .what-we-offer__description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #e0e0e0;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* ======================================= */
+  /* === RESPONSIVE - WHAT WE OFFER === */
   /* ======================================= */
 
   /* Tablet Portrait (768px y menos) */
   @media (max-width: 768px) {
-    .green-stripe {
-      padding: 12px 0;
+    .what-we-offer {
+      padding: 50px 0;
     }
-
-    .green-stripe__text {
+    
+    .what-we-offer__title {
+      font-size: 2.2rem;
+      margin-bottom: 20px;
+    }
+    
+    .what-we-offer__description {
       font-size: 1rem;
     }
   }
 
   /* Mobile Large (480px y menos) */
   @media (max-width: 480px) {
-    .green-stripe {
-      padding: 10px 0;
+    .what-we-offer {
+      padding: 40px 0;
     }
-
-    .green-stripe__text {
-      font-size: 0.9rem;
-      letter-spacing: 0.5px;
+    
+    .what-we-offer__title {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+    }
+    
+    .what-we-offer__description {
+      font-size: 0.95rem;
     }
   }
 
   /* Mobile Extra Small (360px y menos) */
   @media (max-width: 360px) {
-    .green-stripe__text {
-      font-size: 0.8rem;
+    .what-we-offer__title {
+      font-size: 1.6rem;
+    }
+    
+    .what-we-offer__description {
+      font-size: 0.9rem;
     }
   }
+
 </style>
