@@ -2,106 +2,713 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Sobre Mi - Cursus Fitness" description="Conoce más sobre mi experiencia y pasión por el fitness">
-  <section class="page-content">
-    <div class="container">
-      <h1>Sobre Mi</h1>
-      <p>Contenido de la página Sobre Mi...</p>
+<Layout title="Sobre Mi - RojasFitt" description="Conoce a Carlos Rojas y su pasión por transformar vidas a través del fitness">
+  <section class="about-hero">
+    <div class="about-hero__container">
+      <div class="about-hero__content">
+        <h1 class="about-hero__title">Built for Your <span class="accent-text">Fitness</span> Lifestyle.</h1>
+        <p class="about-hero__description">
+          Your goals, your pace, our proven programs – crafted to help you train with purpose and transform with confidence.
+        </p>
+        <div class="about-hero__actions">
+          <a href="/cursos" class="btn btn--primary">BOOK NOW</a>
+          <button class="btn btn--circular" aria-label="Explorar más">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="about-hero__image-wrapper">
+        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=800" alt="Athlete performing side plank - RojasFitt" class="about-hero__image" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Franja Verde -->
+  <div class="green-stripe">
+    <div class="green-stripe__content">
+      <span class="green-stripe__text">WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT WORKOUT</span>
+    </div>
+  </div>
+
+  <!-- Sección About RojasFitt -->
+  <section class="about-section">
+    <div class="about-section__container">
+      <div class="about-section__content">
+        <div class="about-section__tag">About RojasFitt</div>
+        <h2 class="about-section__title">
+          Discover a Gym That Trains You to Be 
+          <span class="accent-text">Stronger, Fitter,</span> and 
+          <span class="accent-text">More Focused</span>
+        </h2>
+        <p class="about-section__description">
+          At RojasFitt, our community isn't just showing up - they're leveling up. From newcomers to elite athletes, every member pushes harder, lifts stronger, and supports one another through every rep.
+        </p>
+        <button class="about-section__cta">
+          Read More About Us
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+      <div class="about-section__stats">
+        <div class="stats-card">
+          <div class="stats-card__icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div class="stats-card__content">
+            <h3 class="stats-card__title">Trusted by Over</h3>
+            <p class="stats-card__number">1,000+</p>
+            <p class="stats-card__subtitle">Members</p>
+          </div>
+          <div class="stats-card__avatars">
+            <div class="avatar avatar--1"></div>
+            <div class="avatar avatar--2"></div>
+            <div class="avatar avatar--3"></div>
+            <div class="avatar avatar--4"></div>
+            <div class="avatar avatar--plus">+1K</div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </Layout>
 
 <style>
-  .page-content {
-    padding: 120px 20px 60px;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  /* ======================================= */
+  /* === SECCIÓN SOBRE MI - HERO === */
+  /* ======================================= */
+  .about-hero {
+    background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
+    color: #fff;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    padding: 40px 0; /* Espacio ultra reducido */
+    position: relative;
+    overflow: hidden;
   }
-  
-  .container {
-    max-width: 1200px;
+
+  .about-hero__container {
+    max-width: 800px;
     margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    z-index: 2;
+    min-height: 60vh;
+    justify-content: center;
   }
-  
-  h1 {
-    font-size: 3rem;
+
+  .about-hero__content {
+    flex: 1;
+    text-align: center;
+    max-width: 600px;
+  }
+
+  .about-hero__title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px rgba(153, 255, 0, 0.3);
+  }
+
+  .accent-text {
     color: #99FF00;
-    margin-bottom: 2rem;
-    text-align: center;
   }
-  
-  p {
-    font-size: 1.2rem;
+
+  .about-hero__description {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 25px;
+    max-width: 500px;
     color: #e0e0e0;
-    line-height: 1.8;
-    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
   }
 
-  /* =================================================================
-     RESPONSIVE DESIGN - PÁGINAS
-     ================================================================= */
-
-  /* Tablet Landscape (1024px y menos) */
-  @media (max-width: 1024px) {
-    .page-content {
-      padding: 100px 20px 50px;
-    }
-    
-    h1 {
-      font-size: 2.5rem;
-    }
-    
-    p {
-      font-size: 1.1rem;
-    }
+  .highlight-text {
+    color: #99FF00;
+    font-weight: 600;
   }
+
+  .about-hero__actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn--primary {
+    background: #99FF00;
+    color: #0a0a0a;
+    padding: 8px 16px;
+    border-radius: 50px;
+    box-shadow: 0 2px 8px rgba(153, 255, 0, 0.3);
+  }
+
+  .btn--primary:hover {
+    background: #7ACC00;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 12px rgba(153, 255, 0, 0.5);
+  }
+
+  .btn--circular {
+    background: #99FF00;
+    color: #0a0a0a;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(153, 255, 0, 0.3);
+  }
+
+  .btn--circular:hover {
+    background: #7ACC00;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 12px rgba(153, 255, 0, 0.5);
+  }
+
+  .about-hero__image-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 10px;
+  }
+
+  .about-hero__image {
+    width: 100%;
+    height: 220px; /* Altura ultra reducida */
+    object-fit: cover;
+    object-position: center;
+    filter: grayscale(100%) brightness(90%); /* Blanco y negro */
+    transition: all 0.5s ease;
+    border-radius: 110px; /* Forma de píldora ultra pequeña */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Efecto curvo dinámico */
+  .about-hero__image-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
+    background: rgba(153, 255, 0, 0.05);
+    border-radius: 130px; /* Píldora ultra pequeña */
+    z-index: -1;
+    transition: all 0.5s ease;
+    box-shadow: 0 0 15px rgba(153, 255, 0, 0.2);
+  }
+
+  .about-hero__image-wrapper:hover::before {
+    background: rgba(153, 255, 0, 0.1);
+    border-radius: 150px;
+    transform: scale(1.01);
+  }
+
+  .about-hero__image-wrapper:hover .about-hero__image {
+    filter: grayscale(0%) brightness(100%);
+    transform: scale(1.01);
+  }
+
+  /* ======================================= */
+  /* === RESPONSIVE === */
+  /* ======================================= */
 
   /* Tablet Portrait (768px y menos) */
   @media (max-width: 768px) {
-    .page-content {
-      padding: 80px 15px 40px;
+    .about-hero {
+      padding: 25px 0;
+      min-height: 50vh;
     }
-    
-    h1 {
-      font-size: 2.2rem;
-      margin-bottom: 1.5rem;
+
+    .about-hero__container {
+      gap: 12px;
+      min-height: 50vh;
     }
-    
-    p {
-      font-size: 1rem;
-      line-height: 1.7;
+
+    .about-hero__title {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .about-hero__description {
+      font-size: 0.85rem;
+      margin-bottom: 15px;
+    }
+
+    .about-hero__actions {
+      gap: 6px;
+    }
+
+    .btn--primary {
+      padding: 6px 12px;
+      font-size: 0.75rem;
+    }
+
+    .btn--circular {
+      width: 35px;
+      height: 35px;
+    }
+
+    .about-hero__image {
+      height: 180px;
+      border-radius: 90px; /* Píldora ultra pequeña en tablet */
+    }
+
+    .about-hero__image-wrapper::before {
+      border-radius: 110px;
     }
   }
 
   /* Mobile Large (480px y menos) */
   @media (max-width: 480px) {
-    .page-content {
-      padding: 70px 10px 30px;
+    .about-hero {
+      padding: 20px 0;
+      min-height: 45vh;
     }
-    
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
+
+    .about-hero__container {
+      gap: 10px;
+      min-height: 45vh;
     }
-    
-    p {
-      font-size: 0.9rem;
-      line-height: 1.6;
+
+    .about-hero__title {
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+    }
+
+    .about-hero__description {
+      font-size: 0.8rem;
+      margin-bottom: 12px;
+    }
+
+    .about-hero__actions {
+      gap: 5px;
+    }
+
+    .btn--primary {
+      padding: 5px 10px;
+      font-size: 0.7rem;
+    }
+
+    .btn--circular {
+      width: 30px;
+      height: 30px;
+    }
+
+    .about-hero__image {
+      height: 140px;
+      border-radius: 70px; /* Píldora mini en móvil */
+    }
+
+    .about-hero__image-wrapper::before {
+      border-radius: 90px;
     }
   }
 
-  /* Mobile Small (360px y menos) */
+  /* Mobile Extra Small (360px y menos) */
   @media (max-width: 360px) {
-    .page-content {
-      padding: 60px 8px 25px;
+    .about-hero {
+      min-height: 40vh;
+    }
+
+    .about-hero__container {
+      min-height: 40vh;
+    }
+
+    .about-hero__title {
+      font-size: 1.4rem;
+    }
+
+    .about-hero__description {
+      font-size: 0.75rem;
+    }
+
+    .btn--primary {
+      padding: 4px 8px;
+      font-size: 0.65rem;
+    }
+
+    .btn--circular {
+      width: 25px;
+      height: 25px;
+    }
+
+    .about-hero__image {
+      height: 120px;
+      border-radius: 60px; /* Píldora micro */
+    }
+
+    .about-hero__image-wrapper::before {
+      border-radius: 80px;
+    }
+  }
+
+  /* ======================================= */
+  /* === FRANJA VERDE === */
+  /* ======================================= */
+  .green-stripe {
+    background: #99FF00;
+    color: #0a0a0a;
+    padding: 15px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .green-stripe__content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .green-stripe__text {
+      font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    animation: slideText 3s ease-in-out infinite;
+  }
+
+  @keyframes slideText {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(10px);
+    }
+  }
+
+  /* ======================================= */
+  /* === SECCIÓN ABOUT ROJASFITT === */
+  /* ======================================= */
+  .about-section {
+    background: #0a0a0a;
+    color: #fff;
+    padding: 30px 0;
+    position: relative;
+  }
+
+  .about-section__container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .about-section__content {
+    flex: 2;
+  }
+
+  .about-section__tag {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.1);
+    color: #99FF00;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    border: 1px solid rgba(153, 255, 0, 0.3);
+  }
+
+  .about-section__title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 18px;
+    color: #fff;
+  }
+
+  .about-section__description {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #e0e0e0;
+    margin-bottom: 20px;
+    max-width: 450px;
+  }
+
+  .about-section__cta {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .about-section__cta:hover {
+    background: rgba(153, 255, 0, 0.1);
+    border-color: #99FF00;
+    color: #99FF00;
+    transform: translateY(-2px);
+  }
+
+  .about-section__stats {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+
+  .stats-card {
+    background: #99FF00;
+    color: #0a0a0a;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    max-width: 250px;
+    width: 100%;
+    box-shadow: 0 6px 20px rgba(153, 255, 0, 0.3);
+  }
+
+  .stats-card__icon {
+    margin-bottom: 15px;
+  }
+
+  .stats-card__icon svg {
+    color: #0a0a0a;
+    width: 20px;
+    height: 20px;
+  }
+
+  .stats-card__title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #0a0a0a;
+  }
+
+  .stats-card__number {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+    color: #0a0a0a;
+  }
+
+  .stats-card__subtitle {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #0a0a0a;
+  }
+
+  .stats-card__avatars {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #0a0a0a;
+  }
+
+  .avatar--1 {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  }
+
+  .avatar--2 {
+    background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  }
+
+  .avatar--3 {
+    background: linear-gradient(135deg, #45b7d1, #96c93d);
+  }
+
+  .avatar--4 {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+  }
+
+  .avatar--plus {
+    background: #0a0a0a;
+    color: #99FF00;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  /* ======================================= */
+  /* === RESPONSIVE - ABOUT SECTION === */
+  /* ======================================= */
+
+  /* Tablet Portrait (768px y menos) */
+  @media (max-width: 768px) {
+    .about-section {
+      padding: 40px 0;
+    }
+
+    .about-section__container {
+      flex-direction: column;
+      gap: 40px;
+      text-align: center;
+    }
+
+    .about-section__content {
+      order: 2;
+    }
+
+    .about-section__stats {
+      order: 1;
+    }
+
+    .about-section__title {
+      font-size: 2.2rem;
+      margin-bottom: 20px;
     }
     
-    h1 {
+    .about-section__description {
+      font-size: 1rem;
+      margin-bottom: 25px;
+      max-width: 100%;
+    }
+
+    .stats-card {
+      max-width: 250px;
+      padding: 25px;
+    }
+
+    .stats-card__number {
+      font-size: 2rem;
+    }
+  }
+
+  /* Mobile Large (480px y menos) */
+  @media (max-width: 480px) {
+    .about-section {
+      padding: 30px 0;
+    }
+
+    .about-section__container {
+      gap: 30px;
+    }
+
+    .about-section__title {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+    }
+
+    .about-section__description {
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    .about-section__cta {
+      padding: 10px 20px;
+      font-size: 0.9rem;
+    }
+
+    .stats-card {
+      max-width: 200px;
+      padding: 20px;
+    }
+
+    .stats-card__number {
+      font-size: 1.8rem;
+    }
+
+    .avatar {
+      width: 35px;
+      height: 35px;
+    }
+  }
+
+  /* Mobile Extra Small (360px y menos) */
+  @media (max-width: 360px) {
+    .about-section__title {
       font-size: 1.6rem;
     }
     
-    p {
+    .about-section__description {
       font-size: 0.85rem;
+    }
+
+    .stats-card {
+      max-width: 180px;
+      padding: 15px;
+    }
+
+    .stats-card__number {
+      font-size: 1.5rem;
+    }
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+    }
+  }
+
+  /* ======================================= */
+  /* === RESPONSIVE - FRANJA VERDE === */
+  /* ======================================= */
+
+  /* Tablet Portrait (768px y menos) */
+  @media (max-width: 768px) {
+    .green-stripe {
+      padding: 12px 0;
+    }
+
+    .green-stripe__text {
+      font-size: 1rem;
+    }
+  }
+
+  /* Mobile Large (480px y menos) */
+  @media (max-width: 480px) {
+    .green-stripe {
+      padding: 10px 0;
+    }
+
+    .green-stripe__text {
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  /* Mobile Extra Small (360px y menos) */
+  @media (max-width: 360px) {
+    .green-stripe__text {
+      font-size: 0.8rem;
     }
   }
 </style>
