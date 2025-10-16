@@ -42,7 +42,7 @@ import Layout from '../layouts/Layout.astro';
       </form>
 
       <div class="login-links">
-        <a href="/forgot-password" class="login-link" onclick="console.log('Click en olvidé contraseña')">¿Olvidaste tu contraseña?</a>
+        <a href="/forgot-password" class="login-link" onclick="console.log('Click en olvidé contraseña'); window.location.href='/forgot-password'; return false;">¿Olvidaste tu contraseña?</a>
         <a href="/register" class="login-link">¿No tienes cuenta? Regístrate</a>
       </div>
 

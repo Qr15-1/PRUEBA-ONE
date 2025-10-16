@@ -65,6 +65,13 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease;
+}
+
+.navbar__logo:hover {
+    transform: scale(1.05);
 }
 
 .navbar__logo-img {
