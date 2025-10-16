@@ -42,6 +42,8 @@ CREATE TABLE IF NOT EXISTS users (
     phone TEXT,
     password_hash TEXT NOT NULL,
     newsletter BOOLEAN DEFAULT 0,
+    reset_token TEXT,
+    reset_token_expiry DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 )
@@ -198,6 +200,32 @@ export const userQueries = {
         return stmt.get(id);
     },
 
+    updateResetToken: (userId, resetToken, resetExpiry) => {
+        const stmt = db.prepare(`
+            UPDATE users 
+            SET reset_token = ?, reset_token_expiry = ?, updated_at = CURRENT_TIMESTAMP 
+            WHERE id = ?
+        `);
+        return stmt.run(resetToken, resetExpiry, userId);
+    },
+
+    findByResetToken: (token) => {
+        const stmt = db.prepare(`
+            SELECT * FROM users 
+            WHERE reset_token = ? AND reset_token_expiry > CURRENT_TIMESTAMP
+        `);
+        return stmt.get(token);
+    },
+
+    updatePassword: (userId, passwordHash) => {
+        const stmt = db.prepare(`
+            UPDATE users 
+            SET password_hash = ?, reset_token = NULL, reset_token_expiry = NULL, updated_at = CURRENT_TIMESTAMP 
+            WHERE id = ?
+        `);
+        return stmt.run(passwordHash, userId);
+    },
+
     getAll: () => {
         const stmt = db.prepare('SELECT * FROM users ORDER BY created_at DESC');
         return stmt.all();
@@ -256,6 +284,43 @@ export const sessionQueries = {
     deleteExpired: () => {
         const stmt = db.prepare("DELETE FROM user_sessions WHERE expires_at <= datetime('now')");
         return stmt.run();
+    }
+};
+
+// =================================================================
+// QUERIES PARA AUTENTICACIÓN
+// =================================================================
+
+export const authQueries = {
+    getUserByEmail: (email) => {
+        const stmt = db.prepare('SELECT * FROM users WHERE email = ?');
+        return stmt.get(email);
+    },
+
+    updateUserResetToken: (userId, resetToken, resetExpiry) => {
+        const stmt = db.prepare(`
+            UPDATE users 
+            SET reset_token = ?, reset_token_expiry = ?, updated_at = CURRENT_TIMESTAMP 
+            WHERE id = ?
+        `);
+        return stmt.run(resetToken, resetExpiry, userId);
+    },
+
+    getUserByResetToken: (token) => {
+        const stmt = db.prepare(`
+            SELECT * FROM users 
+            WHERE reset_token = ? AND reset_token_expiry > CURRENT_TIMESTAMP
+        `);
+        return stmt.get(token);
+    },
+
+    updateUserPassword: (userId, passwordHash) => {
+        const stmt = db.prepare(`
+            UPDATE users 
+            SET password_hash = ?, reset_token = NULL, reset_token_expiry = NULL, updated_at = CURRENT_TIMESTAMP 
+            WHERE id = ?
+        `);
+        return stmt.run(passwordHash, userId);
     }
 };
 

@@ -20,7 +20,7 @@ const activeCourses = courses.filter(course => course.is_active === 1);
         </div>
         
         <div class="courses-page-title-section">
-          <h1 class="courses-page-title">Nuestros Cursos Online</h1>
+          <h1 class="courses-page-title">Nuestros <span class="highlight-green">Cursos</span> <span class="highlight-green">Online</span></h1>
           <p class="courses-page-subtitle">Aprende fitness desde casa con nuestros cursos especializados</p>
         </div>
       </div>
@@ -125,13 +125,13 @@ const activeCourses = courses.filter(course => course.is_active === 1);
     }
 
     .courses-breadcrumb a {
-      color: #22c55e;
+      color: #99FF00;
       text-decoration: none;
       transition: color 0.3s ease;
     }
 
     .courses-breadcrumb a:hover {
-      color: #16a34a;
+      color: #7ACC00;
     }
 
     .courses-page-title-section {
@@ -141,13 +141,13 @@ const activeCourses = courses.filter(course => course.is_active === 1);
     .courses-page-title {
       font-size: 2.8rem;
       font-weight: 900;
-      color: #ffffff;
+      color: white;
       margin-bottom: 15px;
       line-height: 1.2;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    }
+    
+    .courses-page-title .highlight-green {
+      color: #99FF00;
     }
 
     .courses-page-subtitle {
@@ -161,6 +161,12 @@ const activeCourses = courses.filter(course => course.is_active === 1);
       background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
       position: relative;
       overflow: hidden;
+    }
+    
+    @media (max-width: 768px) {
+      .courses-section {
+        padding: 5px 0;
+      }
     }
 
     .courses-section::before {
@@ -364,7 +370,7 @@ const activeCourses = courses.filter(course => course.is_active === 1);
     .course-meta {
       display: flex;
       gap: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 0px;
       flex-wrap: wrap;
     }
 
@@ -380,7 +386,7 @@ const activeCourses = courses.filter(course => course.is_active === 1);
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 0px;
     }
 
     .price-current {
@@ -406,7 +412,7 @@ const activeCourses = courses.filter(course => course.is_active === 1);
       cursor: pointer;
       transition: all 0.3s ease;
       font-size: 0.9rem;
-      margin-top: auto;
+      margin-top: 0px;
     }
 
     .course-btn:hover {
@@ -416,13 +422,23 @@ const activeCourses = courses.filter(course => course.is_active === 1);
 
     /* Responsive */
     @media (max-width: 768px) {
+      .courses-page-header {
+        padding: 30px 0 10px;
+      }
+      
       .courses-page-title {
         font-size: 2.5rem;
+        margin-bottom: 5px;
+      }
+      
+      .courses-page-subtitle {
+        margin-bottom: 5px;
       }
       
       .courses-grid {
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 15px;
+        margin-top: 5px;
       }
       
       .course-image {
@@ -444,6 +460,10 @@ const activeCourses = courses.filter(course => course.is_active === 1);
     }
 
     @media (max-width: 480px) {
+      .courses-page-header {
+        padding: 30px 0 10px;
+      }
+      
       .courses-page-title {
         font-size: 2rem;
       }
