@@ -39,12 +39,12 @@ import Layout from '../layouts/Layout.astro';
           <span class="btn-text">Iniciar Sesión</span>
           <span class="btn-loading" style="display: none;">Iniciando...</span>
         </button>
-
-        <div class="login-links">
-          <a href="/forgot-password" class="login-link">¿Olvidaste tu contraseña?</a>
-          <a href="/register" class="login-link">¿No tienes cuenta? Regístrate</a>
-        </div>
       </form>
+
+      <div class="login-links">
+        <a href="/forgot-password" class="login-link" onclick="console.log('Click en olvidé contraseña')">¿Olvidaste tu contraseña?</a>
+        <a href="/register" class="login-link">¿No tienes cuenta? Regístrate</a>
+      </div>
 
       <div id="errorMessage" class="error-message" style="display: none;"></div>
     </div>
