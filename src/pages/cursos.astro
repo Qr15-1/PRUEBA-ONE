@@ -2,9 +2,29 @@
 import Layout from '../layouts/Layout.astro';
 import { courseQueries } from '../lib/database.js';
 
+// Definir tipo para Course
+interface Course {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  image: string;
+  price: number;
+  originalPrice?: number;
+  category: string;
+  duration: number;
+  level: string;
+  instructor: string;
+  students: number;
+  videoUrl?: string;
+  is_active: number;
+  created_at: string;
+  updated_at: string;
+}
+
 // Obtener cursos de la base de datos
-const courses = await courseQueries.getAll();
-const activeCourses = courses.filter(course => course.is_active === 1);
+const courses = await courseQueries.getAll() as Course[];
+const activeCourses = courses.filter((course: Course) => course.is_active === 1);
 
 ---
 
@@ -512,7 +532,7 @@ const activeCourses = courses.filter(course => course.is_active === 1);
     // Funcionalidad de cursos (reutilizada del index.js)
     document.addEventListener('DOMContentLoaded', function() {
       // Mapeo de cursos a sus slugs - ahora dinámico
-      const courseSlugs = {};
+      const courseSlugs: { [key: string]: string } = {};
       
       // Obtener todos los cursos de la página para crear el mapeo dinámico
       const courseButtons = document.querySelectorAll('[data-course]');
@@ -524,7 +544,7 @@ const activeCourses = courses.filter(course => course.is_active === 1);
       });
 
       // Función para redirigir a la página del curso
-      function goToCourse(courseId) {
+      function goToCourse(courseId: string) {
         const slug = courseSlugs[courseId];
         if (slug) {
           window.location.href = `/curso/${slug}`;
@@ -534,10 +554,11 @@ const activeCourses = courses.filter(course => course.is_active === 1);
       }
 
       // Event listeners para botones "Ver Curso"
-      document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('course-btn')) {
+      document.addEventListener('click', function(e: Event) {
+        const target = e.target as HTMLElement;
+        if (target && target.classList.contains('course-btn')) {
           e.preventDefault();
-          const courseId = e.target.getAttribute('data-course');
+          const courseId = target.getAttribute('data-course');
           if (courseId) {
             goToCourse(courseId);
           }
@@ -545,12 +566,13 @@ const activeCourses = courses.filter(course => course.is_active === 1);
       });
 
       // Event listeners para botones de play
-      document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('play-button') || e.target.closest('.play-button')) {
+      document.addEventListener('click', function(e: Event) {
+        const target = e.target as HTMLElement;
+        if (target && (target.classList.contains('play-button') || target.closest('.play-button'))) {
           e.preventDefault();
           e.stopPropagation();
-          const button = e.target.classList.contains('play-button') ? e.target : e.target.closest('.play-button');
-          const courseId = button.getAttribute('data-course');
+          const button = target.classList.contains('play-button') ? target : target.closest('.play-button') as HTMLElement;
+          const courseId = button?.getAttribute('data-course');
           if (courseId) {
             goToCourse(courseId);
           }

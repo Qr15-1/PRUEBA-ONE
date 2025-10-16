@@ -234,11 +234,16 @@ import Layout from '../layouts/Layout.astro';
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const loginForm = document.getElementById('loginForm');
-      const loginBtn = document.getElementById('loginBtn');
-      const btnText = loginBtn.querySelector('.btn-text');
-      const btnLoading = loginBtn.querySelector('.btn-loading');
-      const errorMessage = document.getElementById('errorMessage');
+      const loginForm = document.getElementById('loginForm') as HTMLFormElement;
+      const loginBtn = document.getElementById('loginBtn') as HTMLButtonElement;
+      const btnText = loginBtn?.querySelector('.btn-text') as HTMLElement;
+      const btnLoading = loginBtn?.querySelector('.btn-loading') as HTMLElement;
+      const errorMessage = document.getElementById('errorMessage') as HTMLElement;
+
+      if (!loginForm || !loginBtn || !btnText || !btnLoading || !errorMessage) {
+        console.error('Elementos del formulario no encontrados');
+        return;
+      }
 
       loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
