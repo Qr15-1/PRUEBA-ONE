@@ -1,5 +1,19 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
+import { adminQueries } from '../../lib/database.js';
+
+// Verificar autenticación del lado del servidor
+const adminSession = Astro.cookies.get('admin_session')?.value;
+
+if (!adminSession) {
+  return Astro.redirect('/admin/login');
+}
+
+// Verificar que el administrador existe
+const admin = adminQueries.findById(adminSession);
+if (!admin) {
+  return Astro.redirect('/admin/login');
+}
 ---
 
 <AdminLayout title="Gestionar Cursos - Admin">
@@ -716,6 +730,11 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
             flex-direction: column;
             padding: 15px 20px;
             gap: 10px;
+            position: sticky;
+            bottom: 0;
+            background: rgba(20, 20, 20, 0.98);
+            backdrop-filter: blur(10px);
+            z-index: 10;
         }
         
         .btn-cancel,
@@ -749,6 +768,11 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         .form-actions {
             padding: 12px 15px;
             gap: 8px;
+            position: sticky;
+            bottom: 0;
+            background: rgba(20, 20, 20, 0.98);
+            backdrop-filter: blur(10px);
+            z-index: 10;
         }
         
         .btn-cancel,
@@ -764,8 +788,13 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     let courses: Array<any> = [];
     let editingCourseId: string | null = null;
 
-    // Función de logout
-    function logout() {
+    // Función de logout - definida globalmente
+    declare global {
+        interface Window {
+            logout: () => void;
+        }
+    }
+    window.logout = function() {
         if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
             fetch('/api/admin/logout', {
                 method: 'POST',
@@ -787,7 +816,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
                 window.location.href = '/admin/login';
             });
         }
-    }
+    };
 
     // Verificar sesión de admin
     async function checkAdminSession() {
@@ -990,7 +1019,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     (window as any).editCourse = editCourse;
     (window as any).manageCourse = manageCourse;
     (window as any).deleteCourse = deleteCourse;
-    (window as any).logout = logout;
 
     // Mostrar error
     function showError(message: string) {

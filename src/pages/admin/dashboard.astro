@@ -1,5 +1,19 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
+import { adminQueries } from '../../lib/database.js';
+
+// Verificar autenticación del lado del servidor
+const adminSession = Astro.cookies.get('admin_session')?.value;
+
+if (!adminSession) {
+  return Astro.redirect('/admin/login');
+}
+
+// Verificar que el administrador existe
+const admin = adminQueries.findById(adminSession);
+if (!admin) {
+  return Astro.redirect('/admin/login');
+}
 ---
 
 <AdminLayout title="Dashboard Admin - RojasFitt">

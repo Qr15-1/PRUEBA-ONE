@@ -165,6 +165,29 @@ try {
     db.exec(createProductsTable);
     db.exec(createOrdersTable);
     db.exec(createOrderItemsTable);
+    
+    // Agregar columnas faltantes a la tabla courses si no existen
+    try {
+        db.exec(`ALTER TABLE courses ADD COLUMN original_price DECIMAL(10,2) DEFAULT NULL`);
+        console.log('✅ Columna original_price agregada');
+    } catch (e) {
+        // La columna ya existe, ignorar error
+    }
+    
+    try {
+        db.exec(`ALTER TABLE courses ADD COLUMN students INTEGER DEFAULT 0`);
+        console.log('✅ Columna students agregada');
+    } catch (e) {
+        // La columna ya existe, ignorar error
+    }
+    
+    try {
+        db.exec(`ALTER TABLE courses ADD COLUMN instructor TEXT DEFAULT 'Instructor'`);
+        console.log('✅ Columna instructor agregada');
+    } catch (e) {
+        // La columna ya existe, ignorar error
+    }
+    
     console.log('✅ Todas las tablas creadas/verificadas correctamente');
 } catch (error) {
     console.error('❌ Error creando tablas:', error);
@@ -364,18 +387,21 @@ export const courseQueries = {
     update: (id, courseData) => {
         const stmt = db.prepare(`
             UPDATE courses 
-            SET title = ?, slug = ?, description = ?, image = ?, price = ?, category = ?, duration = ?, level = ?, updated_at = CURRENT_TIMESTAMP
+            SET title = ?, slug = ?, description = ?, image = ?, price = ?, original_price = ?, category = ?, duration = ?, level = ?, students = ?, instructor = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `);
         return stmt.run(
             courseData.title,
-            courseData.slug,
+            courseData.slug || courseData.title.toLowerCase().replace(/\s+/g, '-'),
             courseData.description,
             courseData.image,
-            courseData.price,
+            parseFloat(courseData.price),
+            courseData.originalPrice ? parseFloat(courseData.originalPrice) : null,
             courseData.category,
-            courseData.duration,
+            parseInt(courseData.duration),
             courseData.level,
+            parseInt(courseData.students) || 0,
+            courseData.instructor || 'Instructor',
             id
         );
     },

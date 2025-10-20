@@ -1,6 +1,19 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
-import { userQueries } from '../../lib/database.js';
+import { userQueries, adminQueries } from '../../lib/database.js';
+
+// Verificar autenticación del lado del servidor
+const adminSession = Astro.cookies.get('admin_session')?.value;
+
+if (!adminSession) {
+  return Astro.redirect('/admin/login');
+}
+
+// Verificar que el administrador existe
+const admin = adminQueries.findById(adminSession);
+if (!admin) {
+  return Astro.redirect('/admin/login');
+}
 
 // Obtener todos los usuarios
 const users = await userQueries.getAll() as Array<{

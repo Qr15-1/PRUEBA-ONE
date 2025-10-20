@@ -36,7 +36,7 @@ const currentPath = Astro.url.pathname;
                     
                 </div>
                 <div class="nav-right">
-                    <button class="logout-btn" onclick="logout()">
+                    <button class="logout-btn" id="logoutBtn">
                         🚪 Cerrar Sesión
                     </button>
                 </div>
@@ -50,29 +50,35 @@ const currentPath = Astro.url.pathname;
     </div>
 
     <script>
-        function logout() {
-            if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-                fetch('/api/admin/logout', {
-                    method: 'POST',
-                    credentials: 'include'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = '/admin/login';
-                    } else {
-                        console.error('Error al cerrar sesión:', data.error);
-                        // Redirigir de todas formas para limpiar la sesión
-                        window.location.href = '/admin/login';
+        // Función de logout usando event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                        fetch('/api/admin/logout', {
+                            method: 'POST',
+                            credentials: 'include'
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.href = '/admin/login';
+                            } else {
+                                console.error('Error al cerrar sesión:', data.error);
+                                // Redirigir de todas formas para limpiar la sesión
+                                window.location.href = '/admin/login';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error al cerrar sesión:', error);
+                            // Redirigir de todas formas para limpiar la sesión
+                            window.location.href = '/admin/login';
+                        });
                     }
-                })
-                .catch(error => {
-                    console.error('Error al cerrar sesión:', error);
-                    // Redirigir de todas formas para limpiar la sesión
-                    window.location.href = '/admin/login';
                 });
             }
-        }
+        });
     </script>
 </body>
 </html>
