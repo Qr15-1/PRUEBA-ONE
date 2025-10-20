@@ -52,10 +52,23 @@ const currentPath = Astro.url.pathname;
     <script>
         function logout() {
             if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-                fetch('/api/auth/logout', {
+                fetch('/api/admin/logout', {
                     method: 'POST',
                     credentials: 'include'
-                }).then(() => {
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/admin/login';
+                    } else {
+                        console.error('Error al cerrar sesión:', data.error);
+                        // Redirigir de todas formas para limpiar la sesión
+                        window.location.href = '/admin/login';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cerrar sesión:', error);
+                    // Redirigir de todas formas para limpiar la sesión
                     window.location.href = '/admin/login';
                 });
             }
