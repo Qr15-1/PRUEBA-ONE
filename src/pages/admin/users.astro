@@ -1,17 +1,21 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
-import { userQueries, adminQueries } from '../../lib/database.js';
+import { userQueries, adminSessionQueries } from '../../lib/database.js';
 
 // Verificar autenticación del lado del servidor
-const adminSession = Astro.cookies.get('admin_session')?.value;
+const adminSessionToken = Astro.cookies.get('admin_session')?.value;
+console.log('🔍 [USERS] Token de sesión:', adminSessionToken ? adminSessionToken.substring(0, 10) + '...' : 'No encontrado');
 
-if (!adminSession) {
+if (!adminSessionToken) {
+  console.log('❌ [USERS] No hay token de sesión, redirigiendo a login');
   return Astro.redirect('/admin/login');
 }
 
-// Verificar que el administrador existe
-const admin = adminQueries.findById(adminSession);
-if (!admin) {
+// Verificar que la sesión de admin es válida
+const adminSession = adminSessionQueries.findByToken(adminSessionToken);
+console.log('🔍 [USERS] Sesión encontrada:', adminSession ? 'Sí' : 'No');
+if (!adminSession) {
+  console.log('❌ [USERS] Sesión inválida, redirigiendo a login');
   return Astro.redirect('/admin/login');
 }
 

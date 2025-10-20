@@ -291,10 +291,10 @@ export const sessionQueries = {
 
     findByToken: (token) => {
         const stmt = db.prepare(`
-            SELECT us.*, u.first_name, u.last_name, u.email 
-            FROM user_sessions us
-            JOIN users u ON us.user_id = u.id
-            WHERE us.session_token = ? AND us.expires_at > datetime('now')
+            SELECT user_sessions.*, u.first_name, u.last_name, u.email 
+            FROM user_sessions
+            JOIN users u ON user_sessions.user_id = u.id
+            WHERE user_sessions.session_token = ? AND user_sessions.expires_at > datetime('now')
         `);
         return stmt.get(token);
     },
@@ -514,10 +514,10 @@ export const adminSessionQueries = {
 
     findByToken: (token) => {
         const stmt = db.prepare(`
-            SELECT as.*, au.username, au.email 
-            FROM admin_sessions as
-            JOIN admin_users au ON as.admin_id = au.id
-            WHERE as.session_token = ? AND as.expires_at > datetime('now')
+            SELECT admin_sessions.*, au.username, au.email 
+            FROM admin_sessions
+            JOIN admin_users au ON admin_sessions.admin_id = au.id
+            WHERE admin_sessions.session_token = ? AND admin_sessions.expires_at > datetime('now')
         `);
         return stmt.get(token);
     },

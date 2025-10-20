@@ -1,6 +1,19 @@
 ---
 import AdminLayout from '../../../../layouts/AdminLayout.astro';
-import { courseQueries, moduleQueries } from '../../../../lib/database.js';
+import { courseQueries, moduleQueries, adminSessionQueries } from '../../../../lib/database.js';
+
+// Verificar autenticación del lado del servidor
+const adminSessionToken = Astro.cookies.get('admin_session')?.value;
+
+if (!adminSessionToken) {
+  return Astro.redirect('/admin/login');
+}
+
+// Verificar que la sesión de admin es válida
+const adminSession = adminSessionQueries.findByToken(adminSessionToken);
+if (!adminSession) {
+  return Astro.redirect('/admin/login');
+}
 
 const { id } = Astro.params;
 const courseId = parseInt(id);
