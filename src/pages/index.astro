@@ -1,0 +1,108 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { courseQueries } from '../lib/database.js';
+
+// Obtener cursos destacados para el slider
+const featuredCourses = courseQueries.getAll().filter(course => course.is_active).slice(0, 5);
+---
+
+<Layout title="Cursus Fitness - Inicio" description="Transforma tu cuerpo y mente con nuestros programas de fitness personalizados">
+  <!-- =================================================================
+  BLOQUE PRINCIPAL: HERO SLIDER
+  Este 'section' es el contenedor raíz de todo el componente.
+  Actuará como el marco de referencia para todos los elementos
+  internos que se posicionarán de forma absoluta.
+  ================================================================== -->
+  <section class="hero-slider">
+
+    <!-- =================================================================
+    CAPA 1: FONDOS
+    Contiene todas las imágenes de fondo, apiladas una encima de otra.
+    La clase 'active' determinará cuál es visible en cada momento.
+    ================================================================== -->
+    <div class="slider__backgrounds">
+      {featuredCourses.map((course, index) => (
+        <div class={`slider__background-item ${index === 0 ? 'active' : ''}`} data-index={index}>
+          <img src={course.image || "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2070"} alt={course.title}>
+        </div>
+      ))}
+    </div>
+
+    <!-- =================================================================
+    CAPA 2: CONTENIDO SUPERPUESTO
+    Contiene toda la información visible por encima del fondo: textos,
+    el carrusel de tarjetas y los controles de navegación.
+    ================================================================== -->
+    <div class="slider__content">
+      <!-- Contenedor para el contenido de la izquierda (Textos) -->
+      <div class="slider__left-content">
+        <!-- Bloque que contiene todos los textos apilados -->
+        <div class="slider__texts">
+          {featuredCourses.map((course, index) => (
+            <div class={`slider__text-item ${index === 0 ? 'active' : ''}`} data-index={index}>
+              <p class="text-item__supertitle">{course.category}</p>
+              <h2 class="text-item__title" set:html={course.title.toUpperCase().replace(' ', '<br>')}></h2>
+              <p class="text-item__description">{course.description}</p>
+              <a href={`/curso/${course.slug}`} class="text-item__button course-btn" data-course={course.slug}>
+                {index === 0 ? 'Comenzar Ahora' : 'Ver Curso'}
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Contenedor para el contenido de la derecha (Carrusel y Controles) -->
+      <div class="slider__right-content">
+        <!-- El "tren" de tarjetas que se deslizará horizontalmente -->
+        <div class="slider__carousel">
+          <div class="slider__cards-container" id="cardsContainer">
+            {featuredCourses.map((course, index) => (
+              <div class="slider__card" data-index={index}>
+                <img src={course.image || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=400"} alt={course.title}>
+                
+                <!-- Icono de carrito en esquina -->
+                <button 
+                  class="card-cart-icon" 
+                  data-course-id={course.slug}
+                  data-course-title={course.title}
+                  data-course-price="99.99"
+                  data-course-image={course.image || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=400"}
+                  data-course-category={course.category}
+                  title="Agregar al carrito"
+                >
+                  🛒
+                </button>
+                
+                <div class="card__content">
+                  <p class="card__supertitle">{course.category}</p>
+                  <h3>{course.title.toUpperCase()}</h3>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Controles de navegación y estado -->
+        <div class="slider__controls">
+          <!-- Flechitas de navegación con color de marca -->
+          <div class="slider__navigation-arrows">
+            <button class="slider__arrow slider__arrow--prev" id="prevSlide">
+              <span class="arrow-icon">‹</span>
+            </button>
+            <button class="slider__arrow slider__arrow--next" id="nextSlide">
+              <span class="arrow-icon">›</span>
+            </button>
+          </div>
+          
+          <div class="slider__progress-bar">
+            <div class="slider__progress-bar-fill"></div>
+          </div>
+          <div class="slider__counter">
+            <span class="slider__current-index">01</span>
+          </div>
+          <div class="slider__auto-reset-indicator" id="autoResetIndicator">🔄 Rebote automático en 3s</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

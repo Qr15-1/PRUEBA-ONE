@@ -1,0 +1,1088 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { courseQueries, moduleQueries } from '../../lib/database.js';
+
+// ❌ ELIMINADO: getStaticPaths ya no es necesario en modo SSR
+// La página ahora se genera dinámicamente en el servidor para cada petición
+
+const { slug } = Astro.params;
+
+// Obtener datos del curso desde la base de datos
+const course = await courseQueries.findBySlug(slug);
+
+if (!course) {
+  return Astro.redirect('/404');
+}
+
+// Obtener módulos del curso (ahora incluyen videos)
+const modules = await moduleQueries.getByCourse(course.id);
+
+// AÑADE ESTO PARA DEPURAR
+console.log('=== DEBUG COMPLETO ===');
+console.log('Curso encontrado:', course);
+console.log('Course ID:', course.id);
+console.log('Módulos recibidos de la BD:', modules);
+console.log('Total módulos:', modules.length);
+if (modules.length > 0) {
+  console.log('Primer módulo:', modules[0]);
+  console.log('Primer módulo isFree:', modules[0].isFree);
+  console.log('Primer módulo videoUrl:', modules[0].videoUrl);
+  console.log('¿Es gratuito?', modules[0].isFree === 1);
+  console.log('¿Es video externo?', modules[0].videoUrl.startsWith('http'));
+  console.log('¿Es video local?', modules[0].videoUrl.startsWith('/'));
+  console.log('URL completa del video:', `http://localhost:4321${modules[0].videoUrl}`);
+}
+console.log('========================');
+
+// Obtener el índice del módulo desde la URL
+const url = new URL(Astro.request.url);
+const moduleParam = url.searchParams.get('module');
+let currentModuleIndex = 0;
+
+if (moduleParam !== null) {
+  const moduleIndex = parseInt(moduleParam);
+  if (moduleIndex >= 0 && moduleIndex < modules.length) {
+    currentModuleIndex = moduleIndex;
+  }
+}
+
+// Estado para el módulo actual seleccionado
+const currentModule = modules.length > 0 ? modules[currentModuleIndex] : null;
+
+const courseData = {
+  title: course.title,
+  category: course.category,
+  description: course.description,
+  instructor: course.instructor || 'Carlos Rojas',
+  duration: `${course.duration} horas`,
+  level: course.level,
+  students: course.students,
+  price: course.price,
+  originalPrice: course.originalPrice,
+  image: course.image,
+  videoUrl: modules.length > 0 ? modules[0].videoUrl : (course.videoUrl || 'https://www.youtube.com/embed/MLpWrANjFbI'),
+  modules: modules.map(module => ({
+    id: module.id,
+    title: module.title,
+    duration: module.duration,
+    isFree: module.isFree === 1,
+    description: module.description,
+    videoUrl: module.videoUrl
+  }))
+};
+---
+
+<Layout title={`${courseData.title} - Cursus Fitness`} description={courseData.description}>
+  <div class="course-page">
+    <!-- Breadcrumb -->
+    <div class="course-breadcrumb-section">
+      <div class="course-breadcrumb-container">
+        <div class="course-breadcrumb">
+          <a href="/">Inicio</a>
+          <span>/</span>
+          <a href="/cursos">Cursos</a>
+          <span>/</span>
+          <span>{courseData.title}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido principal del curso -->
+    <div class="course-main">
+      <div class="course-container">
+        <div class="course-layout">
+          <!-- Columna izquierda - Contenido del curso -->
+          <div class="course-content-left">
+            <!-- Video de Presentación -->
+            <!-- ========================================================= -->
+            <!-- === SECCIÓN DE VIDEO LIMPIA Y FUNCIONAL === -->
+            <!-- ========================================================= -->
+            <div class="course-video-section">
+              {currentModule && currentModule.isFree === 1 ? (
+                currentModule.videoUrl.startsWith('http') ? (
+                  <!-- Video externo (YouTube, Vimeo, etc.) -->
+                  <iframe 
+                    src={currentModule.videoUrl} 
+                    title={currentModule.title}
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                  </iframe>
+                ) : (
+                  <!-- Video local con Video.js (versión corregida) -->
+                  <!-- La clase "vjs-fluid" es clave y quitamos "data-setup" -->
+                  <video
+                    id="my-video-player"
+                    class="video-js vjs-fluid vjs-big-play-centered"
+                    controls
+                    preload="auto"
+                  >
+                    <source src={currentModule.videoUrl} type="video/mp4" />
+                    <p class="vjs-no-js">
+                      Para ver este video, por favor activa JavaScript.
+                    </p>
+                  </video>
+                )
+              ) : (
+                <!-- Video bloqueado -->
+                <div class="video-locked">
+                  <h3>Video Bloqueado</h3>
+                  <p>Compra el curso para acceder a este contenido</p>
+                </div>
+              )}
+              
+              <!-- Navegación entre módulos -->
+              {modules.length > 1 && (
+                <div class="module-navigation">
+                  <button 
+                    class="nav-btn prev-btn" 
+                    id="prevModuleBtn"
+                    disabled={currentModuleIndex === 0}>
+                    ← Anterior
+                  </button>
+                  <span class="module-counter">
+                    Módulo {currentModuleIndex + 1} de {modules.length}
+                  </span>
+                  <button 
+                    class="nav-btn next-btn" 
+                    id="nextModuleBtn"
+                    disabled={currentModuleIndex === modules.length - 1}>
+                    Siguiente →
+                  </button>
+                </div>
+              )}
+              
+              <div class="video-description">
+                <h2>{currentModule ? currentModule.title : 'Video de Presentación'}</h2>
+                <p>{currentModule ? currentModule.description : 'Este es el video de introducción al curso. Aquí aprenderás los conceptos básicos y te prepararás para el contenido completo.'}</p>
+                {currentModule && currentModule.isFree === 1 && (
+                  <div class="free-badge">GRATIS</div>
+                )}
+              </div>
+            </div>
+
+            <!-- Contenido del curso (módulos) -->
+            <div class="course-curriculum">
+              <div class="curriculum-list">
+                {courseData.modules.map((module, index) => (
+                  <div class="curriculum-item">
+                    <div class="module-number">{index + 1}</div>
+                    <div class="module-content">
+                      <h3 class="module-title">{module.title}</h3>
+                      <p class="module-description">{module.description}</p>
+                      <div class="module-meta">
+                        <span class="meta-tag">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                          </svg>
+                          {module.duration}
+                        </span>
+                        {module.isFree ? (
+                          <span class="meta-tag free">Gratis</span>
+                        ) : (
+                          <span class="meta-tag locked">Bloqueado</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <!-- Columna derecha - Tarjeta del curso -->
+          <div class="course-sidebar">
+            <div class="course-purchase-card">
+              <div class="course-image">
+                <img src={courseData.image} alt={courseData.title}>
+              </div>
+              <div class="course-content">
+                <div class="course-category">{courseData.category}</div>
+                <h3 class="course-title">{courseData.title}</h3>
+                <p class="course-description">{courseData.description}</p>
+                <div class="course-meta">
+                  <span class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    {courseData.duration}
+                  </span>
+                  <span class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    {courseData.level}
+                  </span>
+                  <span class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H16c-.8 0-1.54.5-1.85 1.26L12.5 14H10v8h2v-6h2.5l1.15-3.45L16.5 16H18v6h2zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5z"/>
+                    </svg>
+                    {courseData.students} estudiantes
+                  </span>
+                </div>
+                <div class="course-price">
+                  <span class="price-current">${courseData.price}</span>
+                  <span class="price-original">${courseData.originalPrice}</span>
+                </div>
+                <button class="course-btn" onclick="purchaseCourse()">Comprar Curso</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Header del curso -->
+    <div class="course-header">
+      <div class="course-container">
+        <div class="course-category">{courseData.category}</div>
+        <h1 class="course-title">{courseData.title}</h1>
+        <p class="course-description">{courseData.description}</p>
+        <div class="course-meta">
+          <span class="meta-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            {courseData.duration}
+          </span>
+          <span class="meta-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            {courseData.level}
+          </span>
+          <span class="meta-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H16c-.8 0-1.54.5-1.85 1.26L12.5 14H10v8h2v-6h2.5l1.15-3.45L16.5 16H18v6h2zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5z"/>
+            </svg>
+            {courseData.students} estudiantes
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</Layout>
+
+<script>
+  function showPurchaseModal() {
+    // Redirigir a la tarjeta de compra
+    document.querySelector('.course-purchase-card').scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'center'
+    });
+    
+    // Destacar la tarjeta
+    const card = document.querySelector('.course-purchase-card');
+    card.style.border = '2px solid #22c55e';
+    card.style.boxShadow = '0 0 20px rgba(34, 197, 94, 0.5)';
+    
+    setTimeout(() => {
+      card.style.border = '1px solid #333';
+      card.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.3)';
+    }, 3000);
+  }
+
+  // Función para comprar curso
+  function purchaseCourse() {
+    // Aquí implementarías la lógica de compra
+    alert('Redirigiendo al proceso de pago...');
+    // window.location.href = '/checkout?course=' + courseId;
+  }
+
+  // Hacer la función global
+  window.showPurchaseModal = showPurchaseModal;
+  window.purchaseCourse = purchaseCourse;
+</script>
+
+  <style>
+  /* ===== BREADCRUMB ===== */
+  .course-breadcrumb-section {
+      background: #0a0a0a;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .course-breadcrumb-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .course-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    color: #888;
+    }
+
+    .course-breadcrumb a {
+      color: #22c55e;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .course-breadcrumb a:hover {
+      color: #16a34a;
+    }
+
+  .course-breadcrumb span {
+    color: #666;
+  }
+
+  /* ===== CONTENIDO PRINCIPAL ===== */
+  .course-main {
+    padding: 20px 0;
+    background: #0a0a0a;
+  }
+
+  .course-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* ===== LAYOUT DE DOS COLUMNAS ===== */
+  .course-layout {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 25px;
+    align-items: start;
+  }
+
+  .course-content-left {
+    min-width: 0; /* Para evitar overflow */
+  }
+
+  /* ===== CONTENIDO DEL CURSO ===== */
+  .course-curriculum {
+    margin-bottom: 20px;
+  }
+
+  .course-curriculum h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 15px;
+    text-align: left;
+  }
+
+  .curriculum-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .curriculum-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .module-number {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  .module-content {
+    flex: 1;
+  }
+
+  .module-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 4px;
+  }
+
+  .module-description {
+    color: #b0b0b0;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .module-meta {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .meta-tag {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #b0b0b0;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+
+  .meta-tag.free {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+  }
+
+
+  .video-description h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 8px;
+  }
+
+  .video-description p {
+    color: #b0b0b0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    }
+
+  /* ===== VIDEOS BLOQUEADOS ===== */
+  .video-locked {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+    border-radius: 10px;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  .lock-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    opacity: 0.7;
+  }
+
+  .video-locked h3 {
+    font-size: 1.5rem;
+    color: #ffffff;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .video-locked p {
+    color: #b0b0b0;
+    font-size: 1rem;
+    margin-bottom: 25px;
+  }
+
+  .unlock-btn {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .unlock-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(34, 197, 94, 0.4);
+  }
+
+  .free-badge {
+    display: inline-block;
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+
+  /* ===== VIDEOS EN MÓDULOS ===== */
+  .video-item {
+    margin-top: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .video-thumbnail {
+    height: 120px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #000;
+    margin-bottom: 10px;
+    position: relative;
+  }
+
+  .video-thumbnail iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .video-locked-small {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+    color: #b0b0b0;
+  }
+
+  .lock-icon-small {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+    opacity: 0.7;
+  }
+
+  .video-info {
+    padding: 0 5px;
+  }
+
+  .video-title {
+    font-size: 0.9rem;
+    color: #ffffff;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .video-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .video-duration {
+    color: #b0b0b0;
+    font-size: 0.75rem;
+  }
+
+  .video-free {
+    color: #22c55e;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .video-locked-tag {
+    color: #ef4444;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .meta-tag.locked {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+  }
+
+  /* ===== SIDEBAR DE COMPRA ===== */
+  .course-sidebar {
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+  }
+
+  .course-purchase-card {
+    background: #1a1a1a;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #333;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .course-purchase-card .course-image {
+    height: 160px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .course-purchase-card .course-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .course-purchase-card .course-content {
+    padding: 15px;
+  }
+
+  .course-purchase-card .course-category {
+    color: #22c55e;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .course-purchase-card .course-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .course-purchase-card .course-description {
+    color: #b0b0b0;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin-bottom: 15px;
+  }
+
+  .course-purchase-card .course-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 15px;
+  }
+
+  .course-purchase-card .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #b0b0b0;
+    font-size: 0.75rem;
+    background: #2a2a2a;
+    padding: 6px 10px;
+    border-radius: 4px;
+  }
+
+  .course-purchase-card .course-price {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+
+  .course-purchase-card .price-current {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #22c55e;
+  }
+
+  .course-purchase-card .price-original {
+    color: #888;
+    text-decoration: line-through;
+    font-size: 0.9rem;
+  }
+
+  .course-purchase-card .course-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .course-purchase-card .course-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(34, 197, 94, 0.4);
+  }
+
+  /* ===== HEADER DEL CURSO ===== */
+  .course-header {
+    padding: 80px 0 40px;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.05) 100%);
+    border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+  }
+
+  .course-category {
+    color: #22c55e;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+
+  .course-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 15px;
+    line-height: 1.2;
+  }
+
+  .course-description {
+    font-size: 1.1rem;
+    color: #b0b0b0;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    max-width: 800px;
+  }
+
+  .course-meta {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #b0b0b0;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  /* ===== CURRÍCULO ===== */
+  .course-curriculum {
+    padding: 20px 0;
+    background: #0a0a0a;
+  }
+
+    .course-curriculum h2 {
+    font-size: 1.5rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 30px;
+    text-align: center;
+    }
+
+    .curriculum-list {
+      display: flex;
+      flex-direction: column;
+    gap: 10px;
+    }
+
+    .curriculum-item {
+      background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+  .curriculum-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(34, 197, 94, 0.3);
+  }
+
+  .module-header {
+      display: flex;
+      align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+  }
+
+  .module-number {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .module-title {
+    font-size: 1.1rem;
+      font-weight: 600;
+      color: #ffffff;
+    margin-bottom: 5px;
+  }
+
+  .module-meta {
+      display: flex;
+    gap: 10px;
+      align-items: center;
+  }
+
+  .module-duration {
+    color: #888;
+    font-size: 0.85rem;
+  }
+
+  .module-free {
+      background: #22c55e;
+      color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+  .module-description {
+    color: #b0b0b0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-left: 45px;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1024px) {
+    .course-layout {
+      grid-template-columns: 1fr 350px;
+      gap: 30px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .course-layout {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    .course-sidebar {
+      position: static;
+    }
+
+    .course-container {
+      padding: 0 15px;
+    }
+
+    .course-title {
+      font-size: 2rem;
+    }
+
+    .course-meta {
+      gap: 15px;
+    }
+
+    .meta-item {
+      font-size: 0.9rem;
+    }
+
+    .module-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .module-description {
+      margin-left: 0;
+    }
+  }
+
+  /* ===== REPRODUCTOR DE VIDEO PERSONALIZADO ===== */
+  .video-js {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+  }
+
+  /* Ocultar controles innecesarios */
+  .video-js .vjs-playback-rate,
+  .video-js .vjs-chapters-button,
+  .video-js .vjs-descriptions-button,
+  .video-js .vjs-subtitles-button,
+  .video-js .vjs-captions-button,
+  .video-js .vjs-audio-button,
+  .video-js .vjs-picture-in-picture-control {
+    display: none !important;
+  }
+
+  /* Personalizar barra de controles */
+  .video-js .vjs-control-bar {
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    height: 50px;
+    padding: 0 15px;
+  }
+
+  /* Estilo para botones de control */
+  .video-js .vjs-control {
+    color: #fff;
+    font-size: 16px;
+  }
+
+  .video-js .vjs-control:hover {
+    color: #99FF00;
+  }
+
+  /* Personalizar barra de progreso */
+  .video-js .vjs-progress-control {
+    height: 4px;
+    margin: 0 10px;
+  }
+
+  .video-js .vjs-progress-holder {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+  }
+
+  .video-js .vjs-play-progress {
+    background: #99FF00;
+    border-radius: 2px;
+  }
+
+  /* Personalizar botón de play grande */
+  .video-js .vjs-big-play-button {
+    background: rgba(0, 0, 0, 0.7);
+    border: 3px solid #99FF00;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    font-size: 30px;
+    color: #99FF00;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .video-js .vjs-big-play-button:hover {
+    background: rgba(153, 255, 0, 0.2);
+    border-color: #fff;
+    color: #fff;
+  }
+
+  /* Personalizar panel de volumen */
+  .video-js .vjs-volume-panel {
+    margin-right: 10px;
+  }
+
+  .video-js .vjs-volume-control {
+    width: 60px;
+  }
+
+  /* Personalizar tiempo de video */
+  .video-js .vjs-time-control {
+    font-size: 12px;
+    color: #fff;
+    font-weight: 500;
+  }
+
+  /* ===== NAVEGACIÓN DE MÓDULOS ===== */
+  .module-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .nav-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .nav-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  }
+
+  .nav-btn:disabled {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+    cursor: not-allowed;
+  }
+
+  .module-counter {
+    color: #e2e8f0;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  </style>
+
+    <!-- Script de inicialización con control del botón de play -->
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', () => {
+        // Verificamos que el elemento de video exista antes de inicializar
+        if (document.getElementById('my-video-player')) {
+          const player = videojs('my-video-player', {
+            fluid: true,
+            responsive: true,
+            controls: true,
+            // Configuración de controles personalizada
+            controlBar: {
+              // Solo mostrar los controles esenciales
+              children: [
+                'playToggle',
+                'currentTimeDisplay',
+                'timeDivider',
+                'durationDisplay',
+                'progressControl',
+                'volumePanel',
+                'fullscreenToggle'
+              ]
+            },
+            // Ocultar controles innecesarios
+            playbackRates: false, // Sin velocidades de reproducción
+            textTrackDisplay: false, // Sin subtítulos por defecto
+            loadingSpinner: true,
+            bigPlayButton: true,
+            // Configuración de volumen
+            volumePanel: {
+              inline: false,
+              volumeControl: {
+                vertical: false
+              }
+            }
+          });
+          
+          console.log('Reproductor Video.js inicializado correctamente.');
+          
+          // Controlar el botón de play grande
+          player.ready(function() {
+            console.log('Video.js listo!');
+            
+            // Ocultar el botón de play grande cuando se reproduce
+            player.on('play', function() {
+              console.log('Video iniciado - ocultando botón de play grande');
+              const bigPlayButton = player.el().querySelector('.vjs-big-play-button');
+              if (bigPlayButton) {
+                bigPlayButton.style.display = 'none';
+              }
+            });
+            
+            // Mostrar el botón de play grande cuando se pausa
+            player.on('pause', function() {
+              console.log('Video pausado - mostrando botón de play grande');
+              const bigPlayButton = player.el().querySelector('.vjs-big-play-button');
+              if (bigPlayButton) {
+                bigPlayButton.style.display = 'block';
+              }
+            });
+            
+            // Ocultar el botón cuando el video termine
+            player.on('ended', function() {
+              console.log('Video terminado - mostrando botón de play grande');
+              const bigPlayButton = player.el().querySelector('.vjs-big-play-button');
+              if (bigPlayButton) {
+                bigPlayButton.style.display = 'block';
+              }
+            });
+          });
+        }
+      });
+    </script>

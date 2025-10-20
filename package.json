@@ -1,0 +1,22 @@
+{
+  "name": "rojasfitt",
+  "type": "module",
+  "version": "0.0.2",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "create-admin": "node src/scripts/create-admin.js",
+    "start": "node ./dist/server/entry.mjs"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.4.4",
+    "@types/better-sqlite3": "^7.6.13",
+    "astro": "^5.14.1",
+    "bcryptjs": "^3.0.2",
+    "better-sqlite3": "^12.4.1",
+    "form-data": "^4.0.4",
+    "node-fetch": "^3.3.2"
+  }
+}
