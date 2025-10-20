@@ -1,6 +1,5 @@
 import { userQueries, sessionQueries } from '../../../lib/database.js';
-import { verifyPassword, generateSessionToken, generateExpirationDate } from '../../../lib/auth.js';
-import { randomBytes } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 
 export async function POST({ request }) {
     try {
@@ -30,8 +29,10 @@ export async function POST({ request }) {
             });
         }
 
-        // Verificar contraseña usando el método correcto
-        if (!verifyPassword(password, user.password_hash)) {
+        // Verificar contraseña
+        const hashedPassword = createHash('sha256').update(password).digest('hex');
+        
+        if (user.password_hash !== hashedPassword) {
             return new Response(JSON.stringify({
                 success: false,
                 message: 'Credenciales incorrectas'
@@ -41,13 +42,12 @@ export async function POST({ request }) {
             });
         }
 
-        // Generar token de sesión usando la función correcta
-        const sessionToken = generateSessionToken();
-        const expirationDays = rememberMe ? 30 : 1; // 30 días si "recordarme", 1 día si no
-        const expiresAt = generateExpirationDate(expirationDays);
+        // Generar token de sesión
+        const sessionToken = randomBytes(32).toString('hex');
         
         // Crear sesión en la base de datos
-        sessionQueries.create(user.id, sessionToken, expiresAt);
+        const expiresAt = new Date(Date.now() + (rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000));
+        sessionQueries.create(user.id, sessionToken, expiresAt.toISOString());
         
         // Crear cookie de sesión
         const cookieOptions = [
