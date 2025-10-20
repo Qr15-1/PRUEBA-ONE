@@ -476,9 +476,20 @@ const modules = await moduleQueries.getByCourse(courseId);
     
     // Log final para debug
     console.log('🎬 VIDEO FINAL QUE SE GUARDARÁ:', data.videoUrl);
-    console.log('📋 DATOS COMPLETOS A ENVIAR:', JSON.stringify(data, null, 2));
-
-    console.log('Datos a enviar:', data);
+    
+    // Preparar datos para envío (sin el objeto File)
+    const dataToSend = {
+      id: data.id,
+      title: data.title,
+      description: data.description,
+      duration: data.duration,
+      videoUrl: data.videoUrl,
+      isFree: data.isFree,
+      orderIndex: data.orderIndex || 0
+    };
+    
+    console.log('📋 DATOS COMPLETOS A ENVIAR:', JSON.stringify(dataToSend, null, 2));
+    console.log('Datos a enviar:', dataToSend);
 
     try {
       const url = editingModuleId 
@@ -491,7 +502,7 @@ const modules = await moduleQueries.getByCourse(courseId);
         method: method,
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(data)
+        body: JSON.stringify(dataToSend)
       });
 
       if (response.ok) {

@@ -419,7 +419,7 @@ export const courseQueries = {
 export const moduleQueries = {
     create: (moduleData) => {
         const stmt = db.prepare(`
-            INSERT INTO course_modules (course_id, title, description, video_url, duration, order_index, is_free)
+            INSERT INTO course_modules (course_id, title, description, videoUrl, duration, order_index, isFree)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `);
         return stmt.run(
@@ -450,7 +450,7 @@ export const moduleQueries = {
     update: (id, moduleData) => {
         const stmt = db.prepare(`
             UPDATE course_modules 
-            SET title = ?, description = ?, video_url = ?, duration = ?, order_index = ?, is_free = ?, updated_at = CURRENT_TIMESTAMP
+            SET title = ?, description = ?, videoUrl = ?, duration = ?, order_index = ?, isFree = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `);
         return stmt.run(
@@ -459,7 +459,7 @@ export const moduleQueries = {
             moduleData.videoUrl,
             moduleData.duration,
             moduleData.orderIndex,
-            moduleData.isFree ? 1 : 0,
+            moduleData.isFree,
             id
         );
     },
