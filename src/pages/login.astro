@@ -10,12 +10,12 @@ import Layout from '../layouts/Layout.astro';
         <p class="login-subtitle">Accede a tu cuenta para continuar</p>
       </div>
 
-      <form class="login-form" id="loginForm">
+      <form class="login-form" id="pageLoginForm">
         <div class="form-group">
-          <label for="email" class="form-label">Email</label>
+          <label for="pageEmail" class="form-label">Email</label>
           <input 
             type="email" 
-            id="email" 
+            id="pageEmail" 
             name="email" 
             class="form-input" 
             placeholder="tu@email.com"
@@ -24,10 +24,10 @@ import Layout from '../layouts/Layout.astro';
         </div>
 
         <div class="form-group">
-          <label for="password" class="form-label">Contraseña</label>
+          <label for="pagePassword" class="form-label">Contraseña</label>
           <input 
             type="password" 
-            id="password" 
+            id="pagePassword" 
             name="password" 
             class="form-input" 
             placeholder="Tu contraseña"
@@ -234,7 +234,7 @@ import Layout from '../layouts/Layout.astro';
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const loginForm = document.getElementById('loginForm') as HTMLFormElement;
+      const loginForm = document.getElementById('pageLoginForm') as HTMLFormElement;
       const loginBtn = document.getElementById('loginBtn') as HTMLButtonElement;
       const btnText = loginBtn?.querySelector('.btn-text') as HTMLElement;
       const btnLoading = loginBtn?.querySelector('.btn-loading') as HTMLElement;
