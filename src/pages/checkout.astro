@@ -908,6 +908,13 @@ function setupPaymentModal() {
     confirmPaymentBtn.addEventListener('click', function() {
       console.log('💳 Abriendo modal de confirmación de pago...');
       
+      // Verificar que se hayan aceptado los términos y condiciones
+      const termsCheckbox = document.getElementById('acceptTerms');
+      if (!termsCheckbox || !termsCheckbox.checked) {
+        alert('⚠️ Debes aceptar los términos y condiciones antes de proceder con el pago.');
+        return;
+      }
+      
       // Establecer el monto total en el campo de monto pagado
       const totalAmount = document.getElementById('total')?.textContent || '$0.00';
       const numericAmount = totalAmount.replace('$', '').replace(',', '');
@@ -1013,6 +1020,7 @@ function setupPaymentModal() {
     });
   }
 }
+
 </script>
 
 <style>
@@ -2295,6 +2303,7 @@ html {
 .modal-body {
   padding: 25px;
 }
+
 
 .form-group {
   margin-bottom: 20px;
