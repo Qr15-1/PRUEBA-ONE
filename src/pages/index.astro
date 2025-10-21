@@ -63,9 +63,10 @@ const featuredCourses = courseQueries.getAll().filter(course => course.is_active
                 <!-- Icono de carrito en esquina -->
                 <button 
                   class="card-cart-icon" 
-                  data-course-id={course.slug}
+                  data-course-id={course.id}
+                  data-course-slug={course.slug}
                   data-course-title={course.title}
-                  data-course-price="99.99"
+                  data-course-price={course.price}
                   data-course-image={course.image || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=400"}
                   data-course-category={course.category}
                   title="Agregar al carrito"

@@ -188,6 +188,28 @@ try {
         // La columna ya existe, ignorar error
     }
     
+    // Agregar columna video_url a course_modules si no existe
+    try {
+        db.exec(`ALTER TABLE course_modules ADD COLUMN video_url TEXT`);
+        console.log('✅ Columna video_url agregada a course_modules');
+    } catch (e) {
+        // La columna ya existe, ignorar error
+        if (!e.message.includes('duplicate column name')) {
+            console.log('ℹ️ Columna video_url ya existe o no se pudo agregar:', e.message);
+        }
+    }
+    
+    // Agregar columna is_free a course_modules si no existe
+    try {
+        db.exec(`ALTER TABLE course_modules ADD COLUMN is_free BOOLEAN DEFAULT 0`);
+        console.log('✅ Columna is_free agregada a course_modules');
+    } catch (e) {
+        // La columna ya existe, ignorar error
+        if (!e.message.includes('duplicate column name')) {
+            console.log('ℹ️ Columna is_free ya existe o no se pudo agregar:', e.message);
+        }
+    }
+    
     console.log('✅ Todas las tablas creadas/verificadas correctamente');
 } catch (error) {
     console.error('❌ Error creando tablas:', error);
@@ -247,6 +269,15 @@ export const userQueries = {
             WHERE id = ?
         `);
         return stmt.run(passwordHash, userId);
+    },
+
+    findBySessionToken: (sessionToken) => {
+        const stmt = db.prepare(`
+            SELECT users.* FROM users
+            JOIN user_sessions ON users.id = user_sessions.user_id
+            WHERE user_sessions.session_token = ? AND user_sessions.expires_at > datetime('now')
+        `);
+        return stmt.get(sessionToken);
     },
 
     getAll: () => {

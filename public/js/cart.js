@@ -82,10 +82,19 @@ class ShoppingCart {
     getCourseDataFromButton(button) {
         // Intentar obtener datos del botón
         const courseId = button.dataset.courseId;
+        const courseSlug = button.dataset.courseSlug || courseId;
         const courseTitle = button.dataset.courseTitle || 'Curso Premium';
         const coursePrice = parseFloat(button.dataset.coursePrice) || 99.99;
         const courseImage = button.dataset.courseImage || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400';
         const courseCategory = button.dataset.courseCategory || 'Fitness';
+
+        console.log('🛒 Datos del botón:', {
+            courseId,
+            courseSlug,
+            courseTitle,
+            coursePrice,
+            courseCategory
+        });
 
         if (!courseId) {
             console.warn('⚠️ No se encontró courseId en el botón');
@@ -94,11 +103,11 @@ class ShoppingCart {
 
         return {
             id: courseId,
+            slug: courseSlug,
             title: courseTitle,
             price: coursePrice,
             image: courseImage,
-            category: courseCategory,
-            slug: courseId
+            category: courseCategory
         };
     }
 
@@ -109,10 +118,19 @@ class ShoppingCart {
             return;
         }
 
-        // Verificar si ya existe
-        const existingItem = this.items.find(item => item.id === courseData.id);
+        console.log('🛒 Agregando curso al carrito:', courseData);
+        console.log('📋 Cursos actuales en el carrito:', this.items.map(item => ({ id: item.id, title: item.title, slug: item.slug })));
+
+        // Verificar si ya existe por ID, slug o título
+        const existingItem = this.items.find(item => 
+            item.id === courseData.id || 
+            item.id == courseData.id || // Comparación flexible
+            item.slug === courseData.slug ||
+            (item.title === courseData.title && item.price === courseData.price)
+        );
         
         if (existingItem) {
+            console.log('⚠️ Curso ya existe en el carrito:', existingItem);
             this.showNotification('¡Este curso ya está en tu carrito!', 'warning');
             return;
         }
@@ -135,40 +153,139 @@ class ShoppingCart {
         }, 100);
         
         console.log('✅ Curso agregado:', courseData.title);
+        console.log('📦 Total de cursos en carrito:', this.items.length);
     }
 
     removeFromCart(itemId) {
-        this.items = this.items.filter(item => item.id !== itemId);
+        console.log('🗑️ Intentando remover item:', itemId);
+        console.log('📦 Items antes de remover:', this.items.length);
+        console.log('📋 IDs disponibles:', this.items.map(item => item.id));
+        
+        // Intentar diferentes tipos de búsqueda
+        const originalLength = this.items.length;
+        let itemRemoved = false;
+        
+        // Primero intentar con ID exacto
+        this.items = this.items.filter(item => {
+            if (item.id == itemId || item.id === itemId) {
+                console.log('✅ Item encontrado y removido:', item.id, item.title);
+                itemRemoved = true;
+                return false; // Remover el item
+            }
+            return true; // Mantener el item
+        });
+        
+        // Si no se encontró, intentar con slug
+        if (!itemRemoved) {
+            this.items = this.items.filter(item => {
+                if (item.slug == itemId || item.slug === itemId) {
+                    console.log('✅ Item encontrado por slug y removido:', item.slug, item.title);
+                    itemRemoved = true;
+                    return false; // Remover el item
+                }
+                return true; // Mantener el item
+            });
+        }
+        
+        // Si aún no se encontró, remover por índice (último recurso)
+        if (!itemRemoved && this.items.length > 0) {
+            console.log('⚠️ ID no encontrado, removiendo el último item');
+            this.items.pop();
+            itemRemoved = true;
+        }
+        
+        console.log('📦 Items después de filtrar:', this.items.length);
+        
+        if (!itemRemoved) {
+            console.warn('⚠️ No se pudo remover ningún item');
+            this.showNotification('Error al remover el curso', 'error');
+            return;
+        }
+        
+        // Guardar y actualizar
         this.saveCart();
         this.updateCartDisplay();
         this.updateCartIcon();
         this.showNotification('Curso removido del carrito', 'info');
         
-        // Forzar actualización del contador
-        setTimeout(() => {
-            this.updateCartIcon();
-        }, 100);
-        
-        console.log('❌ Curso removido:', itemId);
+        console.log('✅ Curso removido exitosamente');
+        console.log('📦 Items restantes:', this.items.length);
     }
 
     clearCart() {
-        if (this.items.length === 0) return;
+        if (this.items.length === 0) {
+            this.showNotification('El carrito ya está vacío', 'info');
+            return;
+        }
         
         if (confirm('¿Estás seguro de que quieres limpiar el carrito?')) {
+            console.log('🗑️ Limpiando carrito - Items antes:', this.items.length);
+            
             this.items = [];
             this.saveCart();
             this.updateCartDisplay();
             this.updateCartIcon();
             this.showNotification('Carrito limpiado', 'info');
             
-            // Forzar actualización del contador
-            setTimeout(() => {
-                this.updateCartIcon();
-            }, 100);
-            
-            console.log('🗑️ Carrito limpiado');
+            console.log('✅ Carrito limpiado - Items después:', this.items.length);
         }
+    }
+
+    // Función para limpiar el carrito sin confirmación (para uso interno)
+    forceClearCart() {
+        console.log('🗑️ LIMPIEZA FORZADA DEL CARRITO...');
+        
+        // Limpiar completamente
+        this.items = [];
+        localStorage.removeItem('rojasfitt_cart');
+        
+        // Limpiar también otros posibles nombres de localStorage
+        localStorage.removeItem('cart');
+        localStorage.removeItem('shopping_cart');
+        localStorage.removeItem('cart_items');
+        
+        // Actualizar interfaz inmediatamente
+        this.updateCartDisplay();
+        this.updateCartIcon();
+        
+        // Cerrar carrito si está abierto
+        this.closeCart();
+        
+        console.log('✅ Carrito limpiado forzadamente - Items:', this.items.length);
+        
+        // Forzar actualización múltiple
+        setTimeout(() => {
+            this.updateCartDisplay();
+            this.updateCartIcon();
+        }, 100);
+        
+        setTimeout(() => {
+            this.updateCartDisplay();
+            this.updateCartIcon();
+        }, 300);
+        
+        setTimeout(() => {
+            this.updateCartDisplay();
+            this.updateCartIcon();
+        }, 500);
+        
+        // Verificar que realmente se limpió
+        setTimeout(() => {
+            const remainingItems = JSON.parse(localStorage.getItem('rojasfitt_cart') || '[]');
+            console.log('🔍 Verificación final - Items restantes en localStorage:', remainingItems.length);
+            console.log('🔍 Verificación final - Items en this.items:', this.items.length);
+            
+            if (remainingItems.length > 0 || this.items.length > 0) {
+                console.error('❌ ERROR: El carrito no se limpió completamente');
+                console.log('🔄 Intentando limpieza adicional...');
+                this.items = [];
+                localStorage.removeItem('rojasfitt_cart');
+                this.updateCartDisplay();
+                this.updateCartIcon();
+            } else {
+                console.log('✅ Carrito limpiado exitosamente');
+            }
+        }, 1000);
     }
 
     checkout() {
@@ -177,15 +294,24 @@ class ShoppingCart {
             return;
         }
 
-        // Simular proceso de checkout
+        // Verificar autenticación antes de proceder al checkout
+        if (!this.isUserAuthenticated()) {
+            this.showNotification('Debes iniciar sesión para continuar con la compra', 'warning');
+            this.redirectToLogin();
+            return;
+        }
+
+        // Cerrar el carrito antes de redirigir
+        this.closeCart();
+        
+        // Redirigir a la página de checkout
         this.showNotification('¡Redirigiendo al checkout...', 'success');
         
-        // Aquí podrías integrar con Stripe, PayPal, etc.
         setTimeout(() => {
-            alert(`¡Checkout simulado!\n\nTotal: $${this.getTotal().toFixed(2)}\nCursos: ${this.items.length}\n\nEn una implementación real, aquí se procesaría el pago.`);
+            window.location.href = '/checkout';
         }, 1000);
         
-        console.log('💳 Checkout iniciado:', this.items);
+        console.log('💳 Redirigiendo al checkout:', this.items);
     }
 
     openCart() {
@@ -224,11 +350,14 @@ class ShoppingCart {
 
         if (!cartItems || !cartEmpty || !cartFooter) return;
 
+        console.log('🔄 Actualizando display del carrito - Items:', this.items.length);
+
         // Mostrar/ocultar elementos según el estado
         if (this.items.length === 0) {
             cartItems.style.display = 'none';
             cartEmpty.style.display = 'block';
             cartFooter.style.display = 'none';
+            console.log('📭 Carrito vacío - mostrando mensaje');
         } else {
             cartItems.style.display = 'flex';
             cartEmpty.style.display = 'none';
@@ -248,6 +377,7 @@ class ShoppingCart {
                     </button>
                 </div>
             `).join('');
+            console.log('📦 Carrito con items - renderizando', this.items.length, 'items');
         }
 
         // Actualizar totales
@@ -370,12 +500,6 @@ class ShoppingCart {
         // Verificar si hay datos de usuario en localStorage
         const userData = localStorage.getItem('user_data');
         
-        console.log('🔐 Verificando autenticación:', {
-            adminSession,
-            userSession,
-            userData: !!userData
-        });
-        
         return adminSession || userSession || !!userData;
     }
 
@@ -403,5 +527,91 @@ window.addToCart = function(courseData) {
 window.openCart = function() {
     if (window.cart) {
         window.cart.openCart();
+    }
+};
+
+// Función global para limpiar el carrito
+window.clearCart = function() {
+    if (window.cart) {
+        window.cart.forceClearCart();
+    }
+};
+
+// Función de debug para verificar el estado del carrito
+window.debugCart = function() {
+    if (window.cart) {
+        console.log('🔍 Estado del carrito:');
+        console.log('- Items en this.items:', window.cart.items.length);
+        console.log('- Items en localStorage:', JSON.parse(localStorage.getItem('rojasfitt_cart') || '[]').length);
+        console.log('- Items:', window.cart.items);
+    }
+};
+
+// Función de emergencia para limpiar TODO
+window.emergencyClearCart = function() {
+    console.log('🚨 LIMPIEZA DE EMERGENCIA DEL CARRITO');
+    
+    // Limpiar localStorage completamente
+    localStorage.clear();
+    
+    // Limpiar el carrito si existe
+    if (window.cart) {
+        window.cart.items = [];
+        window.cart.updateCartDisplay();
+        window.cart.updateCartIcon();
+        window.cart.closeCart();
+    }
+    
+    // Recargar la página
+    setTimeout(() => {
+        window.location.reload();
+    }, 1000);
+    
+    console.log('✅ Limpieza de emergencia completada - Recargando página...');
+};
+
+// Función para remover el primer item del carrito (último recurso)
+window.removeFirstItem = function() {
+    if (window.cart && window.cart.items.length > 0) {
+        console.log('🗑️ Removiendo el primer item del carrito...');
+        window.cart.items.shift(); // Remover el primer elemento
+        window.cart.saveCart();
+        window.cart.updateCartDisplay();
+        window.cart.updateCartIcon();
+        console.log('✅ Primer item removido');
+    } else {
+        console.log('❌ No hay items en el carrito');
+    }
+};
+
+// Función para eliminar duplicados del carrito
+window.removeDuplicates = function() {
+    if (window.cart) {
+        console.log('🔄 Eliminando duplicados del carrito...');
+        console.log('📋 Items antes:', window.cart.items.length);
+        
+        // Crear un Set para rastrear items únicos
+        const uniqueItems = [];
+        const seen = new Set();
+        
+        window.cart.items.forEach(item => {
+            // Crear una clave única basada en ID, slug, título y precio
+            const key = `${item.id || item.slug || item.title}-${item.price}`;
+            
+            if (!seen.has(key)) {
+                seen.add(key);
+                uniqueItems.push(item);
+            } else {
+                console.log('🗑️ Duplicado encontrado y removido:', item.title);
+            }
+        });
+        
+        window.cart.items = uniqueItems;
+        window.cart.saveCart();
+        window.cart.updateCartDisplay();
+        window.cart.updateCartIcon();
+        
+        console.log('✅ Duplicados eliminados');
+        console.log('📋 Items después:', window.cart.items.length);
     }
 };

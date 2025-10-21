@@ -41,8 +41,17 @@ export async function POST({ request, params, cookies }) {
             });
         }
 
-        const courseId = params.id;
+        const courseId = parseInt(params.id);
         console.log('📝 ID del curso:', courseId);
+        console.log('📝 Tipo de courseId:', typeof courseId);
+        
+        if (isNaN(courseId)) {
+            console.log('❌ CourseId no es un número válido');
+            return new Response(JSON.stringify({ error: 'ID de curso inválido' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
         
         const moduleData = await request.json();
         console.log('📊 Datos del módulo recibidos:', moduleData);
@@ -70,10 +79,21 @@ export async function POST({ request, params, cookies }) {
         moduleData.isFree = moduleData.isFree ? 1 : 0;
 
         console.log('📊 Datos preparados para creación:', moduleData);
+        console.log('📊 courseId final:', moduleData.courseId);
+        console.log('📊 Tipo de courseId final:', typeof moduleData.courseId);
 
         // Insertar nuevo módulo
-        const result = moduleQueries.create(moduleData);
-        console.log('📝 Resultado de creación:', result);
+        let result;
+        try {
+            console.log('🔄 Llamando a moduleQueries.create...');
+            result = moduleQueries.create(moduleData);
+            console.log('📝 Resultado de creación:', result);
+            console.log('📝 Tipo de resultado:', typeof result);
+            console.log('📝 lastInsertRowid:', result.lastInsertRowid);
+        } catch (dbError) {
+            console.error('❌ Error específico de base de datos:', dbError);
+            throw dbError;
+        }
 
         return new Response(JSON.stringify({ 
             id: result.lastInsertRowid,

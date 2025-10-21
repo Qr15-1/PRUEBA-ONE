@@ -264,7 +264,7 @@ const courseData = {
   </div>
 </Layout>
 
-<script>
+<script define:vars={{ course }}>
   function showPurchaseModal() {
     // Redirigir a la tarjeta de compra
     document.querySelector('.course-purchase-card').scrollIntoView({ 
@@ -285,9 +285,59 @@ const courseData = {
 
   // Función para comprar curso
   function purchaseCourse() {
-    // Aquí implementarías la lógica de compra
-    alert('Redirigiendo al proceso de pago...');
-    // window.location.href = '/checkout?course=' + courseId;
+    console.log('🛒 Iniciando compra del curso...');
+    console.log('📋 Datos del curso disponibles:', course);
+    
+    // Verificar si el usuario está autenticado
+    const userData = localStorage.getItem('user_data');
+    if (!userData) {
+      alert('Debes iniciar sesión para comprar cursos. Redirigiendo al login...');
+      document.getElementById('openLoginModal').click();
+      return;
+    }
+    
+    // Obtener datos del curso
+    const courseData = {
+      id: course.id,
+      slug: course.slug,
+      title: course.title,
+      price: course.price,
+      image: course.image,
+      category: course.category
+    };
+    
+    console.log('📝 Datos del curso a comprar:', courseData);
+    
+    // Agregar curso al carrito
+    const cartItems = JSON.parse(localStorage.getItem('rojasfitt_cart')) || [];
+    
+    // Verificar si el curso ya está en el carrito
+    const existingItem = cartItems.find(item => item.id === courseData.id);
+    if (existingItem) {
+      alert('Este curso ya está en tu carrito. Redirigiendo al checkout...');
+      setTimeout(() => {
+        window.location.href = '/checkout';
+      }, 1000);
+      return;
+    }
+    
+    // Agregar al carrito
+    cartItems.push(courseData);
+    localStorage.setItem('rojasfitt_cart', JSON.stringify(cartItems));
+    
+    console.log('✅ Curso agregado al carrito:', courseData);
+    
+    // Mostrar notificación si el carrito está disponible
+    if (typeof window.cart !== 'undefined' && window.cart.showNotification) {
+      window.cart.showNotification('Curso agregado al carrito', 'success');
+    } else {
+      alert('¡Curso agregado al carrito! Redirigiendo al checkout...');
+    }
+    
+    // Redirigir al checkout
+    setTimeout(() => {
+      window.location.href = '/checkout';
+    }, 1500);
   }
 
   // Hacer la función global
