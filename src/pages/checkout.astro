@@ -249,6 +249,62 @@ if (!user) {
               <p class="confirmation-note">Tu pago será verificado en los próximos minutos</p>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal de Confirmación de Pago -->
+  <div id="paymentModal" class="payment-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>💳 Confirmar Pago</h3>
+        <button class="modal-close" id="closePaymentModal">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <form id="paymentForm">
+          <div class="form-group">
+            <label for="paymentMethod">Método de pago utilizado:</label>
+            <select id="paymentMethod" name="paymentMethod" required>
+              <option value="">Selecciona el método</option>
+              <option value="bitcoin">Bitcoin</option>
+              <option value="paypal">PayPal</option>
+              <option value="nequi">Nequi</option>
+              <option value="mobile">Pago Móvil</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="referenceNumber">Número de referencia/transacción:</label>
+            <input type="text" id="referenceNumber" name="referenceNumber" placeholder="Ej: TX123456789" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="amountPaid">Monto pagado:</label>
+            <input type="number" id="amountPaid" name="amountPaid" step="0.01" placeholder="0.00" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="paymentProof">Comprobante de pago (captura de pantalla):</label>
+            <input type="file" id="paymentProof" name="paymentProof" accept="image/*" required>
+            <small>Formatos permitidos: JPG, PNG, PDF</small>
+          </div>
+          
+          <div class="form-group">
+            <label for="additionalNotes">Notas adicionales (opcional):</label>
+            <textarea id="additionalNotes" name="additionalNotes" placeholder="Cualquier información adicional sobre el pago..."></textarea>
+          </div>
+        </form>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" id="cancelPayment">Cancelar</button>
+        <button type="button" class="btn-submit" id="submitPayment">Enviar Comprobante</button>
+      </div>
+    </div>
+  </div>
+          </div>
 
           <!-- Términos y condiciones -->
           <div class="checkout-section">
@@ -358,6 +414,9 @@ if (!user) {
     }
     
     console.log('✅ Checkout inicializado correctamente');
+    
+    // Configurar modal de pago
+    setupPaymentModal();
   });
 
   function loadOrderSummary(cartItems) {
@@ -833,6 +892,127 @@ if (!user) {
     
     console.log('✅ Cambio completado a:', method);
   };
+
+// ===== FUNCIÓN DEL MODAL DE PAGO =====
+function setupPaymentModal() {
+  const paymentModal = document.getElementById('paymentModal');
+  const confirmPaymentBtn = document.getElementById('confirmPayment');
+  const closeModalBtn = document.getElementById('closePaymentModal');
+  const cancelBtn = document.getElementById('cancelPayment');
+  const submitBtn = document.getElementById('submitPayment');
+  const paymentForm = document.getElementById('paymentForm');
+  const amountPaidInput = document.getElementById('amountPaid');
+
+  // Abrir modal al hacer clic en "Ya pagué"
+  if (confirmPaymentBtn) {
+    confirmPaymentBtn.addEventListener('click', function() {
+      console.log('💳 Abriendo modal de confirmación de pago...');
+      
+      // Establecer el monto total en el campo de monto pagado
+      const totalAmount = document.getElementById('total')?.textContent || '$0.00';
+      const numericAmount = totalAmount.replace('$', '').replace(',', '');
+      if (amountPaidInput) {
+        amountPaidInput.value = numericAmount;
+      }
+      
+      paymentModal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    });
+  }
+
+  // Cerrar modal
+  function closeModal() {
+    paymentModal.classList.remove('show');
+    document.body.style.overflow = '';
+    paymentForm.reset();
+  }
+
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', closeModal);
+  }
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', closeModal);
+  }
+
+  // Cerrar modal al hacer clic fuera
+  paymentModal.addEventListener('click', function(e) {
+    if (e.target === paymentModal) {
+      closeModal();
+    }
+  });
+
+  // Cerrar con ESC
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && paymentModal.classList.contains('show')) {
+      closeModal();
+    }
+  });
+
+  // Enviar formulario
+  if (submitBtn) {
+    submitBtn.addEventListener('click', function() {
+      console.log('📤 Enviando comprobante de pago...');
+      
+      // Validar formulario
+      if (!paymentForm.checkValidity()) {
+        paymentForm.reportValidity();
+        return;
+      }
+
+      // Deshabilitar botón
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
+
+      // Obtener datos del formulario
+      const formData = new FormData(paymentForm);
+      const paymentData = {
+        method: formData.get('paymentMethod'),
+        reference: formData.get('referenceNumber'),
+        amount: parseFloat(formData.get('amountPaid')),
+        notes: formData.get('additionalNotes'),
+        proof: formData.get('paymentProof')
+      };
+
+      // Obtener datos del usuario y cursos
+      const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+      const cartItems = JSON.parse(localStorage.getItem('rojasfitt_cart') || '[]');
+
+      const fullPaymentData = {
+        ...paymentData,
+        user: {
+          name: userData.first_name + ' ' + userData.last_name,
+          email: userData.email
+        },
+        courses: cartItems,
+        total: cartItems.reduce((sum, item) => sum + item.price, 0),
+        timestamp: new Date().toISOString()
+      };
+
+      console.log('💳 Datos del pago:', fullPaymentData);
+
+      // Simular envío (aquí iría la llamada a la API)
+      setTimeout(() => {
+        console.log('✅ Comprobante enviado exitosamente');
+        
+        // Mostrar mensaje de éxito
+        alert('✅ ¡Comprobante enviado! Tu pago será verificado en los próximos minutos. Te notificaremos por email cuando esté confirmado.');
+        
+        // Cerrar modal
+        closeModal();
+        
+        // Limpiar carrito
+        if (typeof window.cart !== 'undefined') {
+          window.cart.forceClearCart();
+        }
+        
+        // Redirigir a página de éxito o inicio
+        window.location.href = '/';
+        
+      }, 2000);
+    });
+  }
+}
 </script>
 
 <style>
@@ -2041,6 +2221,222 @@ html {
 @media (prefers-color-scheme: dark) {
   .payment-info-card {
     background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 100%);
+  }
+}
+
+/* ===== ESTILOS DEL MODAL DE PAGO ===== */
+.payment-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+.payment-modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid rgba(153, 255, 0, 0.2);
+  animation: slideInUp 0.4s ease;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 1px solid rgba(153, 255, 0, 0.2);
+}
+
+.modal-header h3 {
+  color: #99FF00;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1.8rem;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+  background: rgba(255, 0, 0, 0.2);
+  color: #ff4444;
+}
+
+.modal-body {
+  padding: 25px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  color: #ffffff;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid rgba(153, 255, 0, 0.3);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #99FF00;
+  box-shadow: 0 0 15px rgba(153, 255, 0, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.form-group small {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  margin-top: 5px;
+  display: block;
+}
+
+.form-group textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 15px;
+  padding: 20px 25px;
+  border-top: 1px solid rgba(153, 255, 0, 0.2);
+}
+
+.btn-cancel,
+.btn-submit {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-cancel:hover {
+  background: rgba(255, 0, 0, 0.2);
+  border-color: #ff4444;
+  color: #ff4444;
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, #99FF00, #7ACC00);
+  color: #000000;
+  font-weight: 700;
+}
+
+.btn-submit:hover {
+  background: linear-gradient(135deg, #7ACC00, #5AA300);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(153, 255, 0, 0.4);
+}
+
+.btn-submit:disabled {
+  background: rgba(153, 255, 0, 0.3);
+  color: rgba(0, 0, 0, 0.5);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Animaciones del modal */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive del modal */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 15px 20px;
+  }
+  
+  .modal-header h3 {
+    font-size: 1.2rem;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 10px 12px;
+    font-size: 0.9rem;
   }
 }
 
