@@ -84,7 +84,7 @@ class ShoppingCart {
         const courseId = button.dataset.courseId;
         const courseSlug = button.dataset.courseSlug || courseId;
         const courseTitle = button.dataset.courseTitle || 'Curso Premium';
-        const coursePrice = parseFloat(button.dataset.coursePrice) || 99.99;
+        const coursePrice = button.dataset.coursePrice ? parseFloat(button.dataset.coursePrice) : null;
         const courseImage = button.dataset.courseImage || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400';
         const courseCategory = button.dataset.courseCategory || 'Fitness';
 
@@ -93,11 +93,18 @@ class ShoppingCart {
             courseSlug,
             courseTitle,
             coursePrice,
-            courseCategory
+            courseCategory,
+            buttonDataset: button.dataset
         });
 
         if (!courseId) {
             console.warn('⚠️ No se encontró courseId en el botón');
+            return null;
+        }
+
+        if (!coursePrice || coursePrice === 0) {
+            console.error('❌ No se encontró precio válido en el botón');
+            this.showNotification('Error: No se pudo obtener el precio del curso', 'error');
             return null;
         }
 
