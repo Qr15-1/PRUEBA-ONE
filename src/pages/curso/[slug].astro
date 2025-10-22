@@ -643,6 +643,11 @@ const courseData = {
     color: #ef4444;
   }
 
+  .meta-tag.available {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+  }
+
   /* ===== SIDEBAR DE COMPRA ===== */
   .course-sidebar {
     position: sticky;
@@ -1135,4 +1140,51 @@ const courseData = {
           });
         }
       });
+
+      // ===== VERIFICAR ACCESO DEL USUARIO AL CURSO =====
+      async function checkUserAccess() {
+        const userData = localStorage.getItem('user_data');
+        if (!userData) return;
+        
+        try {
+          const user = JSON.parse(userData);
+          const courseId = ${courseData.id};
+          
+          const response = await fetch(`/api/courses/check-access?email=${encodeURIComponent(user.email)}&courseId=${courseId}`);
+          const result = await response.json();
+          
+          if (result.success && result.hasAccess) {
+            console.log('✅ Usuario tiene acceso al curso');
+            
+            // Desbloquear todos los módulos
+            document.querySelectorAll('.curriculum-item').forEach((item, index) => {
+              const lockedTag = item.querySelector('.meta-tag.locked');
+              if (lockedTag) {
+                lockedTag.textContent = 'Disponible';
+                lockedTag.className = 'meta-tag available';
+                lockedTag.style.background = '#22c55e';
+                lockedTag.style.color = 'white';
+              }
+            });
+            
+            // Actualizar botón de compra
+            const buyButton = document.querySelector('.course-buy-button');
+            if (buyButton) {
+              buyButton.textContent = '✅ Ya tienes este curso';
+              buyButton.style.background = '#22c55e';
+              buyButton.disabled = true;
+            }
+            
+            // Mostrar mensaje de éxito
+            console.log('🎉 ¡Curso desbloqueado! Todos los módulos están disponibles.');
+          } else {
+            console.log('ℹ️ Usuario no tiene acceso al curso');
+          }
+        } catch (error) {
+          console.log('ℹ️ No se pudo verificar acceso al curso:', error);
+        }
+      }
+      
+      // Verificar acceso al cargar la página
+      checkUserAccess();
     </script>

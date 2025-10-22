@@ -57,8 +57,13 @@ const featuredCourses = courseQueries.getAll().filter(course => course.is_active
         <div class="slider__carousel">
           <div class="slider__cards-container" id="cardsContainer">
             {featuredCourses.map((course, index) => (
-              <div class="slider__card" data-index={index}>
+              <div class="slider__card" data-index={index} data-course-id={course.id}>
                 <img src={course.image || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=400"} alt={course.title}>
+                
+                <!-- Estado de pago del curso -->
+                <div class="course-payment-status" id={`status-${course.id}`}>
+                  <!-- Se llenará dinámicamente con JavaScript -->
+                </div>
                 
                 <!-- Icono de carrito en esquina -->
                 <button 
@@ -106,4 +111,126 @@ const featuredCourses = courseQueries.getAll().filter(course => course.is_active
       </div>
     </div>
   </section>
+
+  <style>
+    /* ===== ESTADO DE PAGO EN CURSOS DEL SLIDER ===== */
+    .slider__card .course-payment-status {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      z-index: 10;
+      display: none;
+    }
+
+    .slider__card .course-payment-status.pending {
+      background: linear-gradient(135deg, #ffa500, #ff8c00);
+      color: white;
+      display: block;
+    }
+
+    .slider__card .course-payment-status.confirmed {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      display: block;
+    }
+
+    .slider__card .course-payment-status.pending::before {
+      content: "⏳ ";
+    }
+
+    .slider__card .course-payment-status.confirmed::before {
+      content: "✅ ";
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // ===== VERIFICAR ESTADO DE PAGOS DE CURSOS =====
+      async function checkCoursePaymentStatus() {
+        const userData = localStorage.getItem('user_data');
+        if (!userData) return;
+        
+        try {
+          const user = JSON.parse(userData);
+          const response = await fetch(`/api/payments/check-status?email=${encodeURIComponent(user.email)}`);
+          const result = await response.json();
+          
+          if (result.success) {
+            // Obtener todos los IDs de cursos pendientes y confirmados
+            const pendingCourseIds = new Set();
+            const confirmedCourseIds = new Set();
+            
+            if (result.pending && result.pending.length > 0) {
+              result.pending.forEach(payment => {
+                const courseIds = JSON.parse(payment.course_ids);
+                courseIds.forEach(id => pendingCourseIds.add(parseInt(id)));
+              });
+            }
+            
+            if (result.confirmed && result.confirmed.length > 0) {
+              result.confirmed.forEach(payment => {
+                const courseIds = JSON.parse(payment.course_ids);
+                courseIds.forEach(id => confirmedCourseIds.add(parseInt(id)));
+              });
+            }
+            
+            // Actualizar estado visual de cada curso en el slider
+            document.querySelectorAll('.slider__card').forEach(card => {
+              const courseId = parseInt(card.getAttribute('data-course-id') || '0');
+              const statusElement = card.querySelector('.course-payment-status');
+              const cartButton = card.querySelector('.card-cart-icon') as HTMLButtonElement;
+              
+              if (statusElement) {
+                if (confirmedCourseIds.has(courseId)) {
+                  statusElement.className = 'course-payment-status confirmed';
+                  statusElement.textContent = 'Disponible';
+                  // Deshabilitar botón de carrito para cursos confirmados
+                  if (cartButton) {
+                    cartButton.disabled = true;
+                    cartButton.textContent = '✅';
+                    cartButton.title = 'Ya tienes este curso';
+                    cartButton.style.background = '#22c55e';
+                    cartButton.style.cursor = 'not-allowed';
+                  }
+                } else if (pendingCourseIds.has(courseId)) {
+                  statusElement.className = 'course-payment-status pending';
+                  statusElement.textContent = 'Pendiente';
+                  // Deshabilitar botón de carrito para cursos pendientes
+                  if (cartButton) {
+                    cartButton.disabled = true;
+                    cartButton.textContent = '⏳';
+                    cartButton.title = 'Pago pendiente de confirmación';
+                    cartButton.style.background = '#ffa500';
+                    cartButton.style.cursor = 'not-allowed';
+                  }
+                } else {
+                  statusElement.className = 'course-payment-status';
+                  statusElement.textContent = '';
+                  // Habilitar botón de carrito para cursos normales
+                  if (cartButton) {
+                    cartButton.disabled = false;
+                    cartButton.textContent = '🛒';
+                    cartButton.title = 'Agregar al carrito';
+                    cartButton.style.background = 'linear-gradient(135deg, #99FF00, #7ACC00)';
+                    cartButton.style.cursor = 'pointer';
+                  }
+                }
+              }
+            });
+          }
+        } catch (error) {
+          console.log('ℹ️ No se pudo verificar estado de pagos:', error);
+        }
+      }
+      
+      // Verificar estado al cargar la página
+      checkCoursePaymentStatus();
+    });
+  </script>
 </Layout>

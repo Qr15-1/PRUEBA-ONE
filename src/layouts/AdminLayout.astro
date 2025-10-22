@@ -33,6 +33,9 @@ const currentPath = Astro.url.pathname;
                     <a href="/admin/users" class={`nav-link ${currentPath.startsWith('/admin/users') ? 'active' : ''}`}>
                         👥 Usuarios
                     </a>
+                    <a href="/admin/payments" class={`nav-link ${currentPath.startsWith('/admin/payments') ? 'active' : ''}`}>
+                        💳 Pagos
+                    </a>
                     
                 </div>
                 <div class="nav-right">

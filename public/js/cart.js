@@ -15,6 +15,8 @@ class ShoppingCart {
         
         if (this.isUserAuthenticated()) {
             console.log('🛒 Sistema de carrito inicializado con', this.items.length, 'items');
+            // Verificar estado de cursos al inicializar
+            this.checkCourseStatus();
         } else {
             console.log('🔐 Usuario no autenticado - carrito oculto');
         }
@@ -121,12 +123,33 @@ class ShoppingCart {
     addToCart(courseData) {
         // Verificar si el usuario está autenticado
         if (!this.isUserAuthenticated()) {
+            this.showNotification('🔐 Debes iniciar sesión para agregar cursos al carrito', 'warning');
             this.redirectToLogin();
             return;
         }
 
         console.log('🛒 Agregando curso al carrito:', courseData);
         console.log('📋 Cursos actuales en el carrito:', this.items.map(item => ({ id: item.id, title: item.title, slug: item.slug })));
+
+        // Verificar si el curso ya está pendiente o confirmado
+        const courseId = parseInt(courseData.id);
+        const pendingCourses = JSON.parse(localStorage.getItem('pending_courses') || '[]');
+        const confirmedCourses = JSON.parse(localStorage.getItem('confirmed_courses') || '[]');
+        
+        const isPending = pendingCourses.some(course => parseInt(course.id) === courseId);
+        const isConfirmed = confirmedCourses.some(course => parseInt(course.id) === courseId);
+        
+        if (isPending) {
+            console.log('⏳ Curso ya está pendiente de confirmación:', courseData.title);
+            this.showNotification('⏳ Este curso ya está pendiente de confirmación', 'warning');
+            return;
+        }
+        
+        if (isConfirmed) {
+            console.log('✅ Curso ya está confirmado:', courseData.title);
+            this.showNotification('✅ Ya tienes este curso disponible', 'info');
+            return;
+        }
 
         // Verificar si ya existe por ID, slug o título
         const existingItem = this.items.find(item => 
@@ -301,13 +324,6 @@ class ShoppingCart {
             return;
         }
 
-        // Verificar autenticación antes de proceder al checkout
-        if (!this.isUserAuthenticated()) {
-            this.showNotification('Debes iniciar sesión para continuar con la compra', 'warning');
-            this.redirectToLogin();
-            return;
-        }
-
         // Cerrar el carrito antes de redirigir
         this.closeCart();
         
@@ -324,6 +340,7 @@ class ShoppingCart {
     openCart() {
         // Verificar autenticación antes de abrir el carrito
         if (!this.isUserAuthenticated()) {
+            this.showNotification('🔐 Debes iniciar sesión para ver el carrito', 'warning');
             this.redirectToLogin();
             return;
         }
@@ -496,6 +513,65 @@ class ShoppingCart {
         };
     }
 
+    // Verificar estado de cursos y actualizar botones
+    async checkCourseStatus() {
+        const userData = localStorage.getItem('user_data');
+        if (!userData) return;
+        
+        try {
+            const user = JSON.parse(userData);
+            const response = await fetch(`/api/payments/check-status?email=${encodeURIComponent(user.email)}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                // Obtener todos los IDs de cursos pendientes y confirmados
+                const pendingCourseIds = new Set();
+                const confirmedCourseIds = new Set();
+                
+                if (result.pending && result.pending.length > 0) {
+                    result.pending.forEach(payment => {
+                        const courseIds = JSON.parse(payment.course_ids);
+                        courseIds.forEach(id => pendingCourseIds.add(parseInt(id)));
+                    });
+                }
+                
+                if (result.confirmed && result.confirmed.length > 0) {
+                    result.confirmed.forEach(payment => {
+                        const courseIds = JSON.parse(payment.course_ids);
+                        courseIds.forEach(id => confirmedCourseIds.add(parseInt(id)));
+                    });
+                }
+                
+                // Actualizar botones de carrito en toda la página
+                document.querySelectorAll('.card-cart-icon').forEach(button => {
+                    const courseId = parseInt(button.getAttribute('data-course-id') || '0');
+                    
+                    if (confirmedCourseIds.has(courseId)) {
+                        button.disabled = true;
+                        button.textContent = '✅';
+                        button.title = 'Ya tienes este curso';
+                        button.style.background = '#22c55e';
+                        button.style.cursor = 'not-allowed';
+                    } else if (pendingCourseIds.has(courseId)) {
+                        button.disabled = true;
+                        button.textContent = '⏳';
+                        button.title = 'Pago pendiente de confirmación';
+                        button.style.background = '#ffa500';
+                        button.style.cursor = 'not-allowed';
+                    } else {
+                        button.disabled = false;
+                        button.textContent = '🛒';
+                        button.title = 'Agregar al carrito';
+                        button.style.background = 'linear-gradient(135deg, #99FF00, #7ACC00)';
+                        button.style.cursor = 'pointer';
+                    }
+                });
+            }
+        } catch (error) {
+            console.log('ℹ️ No se pudo verificar estado de cursos:', error);
+        }
+    }
+
     // Verificar si el usuario está autenticado
     isUserAuthenticated() {
         // Verificar si hay una cookie de sesión de admin
@@ -510,10 +586,10 @@ class ShoppingCart {
         return adminSession || userSession || !!userData;
     }
 
-    // Mostrar mensaje de iniciar sesión
+    // Mostrar mensaje de login sin redirigir
     redirectToLogin() {
-        // Mostrar notificación
-        this.showNotification('🔐 Inicia sesión para acceder al carrito', 'warning');
+        // Solo mostrar notificación, sin redirigir
+        this.showNotification('🔐 Debes iniciar sesión para acceder a esta función', 'warning');
     }
 }
 
@@ -541,6 +617,13 @@ window.openCart = function() {
 window.clearCart = function() {
     if (window.cart) {
         window.cart.forceClearCart();
+    }
+};
+
+// Función global para verificar estado de cursos
+window.checkCourseStatus = function() {
+    if (window.cart) {
+        window.cart.checkCourseStatus();
     }
 };
 

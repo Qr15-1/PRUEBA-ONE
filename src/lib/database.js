@@ -725,5 +725,134 @@ export const utils = {
     }
 };
 
+// =================================================================
+// TABLA DE PAGOS
+// =================================================================
+
+const createPaymentsTable = `
+CREATE TABLE IF NOT EXISTS payments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    user_email TEXT NOT NULL,
+    user_name TEXT NOT NULL,
+    course_ids TEXT NOT NULL,
+    course_titles TEXT NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    payment_method TEXT NOT NULL,
+    payment_proof TEXT,
+    reference_number TEXT,
+    additional_notes TEXT,
+    status TEXT DEFAULT 'pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    confirmed_at DATETIME,
+    FOREIGN KEY (user_id) REFERENCES users (id)
+)
+`;
+
+try {
+    db.exec(createPaymentsTable);
+    console.log('✅ Tabla payments creada/verificada');
+} catch (error) {
+    console.log('ℹ️ Tabla payments ya existe o no se pudo crear:', error.message);
+}
+
+// =================================================================
+// QUERIES PARA PAGOS
+// =================================================================
+
+export const paymentQueries = {
+    // Crear nuevo pago
+    create: (paymentData) => {
+        const stmt = db.prepare(`
+            INSERT INTO payments (
+                user_id, user_email, user_name, course_ids, course_titles,
+                total_amount, payment_method, payment_proof, reference_number,
+                additional_notes, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+        
+        return stmt.run(
+            paymentData.user_id,
+            paymentData.user_email,
+            paymentData.user_name,
+            paymentData.course_ids,
+            paymentData.course_titles,
+            paymentData.total_amount,
+            paymentData.payment_method,
+            paymentData.payment_proof,
+            paymentData.reference_number,
+            paymentData.additional_notes,
+            paymentData.status || 'pending'
+        );
+    },
+
+    // Obtener todos los pagos
+    getAll: () => {
+        const stmt = db.prepare(`
+            SELECT * FROM payments 
+            ORDER BY created_at DESC
+        `);
+        return stmt.all();
+    },
+
+    // Obtener pagos pendientes
+    getPending: () => {
+        const stmt = db.prepare(`
+            SELECT * FROM payments 
+            WHERE status = 'pending'
+            ORDER BY created_at DESC
+        `);
+        return stmt.all();
+    },
+
+    // Obtener pago por ID
+    getById: (id) => {
+        const stmt = db.prepare(`
+            SELECT * FROM payments WHERE id = ?
+        `);
+        return stmt.get(id);
+    },
+
+    // Confirmar pago
+    confirm: (id) => {
+        const stmt = db.prepare(`
+            UPDATE payments 
+            SET status = 'confirmed', confirmed_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `);
+        return stmt.run(id);
+    },
+
+    // Rechazar pago
+    reject: (id) => {
+        const stmt = db.prepare(`
+            UPDATE payments 
+            SET status = 'rejected'
+            WHERE id = ?
+        `);
+        return stmt.run(id);
+    },
+
+    // Obtener pagos por usuario
+    getByUserId: (userId) => {
+        const stmt = db.prepare(`
+            SELECT * FROM payments 
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+        `);
+        return stmt.all(userId);
+    },
+
+    // Obtener pagos por email de usuario
+    getByUserEmail: (email) => {
+        const stmt = db.prepare(`
+            SELECT * FROM payments 
+            WHERE user_email = ?
+            ORDER BY created_at DESC
+        `);
+        return stmt.all(email);
+    }
+};
+
 console.log('✅ Base de datos y queries inicializados correctamente');
 console.log('🔧 Versión con utils exportado correctamente');
