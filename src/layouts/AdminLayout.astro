@@ -1,0 +1,242 @@
+---
+export interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+const currentPath = Astro.url.pathname;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-page">
+        <!-- Navegación del Panel de Control -->
+        <nav class="admin-nav">
+            <div class="nav-container">
+                <div class="nav-left">
+                    <a href="/admin/dashboard" class={`nav-link ${currentPath === '/admin/dashboard' ? 'active' : ''}`}>
+                        🏠 Dashboard
+                    </a>
+                    <a href="/admin/courses" class={`nav-link ${currentPath.startsWith('/admin/courses') ? 'active' : ''}`}>
+                        📚 Cursos
+                    </a>
+                    <a href="/admin/users" class={`nav-link ${currentPath.startsWith('/admin/users') ? 'active' : ''}`}>
+                        👥 Usuarios
+                    </a>
+                    <a href="/admin/payments" class={`nav-link ${currentPath.startsWith('/admin/payments') ? 'active' : ''}`}>
+                        💳 Pagos
+                    </a>
+                    
+                </div>
+                <div class="nav-right">
+                    <button class="logout-btn" id="logoutBtn">
+                        🚪 Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Contenido Principal -->
+        <main class="admin-main">
+            <slot />
+        </main>
+    </div>
+
+    <script>
+        // Función de logout usando event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                        fetch('/api/admin/logout', {
+                            method: 'POST',
+                            credentials: 'include'
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.href = '/admin/login';
+                            } else {
+                                console.error('Error al cerrar sesión:', data.error);
+                                // Redirigir de todas formas para limpiar la sesión
+                                window.location.href = '/admin/login';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error al cerrar sesión:', error);
+                            // Redirigir de todas formas para limpiar la sesión
+                            window.location.href = '/admin/login';
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+
+<style is:global>
+    /* ===== RESET COMPLETO ===== */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 16px;
+    }
+
+    body {
+        background: #0a0a0a;
+        color: #ffffff;
+        line-height: 1.6;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    /* ===== ESTILOS BASE PARA ADMIN ===== */
+    .admin-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    }
+
+    /* ===== NAVEGACIÓN ADMIN ===== */
+    .admin-nav {
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(20px);
+        border-bottom: 2px solid rgba(34, 197, 94, 0.3);
+        padding: 15px 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .nav-left {
+        display: flex;
+        gap: 25px;
+        align-items: center;
+    }
+
+    .nav-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-link {
+        color: #b0b0b0;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .nav-link::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.1), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .nav-link:hover::before {
+        left: 100%;
+    }
+
+    .nav-link:hover {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+        transform: translateY(-2px);
+    }
+
+    .nav-link.active {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.1));
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
+    }
+
+    .logout-btn {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .logout-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+    }
+
+    /* ===== CONTENEDOR PRINCIPAL ===== */
+    .admin-main {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        min-height: calc(100vh - 80px);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        .nav-container {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .nav-left {
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .nav-link {
+            padding: 10px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .admin-main {
+            padding: 20px 15px;
+        }
+    }
+</style>

@@ -1,0 +1,235 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { courseQueries } from '../lib/database.js';
+
+// Obtener cursos destacados para el slider
+const featuredCourses = courseQueries.getAll().filter(course => course.is_active).slice(0, 5);
+---
+
+<Layout title="Cursus Fitness - Inicio" description="Transforma tu cuerpo y mente con nuestros programas de fitness personalizados">
+  <!-- =================================================================
+  BLOQUE PRINCIPAL: HERO SLIDER
+  Este 'section' es el contenedor raíz de todo el componente.
+  Actuará como el marco de referencia para todos los elementos
+  internos que se posicionarán de forma absoluta.
+  ================================================================== -->
+  <section class="hero-slider">
+
+    <!-- =================================================================
+    CAPA 1: FONDOS
+    Contiene todas las imágenes de fondo, apiladas una encima de otra.
+    La clase 'active' determinará cuál es visible en cada momento.
+    ================================================================== -->
+    <div class="slider__backgrounds">
+      {featuredCourses.map((course, index) => (
+        <div class={`slider__background-item ${index === 0 ? 'active' : ''}`} data-index={index}>
+          <img src={course.image || "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2070"} alt={course.title}>
+        </div>
+      ))}
+    </div>
+
+    <!-- =================================================================
+    CAPA 2: CONTENIDO SUPERPUESTO
+    Contiene toda la información visible por encima del fondo: textos,
+    el carrusel de tarjetas y los controles de navegación.
+    ================================================================== -->
+    <div class="slider__content">
+      <!-- Contenedor para el contenido de la izquierda (Textos) -->
+      <div class="slider__left-content">
+        <!-- Bloque que contiene todos los textos apilados -->
+        <div class="slider__texts">
+          {featuredCourses.map((course, index) => (
+            <div class={`slider__text-item ${index === 0 ? 'active' : ''}`} data-index={index}>
+              <p class="text-item__supertitle">{course.category}</p>
+              <h2 class="text-item__title" set:html={course.title.toUpperCase().replace(' ', '<br>')}></h2>
+              <p class="text-item__description">{course.description}</p>
+              <a href={`/curso/${course.slug}`} class="text-item__button course-btn" data-course={course.slug}>
+                {index === 0 ? 'Comenzar Ahora' : 'Ver Curso'}
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Contenedor para el contenido de la derecha (Carrusel y Controles) -->
+      <div class="slider__right-content">
+        <!-- El "tren" de tarjetas que se deslizará horizontalmente -->
+        <div class="slider__carousel">
+          <div class="slider__cards-container" id="cardsContainer">
+            {featuredCourses.map((course, index) => (
+              <div class="slider__card" data-index={index} data-course-id={course.id}>
+                <img src={course.image || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=400"} alt={course.title}>
+                
+                <!-- Estado de pago del curso -->
+                <div class="course-payment-status" id={`status-${course.id}`}>
+                  <!-- Se llenará dinámicamente con JavaScript -->
+                </div>
+                
+                <!-- Icono de carrito en esquina -->
+                <button 
+                  class="card-cart-icon" 
+                  data-course-id={course.id}
+                  data-course-slug={course.slug}
+                  data-course-title={course.title}
+                  data-course-price={course.price}
+                  data-course-image={course.image || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=400"}
+                  data-course-category={course.category}
+                  title="Agregar al carrito"
+                >
+                  🛒
+                </button>
+                
+                <div class="card__content">
+                  <p class="card__supertitle">{course.category}</p>
+                  <h3>{course.title.toUpperCase()}</h3>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Controles de navegación y estado -->
+        <div class="slider__controls">
+          <!-- Flechitas de navegación con color de marca -->
+          <div class="slider__navigation-arrows">
+            <button class="slider__arrow slider__arrow--prev" id="prevSlide">
+              <span class="arrow-icon">‹</span>
+            </button>
+            <button class="slider__arrow slider__arrow--next" id="nextSlide">
+              <span class="arrow-icon">›</span>
+            </button>
+          </div>
+          
+          <div class="slider__progress-bar">
+            <div class="slider__progress-bar-fill"></div>
+          </div>
+          <div class="slider__counter">
+            <span class="slider__current-index">01</span>
+          </div>
+          <div class="slider__auto-reset-indicator" id="autoResetIndicator">🔄 Rebote automático en 3s</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <style>
+    /* ===== ESTADO DE PAGO EN CURSOS DEL SLIDER ===== */
+    .slider__card .course-payment-status {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      z-index: 10;
+      display: none;
+    }
+
+    .slider__card .course-payment-status.pending {
+      background: linear-gradient(135deg, #ffa500, #ff8c00);
+      color: white;
+      display: block;
+    }
+
+    .slider__card .course-payment-status.confirmed {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      display: block;
+    }
+
+    .slider__card .course-payment-status.pending::before {
+      content: "⏳ ";
+    }
+
+    .slider__card .course-payment-status.confirmed::before {
+      content: "✅ ";
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // ===== VERIFICAR ESTADO DE PAGOS DE CURSOS =====
+      async function checkCoursePaymentStatus() {
+        const userData = localStorage.getItem('user_data');
+        if (!userData) return;
+        
+        try {
+          const user = JSON.parse(userData);
+          const response = await fetch(`/api/payments/check-status?email=${encodeURIComponent(user.email)}`);
+          const result = await response.json();
+          
+          if (result.success) {
+            // Obtener todos los IDs de cursos pendientes y confirmados
+            const pendingCourseIds = new Set();
+            const confirmedCourseIds = new Set();
+            
+            if (result.pending && result.pending.length > 0) {
+              result.pending.forEach(payment => {
+                const courseIds = JSON.parse(payment.course_ids);
+                courseIds.forEach(id => pendingCourseIds.add(parseInt(id)));
+              });
+            }
+            
+            if (result.confirmed && result.confirmed.length > 0) {
+              result.confirmed.forEach(payment => {
+                const courseIds = JSON.parse(payment.course_ids);
+                courseIds.forEach(id => confirmedCourseIds.add(parseInt(id)));
+              });
+            }
+            
+            // Actualizar estado visual de cada curso en el slider
+            document.querySelectorAll('.slider__card').forEach(card => {
+              const courseId = parseInt(card.getAttribute('data-course-id') || '0');
+              const statusElement = card.querySelector('.course-payment-status');
+              const cartButton = card.querySelector('.card-cart-icon') as HTMLButtonElement;
+              
+              if (statusElement) {
+                if (confirmedCourseIds.has(courseId)) {
+                  statusElement.className = 'course-payment-status confirmed';
+                  statusElement.textContent = 'Disponible';
+                  // Deshabilitar botón de carrito para cursos confirmados
+                  if (cartButton) {
+                    cartButton.disabled = true;
+                    cartButton.textContent = '✅';
+                    cartButton.title = 'Ya tienes este curso';
+                    cartButton.style.background = '#22c55e';
+                    cartButton.style.cursor = 'not-allowed';
+                  }
+                } else if (pendingCourseIds.has(courseId)) {
+                  statusElement.className = 'course-payment-status pending';
+                  statusElement.textContent = 'Pendiente';
+                  // Deshabilitar botón de carrito para cursos pendientes
+                  if (cartButton) {
+                    cartButton.disabled = true;
+                    cartButton.textContent = '⏳';
+                    cartButton.title = 'Pago pendiente de confirmación';
+                    cartButton.style.background = '#ffa500';
+                    cartButton.style.cursor = 'not-allowed';
+                  }
+                } else {
+                  statusElement.className = 'course-payment-status';
+                  statusElement.textContent = '';
+                  // Habilitar botón de carrito para cursos normales
+                  if (cartButton) {
+                    cartButton.disabled = false;
+                    cartButton.textContent = '🛒';
+                    cartButton.title = 'Agregar al carrito';
+                    cartButton.style.background = 'linear-gradient(135deg, #99FF00, #7ACC00)';
+                    cartButton.style.cursor = 'pointer';
+                  }
+                }
+              }
+            });
+          }
+        } catch (error) {
+          console.log('ℹ️ No se pudo verificar estado de pagos:', error);
+        }
+      }
+      
+      // Verificar estado al cargar la página
+      checkCoursePaymentStatus();
+    });
+  </script>
+</Layout>

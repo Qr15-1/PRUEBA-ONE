@@ -1,0 +1,757 @@
+---
+// Layout principal de Astro
+export interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Cursus Fitness - Transforma tu cuerpo y mente" } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    
+    <!-- Enlazar CSS específico de esta página -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- Enlazar JavaScript específico de esta página -->
+    <script src="/js/index.js" defer></script>
+    <!-- Script de navegación -->
+    <script src="/js/navigation.js" defer></script>
+    <!-- Script responsive -->
+    <script src="/js/responsive.js" defer></script>
+    
+    <!-- Archivos de la librería Video.js - Solo CSS en el head -->
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+  </head>
+  <body>
+    <style>
+      /* Error visual para confirmación de contraseña en el modal de registro */
+      .register-form input.input-error {
+        border: 2px solid #ef4444 !important;
+        background: rgba(239, 68, 68, 0.12) !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18) !important;
+      }
+    </style>
+    <!-- =================================================================
+    BARRA DE NAVEGACIÓN
+    ================================================================== -->
+    <nav class="navbar">
+      <div class="navbar__container">
+        <!-- Logo y Nombre (Esquina Izquierda) -->
+        <a href="/" class="navbar__logo">
+          <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=100" alt="Cursus Fitness Logo" class="navbar__logo-img">
+          <span class="navbar__logo-text">rojasfitt</span>
+        </a>
+        
+        <!-- Navegación (Centro) -->
+        <div class="navbar__nav" id="navbarNav">
+          <a href="/" class="navbar__link" data-page="inicio">Inicio</a>
+          <a href="/cursos" class="navbar__link" data-page="cursos">Cursos</a>
+          <a href="/sobre-mi" class="navbar__link" data-page="sobre-mi">Sobre Mi</a>
+        </div>
+        
+        <!-- Botón Hamburguesa (Solo visible en móvil) -->
+        <button class="navbar__hamburger" id="hamburgerBtn" aria-label="Menú">
+          <span class="hamburger__line"></span>
+          <span class="hamburger__line"></span>
+          <span class="hamburger__line"></span>
+        </button>
+        
+        <!-- Acciones (Esquina Derecha) -->
+        <div class="navbar__actions">
+          <button class="navbar__cart" aria-label="Carrito de compras">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            <span class="navbar__cart-count">0</span>
+          </button>
+          
+          <!-- Botón de Login (cuando no está logueado) -->
+          <button class="navbar__login" id="openLoginModal" aria-label="Iniciar sesión" style="display: none;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+              <polyline points="10,17 15,12 10,7"></polyline>
+              <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
+            <span>Login</span>
+          </button>
+          
+          <!-- Usuario logueado (cuando está logueado) -->
+          <div class="navbar__user" id="navbarUser" style="display: none;">
+            <span class="navbar__user-name" id="userName">Usuario</span>
+            <button class="navbar__logout" id="logoutBtn" aria-label="Cerrar sesión">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16,17 21,12 16,7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              <span>Cerrar Sesión</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Menú Móvil -->
+    <div class="navbar__mobile-menu" id="mobileMenu">
+      <a href="/" class="navbar__mobile-link" data-page="inicio">Inicio</a>
+      <a href="/cursos" class="navbar__mobile-link" data-page="cursos">Cursos</a>
+      <a href="/sobre-mi" class="navbar__mobile-link" data-page="sobre-mi">Sobre Mi</a>
+      
+      <div class="navbar__mobile-actions">
+        <button class="navbar__mobile-cart" aria-label="Carrito de compras">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          Carrito
+        </button>
+        
+        <button class="navbar__mobile-login" id="openLoginModalMobile" aria-label="Iniciar sesión" style="display: none;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10,17 15,12 10,7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
+          Login
+        </button>
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <main>
+      <slot />
+    </main>
+
+    <!-- Modal de Login -->
+    <div id="loginModal" class="modal">
+      <div class="modal__content">
+        <div class="modal__header">
+          <h2>Iniciar Sesión</h2>
+          <button class="modal__close" id="closeLoginModal">&times;</button>
+        </div>
+        <div class="modal__body">
+          <form id="loginForm" class="login-form">
+            <div class="form-group">
+              <label for="email">Correo Electrónico</label>
+              <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+              <label for="password">Contraseña</label>
+              <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+              <label class="custom-checkbox">
+                <input type="checkbox" id="rememberMe" name="rememberMe">
+                <span class="checkmark"></span>
+                <span class="checkbox-text">Recordarme</span>
+              </label>
+            </div>
+            <button type="submit" class="login-btn">Iniciar Sesión</button>
+          </form>
+          <div class="modal__footer">
+            <p>¿No tienes cuenta? <a href="#" class="register-link" id="openRegisterModal">Regístrate aquí</a></p>
+            <p><a href="/forgot-password" class="forgot-password">¿Olvidaste tu contraseña?</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Registro -->
+    <div id="registerModal" class="modal">
+      <div class="modal__content">
+        <div class="modal__header">
+          <h2>Crear Cuenta</h2>
+          <button class="modal__close" id="closeRegisterModal">&times;</button>
+        </div>
+        <div class="modal__body">
+          <form id="registerForm" class="register-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="firstName">Nombre</label>
+                <input type="text" id="firstName" name="firstName" required>
+              </div>
+              <div class="form-group">
+                <label for="lastName">Apellido</label>
+                <input type="text" id="lastName" name="lastName" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="registerEmail">Correo Electrónico</label>
+              <input type="email" id="registerEmail" name="email" required>
+            </div>
+            <div class="form-group">
+              <label for="phone">Teléfono (Opcional)</label>
+              <input type="tel" id="phone" name="phone">
+            </div>
+            <div class="form-group">
+              <label for="registerPassword">Contraseña</label>
+              <input type="password" id="registerPassword" name="password" required minlength="6">
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword">Confirmar Contraseña</label>
+              <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+            <div class="form-group">
+              <label class="custom-checkbox">
+                <input type="checkbox" id="acceptTerms" name="acceptTerms" required>
+                <span class="checkmark"></span>
+                <span class="checkbox-text">Acepto los <a href="/terminos-condiciones" class="terms-link">términos y condiciones</a> y la <a href="/aviso-privacidad" class="terms-link">política de privacidad</a></span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="custom-checkbox">
+                <input type="checkbox" id="newsletter" name="newsletter">
+                <span class="checkmark"></span>
+                <span class="checkbox-text">Quiero recibir noticias y ofertas especiales</span>
+              </label>
+            </div>
+            <button type="submit" class="register-btn">Crear Cuenta</button>
+          </form>
+          <div class="modal__footer">
+            <p>¿Ya tienes cuenta? <a href="#" class="login-link" id="openLoginFromRegister">Inicia sesión aquí</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================= -->
+    <!-- === CARRITO DE COMPRAS MODERNO === -->
+    <!-- ======================================= -->
+    <div id="cart-overlay" class="cart-overlay">
+      <div class="cart-panel">
+        <!-- Header del carrito -->
+        <div class="cart-header">
+          <h3 class="cart-title">
+            <span class="cart-icon">🛒</span>
+            Mi Carrito
+          </h3>
+          <button class="cart-close" id="cartClose">
+            <span>✕</span>
+          </button>
+        </div>
+        
+        <!-- Contenido del carrito -->
+        <div class="cart-content">
+          <div class="cart-items" id="cartItems">
+            <!-- Los items se añadirán dinámicamente aquí -->
+          </div>
+          
+          <!-- Carrito vacío -->
+          <div class="cart-empty" id="cartEmpty">
+            <div class="empty-icon">🛒</div>
+            <h4>Tu carrito está vacío</h4>
+            <p>¡Agrega algunos cursos para comenzar tu transformación!</p>
+          </div>
+        </div>
+        
+        <!-- Footer del carrito -->
+        <div class="cart-footer" id="cartFooter">
+          <div class="cart-summary">
+            <div class="cart-total">
+              <span class="total-label">Total:</span>
+              <span class="total-amount" id="cartTotal">$0.00</span>
+            </div>
+            <div class="cart-count">
+              <span id="cartItemCount">0</span> curso(s)
+            </div>
+          </div>
+          
+          <div class="cart-actions">
+            <button class="btn-clear-cart" id="clearCart">
+              <span>🗑️</span>
+              Limpiar
+            </button>
+            <button class="btn-checkout" id="checkoutBtn">
+              <span>💳</span>
+              Comprar Ahora
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <!-- Script para navegación suave -->
+    <script src="/js/leaf-transition.js" defer></script>
+    
+    <!-- Scripts de Video.js al final del body -->
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <script is:inline>
+      // Asegurar que Video.js esté disponible globalmente
+      window.videojs = window.videojs || videojs;
+    </script>
+    
+        <!-- Script de navegación de módulos -->
+        <script src="/js/module-navigation.js" is:inline></script>
+        
+        <!-- Script del carrito -->
+        <script src="/js/cart.js" is:inline></script>
+        
+        <!-- Script para modales de login/registro -->
+        <script is:inline>
+          document.addEventListener('DOMContentLoaded', function() {
+            // Elementos del modal de login
+            const loginModal = document.getElementById('loginModal');
+            const openLoginBtn = document.getElementById('openLoginModal');
+            const closeLoginBtn = document.getElementById('closeLoginModal');
+            const loginForm = document.getElementById('loginForm');
+            
+            // Elementos del modal de registro
+            const registerModal = document.getElementById('registerModal');
+            const openRegisterBtn = document.getElementById('openRegisterModal');
+            const closeRegisterBtn = document.getElementById('closeRegisterModal');
+            const registerForm = document.getElementById('registerForm');
+            const registerPassword = document.getElementById('registerPassword');
+            const confirmPassword = document.getElementById('confirmPassword');
+            const openLoginFromRegister = document.getElementById('openLoginFromRegister');
+            
+            // Abrir modal de login
+            if (openLoginBtn) {
+              openLoginBtn.addEventListener('click', function() {
+                if (loginModal) {
+                  loginModal.style.display = 'flex';
+                  document.body.style.overflow = 'hidden';
+                }
+              });
+            }
+            
+            // Cerrar modal de login
+            if (closeLoginBtn) {
+              closeLoginBtn.addEventListener('click', function() {
+                if (loginModal) {
+                  loginModal.style.display = 'none';
+                  document.body.style.overflow = '';
+                }
+              });
+            }
+            
+            // Abrir modal de registro
+            if (openRegisterBtn) {
+              openRegisterBtn.addEventListener('click', function() {
+                if (loginModal) loginModal.style.display = 'none';
+                if (registerModal) {
+                  registerModal.style.display = 'flex';
+                  document.body.style.overflow = 'hidden';
+                }
+              });
+            }
+            
+            // Cerrar modal de registro
+            if (closeRegisterBtn) {
+              closeRegisterBtn.addEventListener('click', function() {
+                if (registerModal) {
+                  registerModal.style.display = 'none';
+                  document.body.style.overflow = '';
+                }
+              });
+            }
+            
+            // Cambiar de registro a login
+            if (openLoginFromRegister) {
+              openLoginFromRegister.addEventListener('click', function() {
+                if (registerModal) registerModal.style.display = 'none';
+                if (loginModal) {
+                  loginModal.style.display = 'flex';
+                  document.body.style.overflow = 'hidden';
+                }
+              });
+            }
+            
+            // Cerrar modales al hacer clic fuera
+            if (loginModal) {
+              loginModal.addEventListener('click', function(e) {
+                if (e.target === loginModal) {
+                  loginModal.style.display = 'none';
+                  document.body.style.overflow = '';
+                }
+              });
+            }
+            
+            if (registerModal) {
+              registerModal.addEventListener('click', function(e) {
+                if (e.target === registerModal) {
+                  registerModal.style.display = 'none';
+                  document.body.style.overflow = '';
+                }
+              });
+            }
+            
+            // Manejar envío del formulario de login
+            if (loginForm) {
+              loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                console.log('🔐 Formulario de login enviado');
+                
+                const formData = new FormData(loginForm);
+                const loginData = {
+                  email: formData.get('email'),
+                  password: formData.get('password'),
+                  rememberMe: formData.get('rememberMe') === 'on'
+                };
+                
+                console.log('📝 Datos del login:', loginData);
+                
+                try {
+                  console.log('🌐 Enviando petición a /api/auth/login...');
+                  const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(loginData)
+                  });
+                  
+                  console.log('📡 Respuesta recibida:', response.status, response.statusText);
+                  const result = await response.json();
+                  console.log('📄 Resultado:', result);
+                  
+                  if (response.ok) {
+                    // Login exitoso
+                    console.log('✅ Login exitoso, guardando datos...');
+                    localStorage.setItem('user_data', JSON.stringify(result.user));
+                    localStorage.setItem('user_session', 'authenticated');
+                    loginModal.style.display = 'none';
+                    document.body.style.overflow = '';
+                    console.log('🔄 Recargando página...');
+                    window.location.reload();
+                  } else {
+                    console.error('❌ Error en login:', result.message);
+                    alert(result.message || 'Error al iniciar sesión');
+                  }
+                } catch (error) {
+                  console.error('❌ Error en login:', error);
+                  alert('Error de conexión. Intenta de nuevo.');
+                }
+              });
+            }
+            
+            // Validación en tiempo real de contraseñas del modal
+            if (registerPassword && confirmPassword) {
+              const validatePasswords = () => {
+                const mismatch = registerPassword.value !== confirmPassword.value;
+                confirmPassword.classList.toggle('input-error', mismatch);
+              };
+              registerPassword.addEventListener('input', validatePasswords);
+              confirmPassword.addEventListener('input', validatePasswords);
+            }
+
+            // Manejar envío del formulario de registro
+            if (registerForm) {
+              registerForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                console.log('📝 Formulario de registro enviado');
+                
+                const formData = new FormData(registerForm);
+                const registerData = {
+                  name: `${formData.get('firstName')} ${formData.get('lastName')}`,
+                  email: formData.get('email'),
+                  password: formData.get('password'),
+                  confirmPassword: (confirmPassword && confirmPassword.value) || '',
+                  phone: formData.get('phone'),
+                  newsletter: formData.get('newsletter') === 'on'
+                };
+                
+                // Validar contraseñas antes de enviar
+                if (registerPassword && confirmPassword && registerPassword.value !== confirmPassword.value) {
+                  confirmPassword.classList.add('input-error');
+                  alert('Las contraseñas no coinciden');
+                  return;
+                }
+
+                console.log('📝 Datos del registro:', registerData);
+                
+                try {
+                  console.log('🌐 Enviando petición a /api/auth/register...');
+                  const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(registerData)
+                  });
+                  
+                  console.log('📡 Respuesta recibida:', response.status, response.statusText);
+                  const result = await response.json();
+                  console.log('📄 Resultado:', result);
+                  
+                  if (response.ok) {
+                    // Registro exitoso
+                    console.log('✅ Registro exitoso, guardando datos...');
+                    localStorage.setItem('user_data', JSON.stringify(result.user));
+                    registerModal.style.display = 'none';
+                    document.body.style.overflow = '';
+                    console.log('🔄 Recargando página...');
+                    window.location.reload();
+                  } else {
+                    console.error('❌ Error en registro:', result.message);
+                    alert(result.message || 'Error al crear cuenta');
+                  }
+                } catch (error) {
+                  console.error('❌ Error en registro:', error);
+                  alert('Error de conexión. Intenta de nuevo.');
+                }
+              });
+            }
+            
+            // Función para verificar el estado de login
+            function checkLoginStatus() {
+              const userData = localStorage.getItem('user_data');
+              const loginBtn = document.getElementById('openLoginModal');
+              const userDiv = document.getElementById('navbarUser');
+              const userName = document.getElementById('userName');
+              
+              if (userData) {
+                try {
+                  const user = JSON.parse(userData);
+                  console.log('👤 Usuario logueado:', user);
+                  
+                  // Mostrar usuario logueado (solo primer nombre)
+                  if (userDiv && userName) {
+                    let displayName = 'Usuario';
+                    if (user.name) {
+                      // Extraer solo el primer nombre
+                      displayName = user.name.split(' ')[0];
+                    } else if (user.first_name) {
+                      displayName = user.first_name;
+                    } else if (user.firstName) {
+                      displayName = user.firstName;
+                    }
+                    userName.textContent = displayName.toUpperCase();
+                    userDiv.style.display = 'flex';
+                  }
+                  
+                  // Ocultar botón de login
+                  if (loginBtn) {
+                    loginBtn.style.display = 'none';
+                  }
+                } catch (error) {
+                  console.error('Error al parsear datos de usuario:', error);
+                  localStorage.removeItem('user_data');
+                }
+              } else {
+                // Mostrar botón de login
+                if (loginBtn) {
+                  loginBtn.style.display = 'flex';
+                }
+                
+                // Ocultar usuario logueado
+                if (userDiv) {
+                  userDiv.style.display = 'none';
+                }
+              }
+            }
+            
+            // Función para cerrar sesión
+            function logout() {
+              console.log('🚪 Cerrando sesión...');
+              localStorage.removeItem('user_data');
+              localStorage.removeItem('user_session');
+              
+              // Limpiar cookies (opcional)
+              document.cookie = 'user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+              
+              // Actualizar navbar
+              checkLoginStatus();
+              
+              // Recargar página
+              window.location.reload();
+            }
+            
+            // Event listener para el botón de logout
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+              logoutBtn.addEventListener('click', logout);
+            }
+            
+            // Verificar estado de login al cargar
+            checkLoginStatus();
+            
+            // ======================================= */
+            // === MENÚ HAMBURGUESA RESPONSIVE === */
+            // ======================================= */
+            
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileLoginBtn = document.getElementById('openLoginModalMobile');
+            
+            if (hamburgerBtn && mobileMenu) {
+              // Toggle del menú móvil
+              hamburgerBtn.addEventListener('click', function() {
+                hamburgerBtn.classList.toggle('active');
+                mobileMenu.classList.toggle('active');
+                
+                // Prevenir scroll del body cuando el menú está abierto
+                if (mobileMenu.classList.contains('active')) {
+                  document.body.style.overflow = 'hidden';
+                } else {
+                  document.body.style.overflow = '';
+                }
+              });
+              
+              // Cerrar menú al hacer clic en un enlace
+              const mobileLinks = mobileMenu.querySelectorAll('.navbar__mobile-link');
+              mobileLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                  hamburgerBtn.classList.remove('active');
+                  mobileMenu.classList.remove('active');
+                  document.body.style.overflow = '';
+                });
+              });
+              
+              // Cerrar menú al hacer clic fuera
+              mobileMenu.addEventListener('click', function(e) {
+                if (e.target === mobileMenu) {
+                  hamburgerBtn.classList.remove('active');
+                  mobileMenu.classList.remove('active');
+                  document.body.style.overflow = '';
+                }
+              });
+              
+              // Cerrar menú con ESC
+              document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+                  hamburgerBtn.classList.remove('active');
+                  mobileMenu.classList.remove('active');
+                  document.body.style.overflow = '';
+                }
+              });
+            }
+            
+            // Sincronizar botón de login móvil con el desktop
+            if (mobileLoginBtn) {
+              mobileLoginBtn.addEventListener('click', function() {
+                // Cerrar menú móvil
+                if (hamburgerBtn && mobileMenu) {
+                  hamburgerBtn.classList.remove('active');
+                  mobileMenu.classList.remove('active');
+                  document.body.style.overflow = '';
+                }
+                
+                // Abrir modal de login
+                const loginModal = document.getElementById('loginModal');
+                if (loginModal) {
+                  loginModal.style.display = 'flex';
+                  document.body.style.overflow = 'hidden';
+                }
+              });
+            }
+            
+            // Actualizar estado del botón de login móvil
+            function updateMobileLoginButton() {
+              const userData = localStorage.getItem('user_data');
+              if (mobileLoginBtn) {
+                if (userData) {
+                  mobileLoginBtn.style.display = 'none';
+                } else {
+                  mobileLoginBtn.style.display = 'flex';
+                }
+              }
+            }
+            
+            // Llamar la función al cargar
+            updateMobileLoginButton();
+            
+            // ===== ACTUALIZAR ÍCONO DEL CARRITO (SIEMPRE NORMAL) =====
+            function updateCartIcon() {
+              const cartIcon = document.querySelector('.navbar__cart svg');
+              const cartCount = document.querySelector('.navbar__cart-count');
+              
+              if (!cartIcon || !cartCount) return;
+              
+              // 🛒 CARRITO SIEMPRE NORMAL - Mostrar carrito
+              cartIcon.innerHTML = `
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+              `;
+              
+              // Contar items del carrito normal
+              const cartItems = JSON.parse(localStorage.getItem('rojasfitt_cart') || '[]');
+              cartCount.textContent = cartItems.length;
+              cartCount.style.background = cartItems.length > 0 ? '#ff4444' : '#ccc';
+              cartCount.title = cartItems.length > 0 ? `${cartItems.length} cursos en el carrito` : 'Carrito vacío';
+            }
+            
+            // ===== VERIFICAR ESTADO DE PAGOS =====
+            async function checkPaymentStatus() {
+              const userData = localStorage.getItem('user_data');
+              if (!userData) return;
+              
+              try {
+                const user = JSON.parse(userData);
+                const response = await fetch(`/api/payments/check-status?email=${encodeURIComponent(user.email)}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                  // Actualizar localStorage con el estado real
+                  if (result.pending && result.pending.length > 0) {
+                    const pendingCourses = result.pending.flatMap(payment => {
+                      const courseIds = JSON.parse(payment.course_ids);
+                      const courseTitles = JSON.parse(payment.course_titles);
+                      return courseIds.map((id, index) => ({
+                        id: id,
+                        title: courseTitles[index],
+                        status: 'pending',
+                        paymentId: payment.id
+                      }));
+                    });
+                    localStorage.setItem('pending_courses', JSON.stringify(pendingCourses));
+                  }
+                  
+                  if (result.confirmed && result.confirmed.length > 0) {
+                    const confirmedCourses = result.confirmed.flatMap(payment => {
+                      const courseIds = JSON.parse(payment.course_ids);
+                      const courseTitles = JSON.parse(payment.course_titles);
+                      return courseIds.map((id, index) => ({
+                        id: id,
+                        title: courseTitles[index],
+                        status: 'confirmed',
+                        paymentId: payment.id
+                      }));
+                    });
+                    localStorage.setItem('confirmed_courses', JSON.stringify(confirmedCourses));
+                  }
+                  
+                  // Actualizar ícono
+                  updateCartIcon();
+                }
+              } catch (error) {
+                console.log('ℹ️ No se pudo verificar estado de pagos:', error);
+              }
+            }
+            
+            // Actualizar ícono al cargar
+            updateCartIcon();
+            
+            // Verificar estado de pagos al cargar
+            checkPaymentStatus();
+            
+            // Escuchar cambios en localStorage
+            window.addEventListener('storage', function(e) {
+              if (e.key === 'pending_courses' || e.key === 'confirmed_courses') {
+                updateCartIcon();
+              }
+            });
+            
+            // Hacer la función global para que otros scripts la puedan usar
+            window.updateCartIcon = updateCartIcon;
+            window.checkPaymentStatus = checkPaymentStatus;
+            
+            console.log('✅ Modales de login/registro inicializados');
+            console.log('✅ Menú hamburguesa inicializado');
+            console.log('✅ Ícono del carrito configurado');
+          });
+        </script>
+      </body>
+    </html>

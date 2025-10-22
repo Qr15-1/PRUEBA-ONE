@@ -1,0 +1,431 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { paymentQueries, userQueries, courseQueries } from '../../lib/database.js';
+
+const payments = paymentQueries.getAll();
+
+// Obtener detalles adicionales para cada pago
+const paymentsWithDetails = payments.map(payment => {
+  const user = userQueries.findById(payment.user_id);
+  const courseIds = JSON.parse(payment.course_ids);
+  const courseTitles = JSON.parse(payment.course_titles);
+  
+  const courses = courseIds.map((id, index) => ({
+    id: id,
+    title: courseTitles[index]
+  }));
+
+  return {
+    ...payment,
+    user_name: user ? user.first_name : payment.user_name,
+    user_email: user ? user.email : payment.user_email,
+    courses: courses,
+    created_at_formatted: new Date(payment.created_at).toLocaleDateString('es-ES', {
+      year: 'numeric', month: '2-digit', day: '2-digit'
+    })
+  };
+});
+---
+
+<AdminLayout title="Gestión de Pagos">
+  <div class="admin-payments-page">
+    <div class="admin-header">
+      <h1 class="admin-title">
+        <span>📄</span> Pagos Recientes
+      </h1>
+      <p class="admin-subtitle">Gestiona y confirma los pagos de los usuarios.</p>
+    </div>
+
+    <div class="payments-grid">
+      {paymentsWithDetails.length === 0 ? (
+        <p class="no-payments">No hay pagos registrados aún.</p>
+      ) : (
+        paymentsWithDetails.map(payment => (
+          <div class="payment-card">
+            <div class="payment-header">
+              <h3>Pago #{payment.id}</h3>
+              <span class={`payment-status status-${payment.status}`}>
+                {payment.status === 'pending' ? '⏳ Pendiente' : 
+                 payment.status === 'confirmed' ? '✅ Confirmado' : '❌ Rechazado'}
+              </span>
+            </div>
+            
+            <div class="payment-details">
+              <p><strong>Cliente:</strong> {payment.user_name}</p>
+              <p><strong>Email:</strong> {payment.user_email}</p>
+              <p><strong>Monto:</strong> <span class="amount">${payment.total_amount.toFixed(2)}</span></p>
+              <p><strong>Método:</strong> {payment.payment_method}</p>
+              <p><strong>Fecha:</strong> {payment.created_at_formatted}</p>
+            </div>
+
+            <div class="courses-section">
+              <h4>Cursos Seleccionados:</h4>
+              <div class="course-list">
+                {payment.courses.map(course => (
+                  <div class="course-item">
+                    <input type="checkbox" id={`course-${payment.id}-${course.id}`} checked disabled />
+                    <label for={`course-${payment.id}-${course.id}`}>{course.title}</label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {payment.payment_proof && (
+              <div class="proof-section">
+                <h4 class="proof-title">Comprobante de Pago:</h4>
+                <div class="proof-image">
+                  <img src={payment.payment_proof} alt="Comprobante de pago" />
+                </div>
+              </div>
+            )}
+
+            {payment.reference_number && (
+              <div class="reference-section">
+                <h4 class="reference-title">Número de Referencia:</h4>
+                <p class="reference-number">{payment.reference_number}</p>
+              </div>
+            )}
+
+            {payment.additional_notes && (
+              <div class="notes-section">
+                <h4 class="notes-title">Notas Adicionales:</h4>
+                <p class="notes-content">{payment.additional_notes}</p>
+              </div>
+            )}
+
+            {payment.status === 'pending' && (
+              <div class="payment-actions">
+                <button class="btn-confirm" data-payment-id={payment.id}>
+                  <span class="btn-icon">✅</span> Confirmar Pago
+                </button>
+                <button class="btn-reject" data-payment-id={payment.id}>
+                  <span class="btn-icon">❌</span> Rechazar
+                </button>
+              </div>
+            )}
+          </div>
+        ))
+      )}
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.btn-confirm').forEach(button => {
+        button.addEventListener('click', async (e) => {
+          const paymentId = e.target.dataset.paymentId;
+          if (confirm(`¿Estás seguro de que quieres confirmar el pago #${paymentId}?`)) {
+            try {
+              const response = await fetch(`/api/admin/payments/${paymentId}/confirm`, {
+                method: 'POST',
+              });
+              const result = await response.json();
+              if (result.success) {
+                alert('Pago confirmado exitosamente!');
+                
+                // Actualizar estado del usuario en localStorage
+                if (result.payment) {
+                  const courseIds = JSON.parse(result.payment.course_ids);
+                  const courseTitles = JSON.parse(result.payment.course_titles);
+                  
+                  // Mover cursos de pendientes a confirmados
+                  const pendingCourses = JSON.parse(localStorage.getItem('pending_courses') || '[]');
+                  const confirmedCourses = JSON.parse(localStorage.getItem('confirmed_courses') || '[]');
+                  
+                  // Filtrar cursos que ya no están pendientes
+                  const newPendingCourses = pendingCourses.filter(course => 
+                    !courseIds.includes(parseInt(course.id))
+                  );
+                  
+                  // Agregar cursos confirmados
+                  const newConfirmedCourses = courseIds.map((id, index) => ({
+                    id: id,
+                    title: courseTitles[index],
+                    status: 'confirmed',
+                    paymentId: result.payment.id,
+                    confirmedAt: new Date().toISOString()
+                  }));
+                  
+                  // Actualizar localStorage
+                  localStorage.setItem('pending_courses', JSON.stringify(newPendingCourses));
+                  localStorage.setItem('confirmed_courses', JSON.stringify([...confirmedCourses, ...newConfirmedCourses]));
+                  
+                  console.log('✅ Estado del usuario actualizado');
+                }
+                
+                window.location.reload();
+              } else {
+                alert(`Error al confirmar pago: ${result.error}`);
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('Error de conexión al confirmar pago.');
+            }
+          }
+        });
+      });
+
+      document.querySelectorAll('.btn-reject').forEach(button => {
+        button.addEventListener('click', async (e) => {
+          const paymentId = e.target.dataset.paymentId;
+          if (confirm(`¿Estás seguro de que quieres rechazar el pago #${paymentId}?`)) {
+            try {
+              const response = await fetch(`/api/admin/payments/${paymentId}/reject`, {
+                method: 'POST',
+              });
+              const result = await response.json();
+              if (result.success) {
+                alert('Pago rechazado exitosamente!');
+                window.location.reload();
+              } else {
+                alert(`Error al rechazar pago: ${result.error}`);
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('Error de conexión al rechazar pago.');
+            }
+          }
+        });
+      });
+    });
+  </script>
+
+  <style>
+    .admin-payments-page {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .admin-header {
+      margin-bottom: 2rem;
+    }
+
+    .admin-title {
+      font-size: 2rem;
+      color: #333;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .admin-subtitle {
+      color: #666;
+      font-size: 1.1rem;
+    }
+
+    .payments-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .payment-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e0e0e0;
+    }
+
+    .payment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .payment-header h3 {
+      margin: 0;
+      color: #333;
+      font-size: 1.1rem;
+    }
+
+    .payment-status {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+
+    .status-confirmed {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status-rejected {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .payment-details {
+      margin-bottom: 0.75rem;
+    }
+
+    .payment-details p {
+      margin: 0.5rem 0;
+      color: #555;
+    }
+
+    .amount {
+      font-weight: bold;
+      color: #28a745;
+      font-size: 1.1rem;
+    }
+
+    .courses-section {
+      margin-bottom: 0.75rem;
+    }
+
+    .courses-section h4 {
+      margin: 0 0 0.5rem 0;
+      color: #333;
+      font-size: 1rem;
+    }
+
+    .course-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .course-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .course-item input[type="checkbox"] {
+      margin: 0;
+    }
+
+    .course-item label {
+      margin: 0;
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    .proof-section, .reference-section, .notes-section {
+      margin-bottom: 0.75rem;
+    }
+
+    .proof-title, .reference-title, .notes-title {
+      margin: 0 0 0.5rem 0;
+      color: #333;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .proof-image img {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .reference-number {
+      font-family: monospace;
+      background: #f8f9fa;
+      color: #333;
+      padding: 0.5rem;
+      border-radius: 4px;
+      margin: 0;
+      font-weight: 500;
+    }
+
+    .notes-content {
+      background: #f8f9fa;
+      color: #333;
+      padding: 0.75rem;
+      border-radius: 4px;
+      margin: 0;
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    .payment-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .btn-confirm, .btn-reject {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-confirm {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-confirm:hover {
+      background: #218838;
+      transform: translateY(-1px);
+    }
+
+    .btn-reject {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-reject:hover {
+      background: #c82333;
+      transform: translateY(-1px);
+    }
+
+    .btn-icon {
+      font-size: 1rem;
+    }
+
+    .no-payments {
+      text-align: center;
+      color: #666;
+      font-size: 1.1rem;
+      padding: 2rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px dashed #ddd;
+    }
+
+    @media (max-width: 768px) {
+      .admin-payments-page {
+        padding: 1rem;
+      }
+      
+      .payments-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .payment-card {
+        padding: 0.75rem;
+      }
+      
+      .payment-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+</AdminLayout>

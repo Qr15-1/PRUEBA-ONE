@@ -1,0 +1,702 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { courseQueries } from '../lib/database.js';
+
+// Definir tipo para Course
+interface Course {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  image: string;
+  price: number;
+  originalPrice?: number;
+  category: string;
+  duration: number;
+  level: string;
+  instructor: string;
+  students: number;
+  videoUrl?: string;
+  is_active: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// Obtener cursos de la base de datos
+const courses = await courseQueries.getAll() as Course[];
+const activeCourses = courses.filter((course: Course) => course.is_active === 1);
+
+---
+
+<Layout title="Cursos Online - Cursus Fitness" description="Aprende fitness desde casa con nuestros cursos especializados">
+  <div class="courses-page">
+    <!-- Header de la página -->
+    <div class="courses-page-header">
+      <div class="courses-page-container">
+        <div class="courses-breadcrumb">
+          <a href="/">Inicio</a>
+          <span>/</span>
+          <span>Cursos</span>
+        </div>
+        
+        <div class="courses-page-title-section">
+          <h1 class="courses-page-title">Nuestros <span class="highlight-green">Cursos</span> <span class="highlight-green">Online</span></h1>
+          <p class="courses-page-subtitle">Aprende fitness desde casa con nuestros cursos especializados</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de cursos -->
+    <section class="courses-section">
+      <div class="courses-container">
+        <div class="courses-grid" id="coursesGrid">
+          {activeCourses.length > 0 ? activeCourses.map(course => (
+            <div class="course-card" data-course-id={course.id}>
+              <div class="course-image">
+                <img src={course.image} alt={course.title}>
+                
+                <!-- Estado de pago del curso -->
+                <div class="course-payment-status" id={`status-${course.id}`}>
+                  <!-- Se llenará dinámicamente con JavaScript -->
+                </div>
+                
+                <!-- Icono de carrito en esquina -->
+                <button 
+                  class="card-cart-icon" 
+                  data-course-id={course.slug}
+                  data-course-title={course.title}
+                  data-course-price={course.price}
+                  data-course-image={course.image}
+                  data-course-category={course.category}
+                  title="Agregar al carrito"
+                >
+                  🛒
+                </button>
+                
+                <div class="course-overlay">
+                  <button class="play-button" data-course={course.slug}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="course-content">
+                <div class="course-category">{course.category}</div>
+                <h3 class="course-title">{course.title}</h3>
+                <p class="course-description">{course.description}</p>
+                <div class="course-meta">
+                  <span class="course-duration">{course.duration} horas</span>
+                  <span class="course-level">{course.level}</span>
+                  <span class="course-students">{course.students} estudiantes</span>
+                </div>
+                <div class="course-price">
+                  <span class="price-current">${course.price}</span>
+                  <span class="price-original">${course.originalPrice}</span>
+                </div>
+                <button class="course-btn" data-course={course.slug}>Ver Curso</button>
+              </div>
+            </div>
+          )) : (
+            <div class="no-courses">
+              <h3>No hay cursos disponibles</h3>
+              <p>Pronto agregaremos nuevos cursos. ¡Mantente atento!</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <style>
+    .courses-page {
+      min-height: 100vh;
+      background: #0a0a0a;
+      color: #ffffff;
+    }
+
+  .courses-page-header {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    padding: 40px 0 40px;
+    position: relative;
+  }
+
+    .courses-page-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(34, 197, 94, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .courses-page-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .courses-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      color: #a3a3a3;
+    }
+
+    .courses-breadcrumb a {
+      color: #99FF00;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .courses-breadcrumb a:hover {
+      color: #7ACC00;
+    }
+
+    .courses-page-title-section {
+      max-width: 800px;
+    }
+
+    .courses-page-title {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: white;
+      margin-bottom: 15px;
+      line-height: 1.2;
+    }
+    
+    .courses-page-title .highlight-green {
+      color: #99FF00;
+    }
+
+    .courses-page-subtitle {
+      font-size: 1.2rem;
+      color: #a3a3a3;
+      line-height: 1.6;
+    }
+
+    .courses-section {
+      padding: 50px 0;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    @media (max-width: 768px) {
+      .courses-section {
+        padding: 5px 0;
+      }
+    }
+
+    .courses-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(34, 197, 94, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .courses-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+    }
+
+    .course-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .course-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(34, 197, 94, 0.2);
+      border-color: rgba(34, 197, 94, 0.3);
+    }
+
+    .course-image {
+      position: relative;
+      height: 140px;
+      overflow: hidden;
+    }
+
+    /* ===== ESTADO DE PAGO EN CURSOS ===== */
+    .course-payment-status {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      z-index: 10;
+      display: none;
+    }
+
+    .course-payment-status.pending {
+      background: linear-gradient(135deg, #ffa500, #ff8c00);
+      color: white;
+      display: block;
+    }
+
+    .course-payment-status.confirmed {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      display: block;
+    }
+
+    .course-payment-status.pending::before {
+      content: "⏳ ";
+    }
+
+    .course-payment-status.confirmed::before {
+      content: "✅ ";
+    }
+    /* ===== ICONOS DE CARRITO EN TARJETAS ===== */
+    .card-cart-icon {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #99FF00, #7ACC00);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      box-shadow: 0 3px 10px rgba(153, 255, 0, 0.3);
+      transition: all 0.3s ease;
+      z-index: 10;
+      opacity: 0.9;
+    }
+
+    .card-cart-icon:hover {
+      background: linear-gradient(135deg, #7ACC00, #99FF00);
+      transform: scale(1.1);
+      box-shadow: 0 6px 25px rgba(153, 255, 0, 0.6);
+      opacity: 1;
+    }
+
+    .card-cart-icon:active {
+      transform: scale(0.95);
+    }
+
+    /* Animación de pulso para llamar la atención */
+    .card-cart-icon::before {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      right: -3px;
+      bottom: -3px;
+      background: linear-gradient(135deg, #99FF00, #7ACC00);
+      border-radius: 50%;
+      opacity: 0;
+      animation: cartPulse 2s infinite;
+      z-index: -1;
+    }
+
+    @keyframes cartPulse {
+      0% {
+        opacity: 0;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.3;
+        transform: scale(1.1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.2);
+      }
+    }
+
+    /* Efecto de brillo en hover */
+    .card-cart-icon:hover::before {
+      animation: none;
+      opacity: 0.2;
+      transform: scale(1.2);
+    }
+
+    .course-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .course-card:hover .course-image img {
+      transform: scale(1.05);
+    }
+
+    .course-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .course-card:hover .course-overlay {
+      opacity: 1;
+    }
+
+    .play-button {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background: #22c55e;
+      border: none;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+    }
+
+    .play-button:hover {
+      transform: scale(1.1);
+      background: #16a34a;
+    }
+
+    .course-content {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .course-category {
+      font-size: 0.8rem;
+      color: #22c55e;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .course-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .course-description {
+      color: #a3a3a3;
+      line-height: 1.4;
+      margin-bottom: 10px;
+      font-size: 0.8rem;
+    }
+
+    .course-meta {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 0px;
+      flex-wrap: wrap;
+    }
+
+    .course-meta span {
+      font-size: 0.7rem;
+      color: #737373;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 3px 6px;
+      border-radius: 4px;
+    }
+
+    .course-price {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 0px;
+    }
+
+    .price-current {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #22c55e;
+    }
+
+    .price-original {
+      font-size: 0.9rem;
+      color: #737373;
+      text-decoration: line-through;
+    }
+
+    .course-btn {
+      width: 100%;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+      margin-top: 0px;
+    }
+
+    .course-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .courses-page-header {
+        padding: 30px 0 10px;
+      }
+      
+      .courses-page-title {
+        font-size: 2.5rem;
+        margin-bottom: 5px;
+      }
+      
+      .courses-page-subtitle {
+        margin-bottom: 5px;
+      }
+      
+      .courses-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        margin-top: 5px;
+      }
+      
+      .course-image {
+        height: 180px;
+      }
+      
+      .course-meta {
+        gap: 10px;
+      }
+
+      /* Iconos de carrito responsive */
+      .card-cart-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+        top: 10px;
+        right: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .courses-page-header {
+        padding: 30px 0 10px;
+      }
+      
+      .courses-page-title {
+        font-size: 2rem;
+      }
+      
+      .courses-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      
+      .course-image {
+        height: 200px;
+      }
+      
+      .course-content {
+        padding: 15px;
+      }
+      
+      .course-title {
+        font-size: 1.2rem;
+    }
+  }
+
+  /* ===== NO CURSOS ===== */
+  .no-courses {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .no-courses h3 {
+    font-size: 1.5rem;
+    color: #ffffff;
+    margin-bottom: 15px;
+  }
+
+  .no-courses p {
+    color: #b0b0b0;
+    font-size: 1rem;
+  }
+</style>
+
+  <script>
+    // Funcionalidad de cursos (reutilizada del index.js)
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mapeo de cursos a sus slugs - ahora dinámico
+      const courseSlugs: { [key: string]: string } = {};
+      
+      // Obtener todos los cursos de la página para crear el mapeo dinámico
+      const courseButtons = document.querySelectorAll('[data-course]');
+      courseButtons.forEach(button => {
+        const courseId = button.getAttribute('data-course');
+        if (courseId) {
+          courseSlugs[courseId] = courseId; // El slug es el mismo que el ID
+        }
+      });
+
+      // Función para redirigir a la página del curso
+      function goToCourse(courseId: string) {
+        const slug = courseSlugs[courseId];
+        if (slug) {
+          window.location.href = `/curso/${slug}`;
+        } else {
+          console.error('Curso no encontrado:', courseId);
+        }
+      }
+
+      // Event listeners para botones "Ver Curso"
+      document.addEventListener('click', function(e: Event) {
+        const target = e.target as HTMLElement;
+        if (target && target.classList.contains('course-btn')) {
+          e.preventDefault();
+          const courseId = target.getAttribute('data-course');
+          if (courseId) {
+            goToCourse(courseId);
+          }
+        }
+      });
+
+      // Event listeners para botones de play
+      document.addEventListener('click', function(e: Event) {
+        const target = e.target as HTMLElement;
+        if (target && (target.classList.contains('play-button') || target.closest('.play-button'))) {
+          e.preventDefault();
+          e.stopPropagation();
+          const button = target.classList.contains('play-button') ? target : target.closest('.play-button') as HTMLElement;
+          const courseId = button?.getAttribute('data-course');
+          if (courseId) {
+            goToCourse(courseId);
+          }
+        }
+      });
+      // ===== VERIFICAR ESTADO DE PAGOS DE CURSOS =====
+      async function checkCoursePaymentStatus() {
+        const userData = localStorage.getItem('user_data');
+        if (!userData) return;
+        
+        try {
+          const user = JSON.parse(userData);
+          const response = await fetch(`/api/payments/check-status?email=${encodeURIComponent(user.email)}`);
+          const result = await response.json();
+          
+          if (result.success) {
+            // Obtener todos los IDs de cursos pendientes y confirmados
+            const pendingCourseIds = new Set();
+            const confirmedCourseIds = new Set();
+            
+            if (result.pending && result.pending.length > 0) {
+              result.pending.forEach(payment => {
+                const courseIds = JSON.parse(payment.course_ids);
+                courseIds.forEach(id => pendingCourseIds.add(parseInt(id)));
+              });
+            }
+            
+            if (result.confirmed && result.confirmed.length > 0) {
+              result.confirmed.forEach(payment => {
+                const courseIds = JSON.parse(payment.course_ids);
+                courseIds.forEach(id => confirmedCourseIds.add(parseInt(id)));
+              });
+            }
+            
+            // Actualizar estado visual de cada curso
+            document.querySelectorAll('.course-card').forEach(card => {
+              const courseId = parseInt(card.getAttribute('data-course-id') || '0');
+              const statusElement = card.querySelector('.course-payment-status') as HTMLElement;
+              const cartButton = card.querySelector('.card-cart-icon') as HTMLButtonElement;
+              
+              if (statusElement) {
+                if (confirmedCourseIds.has(courseId)) {
+                  statusElement.className = 'course-payment-status confirmed';
+                  statusElement.textContent = 'Disponible';
+                  // Deshabilitar botón de carrito para cursos confirmados
+                  if (cartButton) {
+                    cartButton.disabled = true;
+                    cartButton.textContent = '✅';
+                    cartButton.title = 'Ya tienes este curso';
+                    cartButton.style.background = '#22c55e';
+                    cartButton.style.cursor = 'not-allowed';
+                  }
+                } else if (pendingCourseIds.has(courseId)) {
+                  statusElement.className = 'course-payment-status pending';
+                  statusElement.textContent = 'Pendiente';
+                  // Deshabilitar botón de carrito para cursos pendientes
+                  if (cartButton) {
+                    cartButton.disabled = true;
+                    cartButton.textContent = '⏳';
+                    cartButton.title = 'Pago pendiente de confirmación';
+                    cartButton.style.background = '#ffa500';
+                    cartButton.style.cursor = 'not-allowed';
+                  }
+                } else {
+                  statusElement.className = 'course-payment-status';
+                  statusElement.textContent = '';
+                  // Habilitar botón de carrito para cursos normales
+                  if (cartButton) {
+                    cartButton.disabled = false;
+                    cartButton.textContent = '🛒';
+                    cartButton.title = 'Agregar al carrito';
+                    cartButton.style.background = 'linear-gradient(135deg, #99FF00, #7ACC00)';
+                    cartButton.style.cursor = 'pointer';
+                  }
+                }
+              }
+            });
+          }
+        } catch (error) {
+          console.log('ℹ️ No se pudo verificar estado de pagos:', error);
+        }
+      }
+      
+      // Verificar estado al cargar la página
+      checkCoursePaymentStatus();
+    });
+  </script>
+</Layout>

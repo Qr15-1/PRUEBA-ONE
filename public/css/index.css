@@ -1,0 +1,3215 @@
+/* =================================================================
+   0. CONFIGURACIÓN GLOBAL Y FUENTES
+   ================================================================= */
+
+/* Importamos una fuente similar a la del diseño desde Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;900&display=swap');
+
+/* Reseteo básico para un comportamiento consistente en todos los navegadores */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #0a0a0a; /* Fondo muy oscuro como en la imagen */
+    color: #ffffff;
+    /* Permitimos scroll para ver todo el contenido */
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-top: 60px; /* Espacio para la navbar fija más pequeña */
+    scroll-behavior: smooth; /* Transición suave entre secciones */
+}
+
+/* =================================================================
+   SCROLL SUAVE ENTRE SECCIONES
+   ================================================================= */
+
+/* =================================================================
+   BARRA DE NAVEGACIÓN
+   ================================================================= */
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(10, 10, 10, 0.4);
+    backdrop-filter: blur(3px);
+    padding: 6px 0; /* Padding normal */
+    transition: all 0.3s ease;
+}
+
+/* ======================================= */
+/* === ESTILOS PARA LA BARRA DE NAVEGACIÓN === */
+/* ======================================= */
+
+/* El contenedor principal que alinea todo */
+.navbar__container {
+    display: flex; /* Activa Flexbox */
+    justify-content: space-between; /* ¡LA CLAVE! Empuja los hijos a los extremos */
+    align-items: center; /* Centra todo verticalmente */
+    position: relative; /* CRÍTICO para que el centrado de la nav funcione */
+    max-width: 1400px; /* Un poco menos ancho */
+    margin: 0 auto;
+    padding: 1rem 2rem; /* Padding normal */
+    height: auto; /* Altura automática */
+    min-height: 60px; /* Altura mínima normal */
+}
+
+/* HIJO 1: El logo a la izquierda (no necesita nada especial) */
+.navbar__logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease;
+}
+
+.navbar__logo:hover {
+    transform: scale(1.05);
+}
+
+.navbar__logo-img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #99FF00;
+}
+
+.navbar__logo-text {
+    font-size: 1.7rem;
+    font-weight: 900;
+    color: #99FF00;
+    text-shadow: 0 0 15px rgba(153, 255, 0, 0.8), 0 0 30px rgba(153, 255, 0, 0.4);
+    letter-spacing: 1px;
+}
+
+/* HIJO 2: La navegación, perfectamente centrada */
+.navbar__nav {
+    position: absolute; /* Lo sacamos del flujo para no interferir con space-between */
+    left: 50%;
+    transform: translateX(-50%); /* El truco para el centrado perfecto */
+    display: flex;
+    gap: 30px; /* Espacio entre los links */
+}
+
+/* Estilos para los links, botones, etc. (ajusta como necesites) */
+.navbar__link {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    position: relative;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+    font-size: 1rem;
+}
+
+.navbar__link:hover {
+    color: #99FF00;
+    background: rgba(153, 255, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.navbar__link.active {
+    color: #0a0a0a;
+    background: #99FF00;
+    box-shadow: 0 4px 15px rgba(153, 255, 0, 0.3);
+}
+
+/* HIJO 3: Las acciones a la derecha (no necesita nada especial) */
+.navbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Espacio entre el carrito, usuario, etc. */
+    flex-shrink: 0;
+    min-width: fit-content;
+    z-index: 10;
+}
+
+.navbar__cart {
+    position: relative;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid #99FF00;
+    color: #99FF00;
+    padding: 10px 14px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    backdrop-filter: blur(5px);
+    font-size: 1rem;
+}
+
+.navbar__cart:hover {
+    background: #99FF00;
+    color: #0a0a0a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(153, 255, 0, 0.3);
+}
+
+.navbar__cart-count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #ff4444;
+    color: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: bold;
+}
+
+.navbar__login {
+    background: #99FF00;
+    color: #0a0a0a;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 15px rgba(153, 255, 0, 0.4);
+    font-size: 1rem;
+}
+
+.navbar__login:hover {
+    background: #88ee00;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(153, 255, 0, 0.3);
+}
+
+/* Usuario logueado */
+.navbar__user {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 8px 16px;
+    border: 1px solid rgba(153, 255, 0, 0.3);
+}
+
+.navbar__user-name {
+    color: white;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.navbar__logout {
+    background: linear-gradient(135deg, #ff4444, #cc3333);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(255, 68, 68, 0.3);
+}
+
+.navbar__logout:hover {
+    background: linear-gradient(135deg, #cc3333, #ff4444);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(255, 68, 68, 0.4);
+}
+
+/* ======================================= */
+/* === MENÚ HAMBURGUESA RESPONSIVE === */
+/* ======================================= */
+
+/* Botón hamburguesa - Solo visible en móvil */
+.navbar__hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 35px;
+    height: 35px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1001;
+    position: relative;
+}
+
+.hamburger__line {
+    width: 100%;
+    height: 3px;
+    background: #99FF00;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    transform-origin: center;
+}
+
+/* Animación del botón hamburguesa cuando está activo */
+.navbar__hamburger.active .hamburger__line:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+}
+
+.navbar__hamburger.active .hamburger__line:nth-child(2) {
+    opacity: 0;
+}
+
+.navbar__hamburger.active .hamburger__line:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* Menú móvil overlay */
+.navbar__mobile-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    padding: 80px 20px 20px;
+}
+
+.navbar__mobile-menu.active {
+    display: flex;
+}
+
+.navbar__mobile-link {
+    color: white;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding: 15px 30px;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    text-align: center;
+    min-width: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid transparent;
+}
+
+.navbar__mobile-link:hover {
+    color: #99FF00;
+    background: rgba(153, 255, 0, 0.1);
+    border-color: #99FF00;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(153, 255, 0, 0.3);
+}
+
+.navbar__mobile-link.active {
+    color: #0a0a0a;
+    background: #99FF00;
+    border-color: #99FF00;
+    box-shadow: 0 8px 25px rgba(153, 255, 0, 0.4);
+}
+
+/* Acciones móviles */
+.navbar__mobile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+    align-items: center;
+}
+
+.navbar__mobile-cart {
+    background: rgba(153, 255, 0, 0.2);
+    color: #99FF00;
+    border: 2px solid #99FF00;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.navbar__mobile-cart:hover {
+    background: #99FF00;
+    color: #0a0a0a;
+    transform: translateY(-2px);
+}
+
+.navbar__mobile-login {
+    background: #99FF00;
+    color: #0a0a0a;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.navbar__mobile-login:hover {
+    background: #88ee00;
+    transform: translateY(-2px);
+}
+
+.navbar__cart svg,
+.navbar__login svg {
+    width: 22px;
+    height: 22px;
+}
+
+/* =================================================================
+   RESPONSIVE DESIGN - NAVBAR
+   ================================================================= */
+
+/* Tablet Landscape (1024px y menos) */
+@media (max-width: 1024px) {
+    .navbar__container {
+        padding: 0 15px;
+    }
+    
+    .navbar__logo-text {
+        font-size: 1.5rem;
+    }
+    
+    .navbar__nav {
+        gap: 25px;
+    }
+    
+    .navbar__link {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .navbar__actions {
+        gap: 15px;
+    }
+    
+    .navbar__cart,
+    .navbar__login {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Tablet Portrait (768px y menos) */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 12px 0;
+    }
+    
+    .navbar__container {
+        padding: 0 12px;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .navbar__logo {
+        flex: 1;
+    }
+    
+    .navbar__logo-text {
+        font-size: 1.3rem;
+    }
+    
+    /* Ocultar navegación desktop */
+    .navbar__nav {
+        display: none;
+    }
+    
+    /* Mostrar botón hamburguesa */
+    .navbar__hamburger {
+        display: flex;
+        order: 2;
+    }
+    
+    .navbar__actions {
+        order: 3;
+        gap: 8px;
+        flex-shrink: 0;
+        min-width: fit-content;
+    }
+    
+    .navbar__login span,
+    .navbar__logout span {
+        display: none;
+    }
+    
+    .navbar__user-name {
+        display: none;
+    }
+    
+    .navbar__user {
+        gap: 8px;
+        padding: 6px 12px;
+    }
+    
+    .navbar__cart,
+    .navbar__login {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+    
+    .navbar__cart svg,
+    .navbar__login svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+/* Mobile Large (480px y menos) */
+@media (max-width: 480px) {
+    .navbar__container {
+        flex-direction: row;
+        gap: 6px;
+        padding: 8px 12px;
+        justify-content: space-between;
+        align-items: center;
+        min-width: 0;
+        overflow: hidden;
+    }
+    
+    .navbar__logo {
+        order: 0;
+        width: auto;
+        justify-content: flex-start;
+        flex-shrink: 1;
+        min-width: 0;
+    }
+    
+    .navbar__logo-img {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .navbar__logo-text {
+        font-size: 0.85rem;
+        letter-spacing: 0.3px;
+    }
+    
+    .navbar__nav {
+        order: 0;
+        width: auto;
+        gap: 6px;
+        margin: 0;
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .navbar__link {
+        padding: 6px 8px;
+        font-size: 0.7rem;
+        border-radius: 10px;
+    }
+    
+    .navbar__actions {
+        order: 0;
+        width: auto;
+        justify-content: flex-end;
+        gap: 4px;
+        flex-shrink: 0;
+        min-width: fit-content;
+    }
+    
+    .navbar__cart,
+    .navbar__login {
+        padding: 6px 8px;
+        font-size: 0.65rem;
+        flex: none;
+        max-width: none;
+        border-radius: 12px;
+        flex-shrink: 0;
+    }
+    
+    .navbar__user {
+        gap: 4px;
+        padding: 4px 8px;
+    }
+    
+    .navbar__logout {
+        padding: 4px 8px;
+        font-size: 0.65rem;
+    }
+    
+    .navbar__cart svg,
+    .navbar__login svg {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .navbar__cart-count {
+        top: -2px;
+        right: -2px;
+        width: 10px;
+        height: 10px;
+        font-size: 0.4rem;
+    }
+    
+    .navbar__user {
+        gap: 3px;
+        padding: 3px 6px;
+    }
+    
+    .navbar__logout {
+        padding: 3px 6px;
+        font-size: 0.6rem;
+    }
+}
+
+/* Mobile Small (360px y menos) */
+@media (max-width: 360px) {
+    .navbar {
+        padding: 8px 0;
+    }
+    
+    .navbar__container {
+        padding: 0 8px;
+        gap: 8px;
+    }
+    
+    .navbar__logo-text {
+        font-size: 1rem;
+    }
+    
+    .navbar__logo-img {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .navbar__nav {
+        gap: 8px;
+    }
+    
+    .navbar__link {
+        padding: 6px 8px;
+        font-size: 0.7rem;
+    }
+    
+    .navbar__actions {
+        gap: 8px;
+    }
+    
+    .navbar__cart,
+    .navbar__login {
+        padding: 6px 12px;
+        font-size: 0.7rem;
+    }
+    
+    .navbar__cart svg,
+    .navbar__login svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+
+/* =================================================================
+   1. ESTRUCTURA PRINCIPAL DEL SLIDER
+   ================================================================= */
+
+.hero-slider {
+    width: 100vw;
+    height: 100vh;
+    position: relative; /* Es el ancla para todos los elementos posicionados absolutamente dentro */
+    overflow: hidden; /* ¡Crucial! Oculta las partes del carrusel que se salen */
+    min-height: 100vh; /* Altura mínima de pantalla completa */
+    margin-top: -60px; /* Compensar el padding-top del body */
+    padding-top: 60px; /* Espacio para la navbar fija más pequeña */
+}
+
+/* =================================================================
+   RESPONSIVE DESIGN - HERO SLIDER
+   ================================================================= */
+
+/* Tablet Landscape (1024px y menos) */
+@media (max-width: 1024px) {
+    .hero-slider {
+        height: 100vh;
+    }
+    
+    .slider__content {
+        padding: 0 40px;
+    }
+    
+    .slider__left-content {
+        flex-basis: 55%;
+    }
+    
+    .slider__right-content {
+        flex-basis: 45%;
+    }
+    
+    .text-item__title {
+        font-size: 4.5rem;
+        line-height: 0.85;
+        margin-bottom: 25px;
+    }
+    
+    .text-item__supertitle {
+        font-size: 0.8rem;
+        margin-bottom: 8px;
+    }
+    
+    .text-item__description {
+        font-size: 1rem;
+        line-height: 1.6;
+        margin-bottom: 35px;
+    }
+    
+    .text-item__button {
+        padding: 8px 16px !important;
+        font-size: 0.9rem;
+        width: fit-content !important;
+        white-space: nowrap !important;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+        border: 2px solid rgba(34, 197, 94, 0.3) !important;
+        border-radius: 8px;
+    }
+}
+
+/* Tablet Landscape (1024px y menos) */
+@media (max-width: 1024px) {
+    .slider__content {
+        padding: 0 15px 0 20px;
+    }
+    
+    .slider__carousel {
+        width: calc(180px * 2 + 10px);
+        height: 220px;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .slider__card {
+        width: 180px;
+        height: 180px;
+        margin-right: 10px;
+    }
+    
+    .slider__controls {
+        width: calc(180px * 2 + 10px);
+        max-width: 100%;
+    }
+}
+
+/* Tablet Portrait (768px y menos) */
+@media (max-width: 768px) {
+    .hero-slider {
+        height: auto;
+        min-height: 100vh;
+        padding-top: 30px; /* Reducir más el espacio para navbar */
+    }
+    
+    .slider__content {
+        flex-direction: column;
+        padding: 0 10px 0 15px;
+        height: auto;
+        min-height: calc(100vh - 30px); /* Ajustar altura */
+    }
+    
+    .slider__left-content {
+        flex-basis: auto;
+        display: flex;
+        align-items: flex-start; /* Cambiar a flex-start para acercar más */
+        justify-content: center;
+        width: 100%;
+        padding: 5px 0; /* Reducir más el padding vertical */
+    }
+    
+    .slider__right-content {
+        flex-basis: auto;
+        padding: 0;
+        align-items: flex-end;
+        width: 100%;
+        margin-top: 10px; /* Reducir margen */
+        padding-top: 0px; /* Eliminar padding superior */
+        padding-bottom: 0px; /* Eliminar padding inferior */
+    }
+    
+    .slider__texts {
+        text-align: center;
+        padding: 0 15px; /* Eliminar padding vertical */
+        height: auto;
+        width: 100%; /* Asegurar ancho completo */
+        box-sizing: border-box; /* Incluir padding en el ancho */
+        overflow: hidden; /* Prevenir overflow */
+        margin-top: 0; /* Eliminar margen superior */
+    }
+    
+    .text-item__title {
+        font-size: 1.6rem; /* Reducir tamaño para evitar corte */
+        line-height: 1.2; /* Mejorar legibilidad */
+        margin-bottom: 10px; /* Reducir margen */
+        word-wrap: break-word; /* Permitir salto de palabra */
+        overflow-wrap: break-word; /* Forzar salto si es necesario */
+        hyphens: none; /* Eliminar guiones automáticos */
+        max-width: 100%; /* Asegurar que no exceda el ancho */
+        padding: 0 5px; /* Agregar padding horizontal */
+        white-space: normal; /* Permitir saltos de línea naturales */
+    }
+    
+    .text-item__description {
+        max-width: 100%;
+        font-size: 0.9rem; /* Aumentar ligeramente para mejor legibilidad */
+        margin-bottom: 15px; /* Reducir margen */
+        line-height: 1.4; /* Mejorar espaciado entre líneas */
+    }
+    
+    .slider__carousel {
+        width: calc(140px * 2 + 10px); /* Reducir ancho */
+        height: 180px; /* Reducir altura */
+        margin: 0 auto;
+    }
+    
+    .slider__card {
+        width: 140px; /* Reducir tamaño */
+        height: 140px; /* Reducir tamaño */
+        margin-right: 10px; /* Reducir margen */
+        border-radius: 8px;
+    }
+    
+    .slider__controls {
+        width: calc(140px * 2 + 10px); /* Ajustar ancho */
+        margin-top: 10px; /* Reducir margen */
+        justify-content: flex-end;
+    }
+    
+    .slider__progress-bar {
+        height: 2px;
+        margin: 0 10px;
+    }
+    
+    .slider__counter {
+        font-size: 0.9rem;
+        min-width: 25px;
+    }
+}
+
+/* Mobile Medium (600px y menos) */
+@media (max-width: 600px) {
+    .slider__content {
+        padding: 0 8px 0 12px;
+    }
+    
+    .slider__carousel {
+        width: calc(130px * 2 + 8px);
+        height: 160px;
+    }
+    
+    .slider__card {
+        width: 130px;
+        height: 130px;
+        margin-right: 8px;
+    }
+    
+    .slider__controls {
+        width: calc(130px * 2 + 8px);
+    }
+}
+
+/* Mobile Large (480px y menos) */
+@media (max-width: 480px) {
+    .hero-slider {
+        height: auto;
+        min-height: 100vh;
+        padding-top: 25px; /* Reducir más el espacio para navbar */
+    }
+    
+    .slider__content {
+        flex-direction: column;
+        padding: 0 8px;
+        height: auto;
+        min-height: calc(100vh - 25px);
+        position: relative;
+    }
+    
+    .slider__left-content {
+        flex-basis: auto;
+        order: 1;
+        padding: 0; /* Eliminar padding vertical */
+        display: flex;
+        align-items: flex-start; /* Cambiar a flex-start */
+        justify-content: center;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .slider__right-content {
+        flex-basis: auto;
+        order: 2;
+        padding: 0;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 2;
+        margin-top: 0;
+    }
+    
+    .slider__texts {
+        text-align: center;
+        padding: 0 8px; /* Mantener padding horizontal */
+        max-width: 100%;
+        width: 100%; /* Asegurar ancho completo */
+        position: relative;
+        height: auto;
+        box-sizing: border-box; /* Incluir padding en el ancho */
+        overflow: hidden; /* Prevenir overflow */
+        margin-top: 0; /* Eliminar margen superior */
+        margin-bottom: 0; /* Eliminar margen inferior */
+    }
+    
+    .text-item__supertitle {
+        font-size: 0.7rem; /* Aumentar ligeramente */
+        margin-bottom: 3px; /* Reducir margen */
+        padding-left: 0;
+        color: #99FF00;
+        font-weight: 500;
+        letter-spacing: 0.8px;
+    }
+    
+    .text-item__title {
+        font-size: 1.4rem; /* Reducir tamaño para evitar corte */
+        line-height: 1.2; /* Mejorar legibilidad */
+        margin-bottom: 6px; /* Reducir margen */
+        letter-spacing: -0.1px; /* Reducir espaciado */
+        text-shadow: 0 0 8px rgba(153, 255, 0, 0.3);
+        word-wrap: break-word; /* Permitir salto de palabra */
+        overflow-wrap: break-word; /* Forzar salto si es necesario */
+        hyphens: none; /* Eliminar guiones automáticos */
+        max-width: 100%; /* Asegurar que no exceda el ancho */
+        padding: 0 5px; /* Agregar padding horizontal */
+        white-space: normal; /* Permitir saltos de línea naturales */
+    }
+    
+    .text-item__description {
+        font-size: 0.8rem; /* Aumentar tamaño para mejor legibilidad */
+        line-height: 1.3; /* Mejorar espaciado */
+        margin-bottom: 8px; /* Reducir margen */
+        max-width: 100%;
+        padding: 0 2px;
+        color: #e0e0e0;
+    }
+    
+    .text-item__button {
+        padding: 6px 12px !important;
+        font-size: 0.7rem;
+        margin-bottom: 0px;
+        border-radius: 6px;
+        letter-spacing: 0px;
+        width: fit-content !important;
+        white-space: nowrap !important;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+        border: 2px solid rgba(34, 197, 94, 0.3) !important;
+    }
+    
+    .slider__carousel {
+        width: calc(100px * 2 + 6px);
+        height: 80px;
+        margin: 0 auto;
+        position: relative;
+    }
+    
+    .slider__cards-container {
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+    
+    .slider__card {
+        width: 100px;
+        height: 100px;
+        margin-right: 6px;
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease;
+    }
+    
+    .slider__card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .slider__card img {
+        width: 100%;
+        height: 70%;
+        object-fit: cover;
+    }
+    
+    .card__content {
+        height: 30%;
+        padding: 4px 6px;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .card__content h3 {
+        font-size: 0.6rem;
+        line-height: 1.0;
+        margin: 0;
+        color: white;
+        font-weight: 700;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    }
+    
+    .card__content .card__supertitle {
+        font-size: 0.45rem;
+        margin-bottom: 1px;
+        color: #99FF00;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+    }
+    
+    .slider__controls {
+        width: calc(100px * 2 + 6px);
+        margin-top: 8px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+    
+    .slider__progress-bar {
+        flex: 1;
+        height: 1.5px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 1px;
+        margin: 0 8px;
+    }
+    
+    .slider__progress-bar-fill {
+        height: 100%;
+        background: #99FF00;
+        border-radius: 1px;
+        transition: width 0.3s ease;
+    }
+    
+    .slider__counter {
+        color: #99FF00;
+        font-weight: 700;
+        font-size: 0.7rem;
+        min-width: 25px;
+    }
+    
+    .slider__auto-reset-indicator {
+        display: none;
+    }
+}
+
+/* Mobile Small (360px y menos) */
+@media (max-width: 360px) {
+    .hero-slider {
+        height: 100vh;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .slider__content {
+        flex-direction: column;
+        padding: 0 3px 0 5px;
+        height: 100vh;
+        position: relative;
+    }
+    
+    .slider__left-content {
+        flex-basis: 55%;
+        order: 1;
+        padding: 10px 0 5px 0;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .slider__right-content {
+        flex-basis: 45%;
+        order: 2;
+        padding: 0;
+        align-items: flex-end;
+        justify-content: center;
+        position: relative;
+        z-index: 2;
+        margin-top: 0;
+    }
+    
+    .slider__texts {
+        text-align: center;
+        padding: 0 2px;
+        max-width: 100%;
+        position: relative;
+        height: auto;
+    }
+    
+    .text-item__supertitle {
+        font-size: 0.5rem;
+        margin-bottom: 3px;
+        padding-left: 0;
+        color: #99FF00;
+        font-weight: 500;
+        letter-spacing: 0.6px;
+    }
+    
+    .text-item__title {
+        font-size: 1.1rem;
+        line-height: 1.1;
+        margin-bottom: 6px;
+        letter-spacing: -0.1px;
+        text-shadow: 0 0 6px rgba(153, 255, 0, 0.3);
+        hyphens: none; /* Eliminar guiones automáticos */
+        white-space: normal; /* Permitir saltos de línea naturales */
+        word-wrap: break-word; /* Permitir salto de palabra */
+        overflow-wrap: break-word; /* Forzar salto si es necesario */
+    }
+    
+    .text-item__description {
+        font-size: 0.55rem;
+        line-height: 1.1;
+        margin-bottom: 8px;
+        max-width: 100%;
+        padding: 0 1px;
+        color: #e0e0e0;
+    }
+    
+    .text-item__button {
+        padding: 5px 10px !important;
+        font-size: 0.6rem;
+        margin-bottom: 0px;
+        border-radius: 5px;
+        letter-spacing: 0px;
+        width: fit-content !important;
+        white-space: nowrap !important;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+        border: 2px solid rgba(34, 197, 94, 0.3) !important;
+    }
+    
+    .slider__carousel {
+        width: calc(70px * 1.5 + 3px);
+        height: 60px;
+        margin: 0 auto;
+        position: relative;
+    }
+    
+    .slider__cards-container {
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+    
+    .slider__card {
+        width: 70px;
+        height: 70px;
+        margin-right: 3px;
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease;
+    }
+    
+    .slider__card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .slider__card img {
+        width: 100%;
+        height: 70%;
+        object-fit: cover;
+    }
+    
+    .card__content {
+        height: 30%;
+        padding: 3px 4px;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .card__content h3 {
+        font-size: 0.5rem;
+        line-height: 1.0;
+        margin: 0;
+        color: white;
+        font-weight: 700;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    }
+    
+    .card__content .card__supertitle {
+        font-size: 0.35rem;
+        margin-bottom: 1px;
+        color: #99FF00;
+        font-weight: 500;
+        letter-spacing: 0.2px;
+    }
+    
+    .slider__controls {
+        width: calc(70px * 1.5 + 3px);
+        margin-top: 6px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+    
+    .slider__progress-bar {
+        flex: 1;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 1px;
+        margin: 0 6px;
+    }
+    
+    .slider__progress-bar-fill {
+        height: 100%;
+        background: #99FF00;
+        border-radius: 1px;
+        transition: width 0.3s ease;
+    }
+    
+    .slider__counter {
+        color: #99FF00;
+        font-weight: 700;
+        font-size: 0.6rem;
+        min-width: 20px;
+    }
+    
+    .slider__auto-reset-indicator {
+        display: none;
+    }
+}
+
+/* =================================================================
+   SOLUCIÓN RESPONSIVE PARA EL HERO SLIDER
+   ================================================================= */
+
+/* --- Tablet Portrait (768px y menos) --- */
+@media (max-width: 768px) {
+    /* Permitimos que el cuerpo de la página pueda hacer scroll si es necesario */
+    body {
+        overflow: auto; 
+    }
+
+    /* Ya no forzamos una altura fija, dejamos que crezca con el contenido */
+    .hero-slider {
+        height: auto;
+        min-height: 100vh; /* Opcional: para que al menos ocupe la pantalla inicial */
+    }
+
+    .slider__content {
+        /* Mantenemos la dirección en columna pero con un alto flexible */
+        height: auto; 
+        padding-top: 100px; /* Espacio para la navbar fija */
+        padding-bottom: 40px;
+    }
+
+    .slider__left-content,
+    .slider__right-content {
+        flex-basis: auto; /* ¡CLAVE! Eliminamos la altura fija del 60%/40% */
+        width: 100%;      /* Aseguramos que ocupe todo el ancho */
+    }
+    
+    .slider__right-content {
+        margin-top: -80px; /* Subir la tarjeta MUCHO más arriba */
+        padding: 0px; /* Eliminar todo el padding */
+        margin-bottom: -20px; /* Reducir espacio inferior */
+    }
+
+    /* Le damos una altura flexible al contenedor de los textos */
+    .slider__texts {
+        height: auto;
+        padding-bottom: 0px;
+    }
+
+    /* Quitamos el posicionamiento absoluto para que el texto fluya normalmente */
+    .slider__text-item {
+        position: relative;
+        transform: none; /* Reseteamos la transformación de la animación si es necesario */
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+/* --- Mobile Large (480px y menos) --- */
+@media (max-width: 480px) {
+    .slider__content {
+        padding-top: 150px; /* Más espacio para la navbar que ahora ocupa más alto */
+        padding-bottom: 30px;
+    }
+
+    .slider__left-content {
+        padding: 0;
+    }
+
+    .slider__right-content {
+        margin-top: -60px;
+        padding: 0px;
+        margin-bottom: -15px;
+    }
+}
+
+/* --- Mobile Small (360px y menos) --- */
+@media (max-width: 360px) {
+    .slider__content {
+        padding-top: 120px;
+        padding-bottom: 20px;
+    }
+
+    .slider__right-content {
+        margin-top: -50px;
+        padding: 0px;
+        margin-bottom: -10px;
+    }
+}
+
+
+/* =================================================================
+   2. CAPA 1: FONDOS
+   ================================================================= */
+
+.slider__backgrounds {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Se asegura de que esté detrás del contenido */
+}
+
+.slider__background-item {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    
+    /* ESTADO INACTIVO: Oculto por defecto */
+    opacity: 0;
+    visibility: hidden;
+
+    /* LA MAGIA DE LA TRANSICIÓN: Anima el cambio de opacidad suavemente */
+    transition: opacity 1.2s cubic-bezier(0.77, 0, 0.175, 1), visibility 1.2s;
+}
+
+.slider__background-item.active {
+    /* ESTADO ACTIVO: Visible */
+    opacity: 1;
+    visibility: visible;
+}
+
+.slider__background-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Asegura que la imagen cubra todo el espacio sin deformarse */
+    filter: brightness(0.7); /* Oscurece ligeramente la imagen para mejorar la legibilidad del texto */
+}
+
+
+/* =================================================================
+   3. CAPA 2: CONTENIDO SUPERPUESTO
+   ================================================================= */
+
+.slider__content {
+    position: relative; /* Se posiciona dentro del flujo normal pero con un z-index más alto */
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    padding: 0 20px 0 30px; /* Pequeño margen derecho para que no esté completamente pegado */
+}
+
+
+/* =================================================================
+   3.1 SECCIÓN IZQUIERDA: TEXTOS
+   ================================================================= */
+
+.slider__left-content {
+    flex-basis: 60%; /* Aumentado para dar más espacio al texto */
+    display: flex;
+    align-items: center; /* Centra verticalmente el bloque de texto */
+}
+
+.slider__texts {
+    position: relative; /* Ancla para los textos posicionados absolutamente */
+    width: 100%;
+    height: 500px; /* Altura fija para evitar saltos de layout */
+    padding-top: 20px;
+}
+
+.slider__text-item {
+    position: absolute;
+    bottom: 0; /* Alineamos todos los textos a la misma base */
+    left: 0;
+    
+    /* ESTADO INACTIVO: Oculto y ligeramente desplazado hacia abajo */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(30px);
+
+    /* LA MAGIA DE LA TRANSICIÓN: Anima opacidad y posición */
+    transition: opacity 1s ease-out, transform 1s ease-out, visibility 1s;
+    transition-delay: 0.3s; /* Pequeño retraso para que aparezca después del fondo */
+}
+
+.slider__text-item.active {
+    /* ESTADO ACTIVO: Visible y en su posición original */
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.text-item__supertitle {
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+    color: #99FF00;
+    position: relative;
+    padding-left: 20px;
+    text-transform: uppercase;
+}
+
+.text-item__supertitle::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 2px;
+    background-color: #99FF00;
+    box-shadow: 0 0 10px rgba(153, 255, 0, 0.5);
+}
+
+.text-item__title {
+    font-size: 4rem;
+    font-weight: 900;
+    line-height: 0.8;
+    text-transform: uppercase;
+    margin-bottom: 25px;
+    text-shadow: 0 0 20px rgba(153, 255, 0, 0.4);
+    letter-spacing: -1.5px;
+    color: white;
+}
+
+.text-item__description {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.6;
+    max-width: 450px;
+    margin-bottom: 35px;
+    color: #e0e0e0;
+    letter-spacing: 0.3px;
+}
+
+.text-item__button {
+    display: inline-block;
+    padding: 8px 16px !important;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+    border: 2px solid rgba(34, 197, 94, 0.3) !important;
+    border-radius: 8px;
+    color: #ffffff !important;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.85rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 
+        0 4px 12px rgba(34, 197, 94, 0.25),
+        0 2px 4px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    width: fit-content !important;
+    min-width: auto !important;
+    max-width: fit-content !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.text-item__button:hover {
+    background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%) !important;
+    border-color: rgba(34, 197, 94, 0.6) !important;
+    color: #ffffff !important;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+        0 8px 25px rgba(34, 197, 94, 0.4),
+        0 4px 8px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.text-item__button:active {
+    transform: translateY(-1px) scale(0.98);
+    box-shadow: 
+        0 4px 12px rgba(34, 197, 94, 0.3),
+        0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.text-item__button:focus {
+    outline: none;
+    box-shadow: 
+        0 4px 12px rgba(34, 197, 94, 0.25),
+        0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+
+/* =================================================================
+   3.2 SECCIÓN DERECHA: CARRUSEL Y CONTROLES
+   ================================================================= */
+
+.slider__right-content {
+    flex-basis: 40%; /* Reducido para compensar el aumento del izquierdo */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Alinea hacia abajo para evitar que se corte */
+    align-items: flex-end; /* Mueve el carrusel hacia la derecha */
+    padding-left: 0px; /* Eliminado completamente para pegar al borde */
+    padding-right: 0px; /* Eliminado para pegar más a la derecha */
+    padding-bottom: 0px; /* Eliminar padding inferior */
+    padding-top: 0px; /* Eliminar padding superior */
+    margin-top: 70px; /* REDUCIDO de 150px a 70px para subir las tarjetas */
+    margin-bottom: -20px; /* NUEVO: reducir espacio inferior */
+}
+
+.slider__carousel {
+    width: calc(250px * 3 + 12px * 2); /* Solo muestra 3 tarjetas completas */
+    height: 350px; /* Altura ajustada para las tarjetas más grandes */
+    overflow: hidden; /* La "ventana" que oculta las tarjetas que no se ven */
+    display: flex;
+    justify-content: flex-start; /* Alinea las tarjetas hacia la izquierda */
+    padding-left: 0; /* Sin padding extra para tarjetas separadas */
+    margin-bottom: 0; /* Sin margen inferior */
+    padding-bottom: 0; /* Sin padding inferior */
+    max-width: 100%; /* Evita que se salga del contenedor */
+    box-sizing: border-box; /* Incluye padding y border en el cálculo del ancho */
+}
+
+.slider__cards-container {
+    display: flex; /* Pone las tarjetas en una fila horizontal */
+    
+    /* LA MAGIA DE LA TRANSICIÓN: Anima el deslizamiento del "tren" de tarjetas */
+    transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* Efecto especial para el rebote al final */
+.slider__cards-container.reset-effect {
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.slider__card {
+    flex-shrink: 0; /* Evita que las tarjetas se encojan */
+    width: 250px;
+    height: 300px;
+    margin-right: 12px; /* Separación entre tarjetas */
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.4s ease;
+}
+
+.slider__card:hover {
+    transform: translateY(-4px); /* Efecto sutil al pasar el ratón */
+}
+
+.slider__card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.card__content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+}
+
+.card__supertitle {
+    font-size: 0.8rem;
+    font-weight: 300;
+    color: #e0e0e0;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.card__content h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.1;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(153, 255, 0, 0.4);
+    margin: 0;
+}
+
+
+/* =================================================================
+   3.3 CONTROLES DE NAVEGACIÓN
+   ================================================================= */
+
+.slider__controls {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+    width: calc(250px * 3 + 12px * 2); /* Mismo ancho que el carrusel */
+    justify-content: flex-end; /* Alinea los controles hacia la derecha */
+}
+
+.slider__button {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin: 0 10px;
+    transition: background-color 0.3s;
+}
+
+.slider__button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.slider__progress-bar {
+    width: calc(250px * 3 + 12px * 2); /* Mismo ancho que el carrusel */
+    height: 2px;
+    background-color: rgba(255, 255, 255, 0.2);
+    margin: 0 15px;
+}
+
+.slider__progress-bar-fill {
+    width: 20%; /* JS actualizará esto dinámicamente */
+    height: 100%;
+    background-color: #99FF00;
+    box-shadow: 0 0 10px rgba(153, 255, 0, 0.5);
+}
+
+.slider__counter {
+    font-size: 1.2rem;
+    font-weight: 700;
+    min-width: 35px; /* Espacio para el número */
+    text-align: right;
+    color: #99FF00;
+    text-shadow: 0 0 8px rgba(153, 255, 0, 0.5);
+}
+
+/* Indicador de rebote automático */
+.slider__auto-reset-indicator {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(153, 255, 0, 0.9);
+    color: #0a0a0a;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    box-shadow: 0 0 15px rgba(153, 255, 0, 0.5);
+}
+
+.slider__auto-reset-indicator.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* =================================================================
+   MODAL DE LOGIN
+   ================================================================= */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal__content {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 2px solid #99FF00;
+    border-radius: 15px;
+    padding: 0;
+    width: 90%;
+    max-width: 380px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(153, 255, 0, 0.3);
+    animation: slideIn 0.3s ease-out;
+    position: relative;
+}
+
+.modal__header {
+    background: linear-gradient(135deg, #99FF00 0%, #7ACC00 100%);
+    color: #0a0a0a;
+    padding: 12px 20px;
+    border-radius: 13px 13px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal__header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.modal__close {
+    background: none;
+    border: none;
+    color: #0a0a0a;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.modal__close:hover {
+    background-color: rgba(10, 10, 10, 0.2);
+    transform: scale(1.1);
+}
+
+.modal__body {
+    padding: 15px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-group label {
+    color: #e0e0e0;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.form-group input[type="email"],
+.form-group input[type="password"] {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(153, 255, 0, 0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.form-group input[type="email"]:focus,
+.form-group input[type="password"]:focus {
+    border-color: #99FF00;
+    background: rgba(153, 255, 0, 0.1);
+    box-shadow: 0 0 15px rgba(153, 255, 0, 0.3);
+}
+
+.form-group input::placeholder {
+    color: rgba(224, 224, 224, 0.6);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #e0e0e0;
+}
+
+/* Checkbox personalizado que SÍ funciona */
+.custom-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #e0e0e0;
+    user-select: none;
+    position: relative;
+}
+
+.custom-checkbox input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    height: 20px;
+    width: 20px;
+    background-color: transparent;
+    border: 2px solid #99FF00;
+    border-radius: 4px;
+    position: relative;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.custom-checkbox:hover .checkmark {
+    border-color: #7ACC00;
+    box-shadow: 0 0 10px rgba(153, 255, 0, 0.3);
+}
+
+.custom-checkbox input:checked ~ .checkmark {
+    background-color: #99FF00;
+    border-color: #99FF00;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.custom-checkbox input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.custom-checkbox .checkmark:after {
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid #0a0a0a;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-text {
+    flex: 1;
+}
+
+.login-btn {
+    background: linear-gradient(135deg, #99FF00 0%, #7ACC00 100%);
+    color: #0a0a0a;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 3px;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(153, 255, 0, 0.4);
+}
+
+.login-btn:active {
+    transform: translateY(0);
+}
+
+.modal__footer {
+    margin-top: 10px;
+    text-align: center;
+    border-top: 1px solid rgba(153, 255, 0, 0.2);
+    padding-top: 10px;
+}
+
+.modal__footer p {
+    margin: 3px 0;
+    color: #b0b0b0;
+    font-size: 0.8rem;
+}
+
+.modal__footer a {
+    color: #99FF00;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.modal__footer a:hover {
+    color: #7ACC00;
+    text-decoration: underline;
+}
+
+/* Mensajes del formulario */
+.login-message {
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-weight: 600;
+    text-align: center;
+    animation: slideDown 0.3s ease-out;
+}
+
+.login-message--success {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border: 1px solid #22c55e;
+}
+
+.login-message--error {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid #ef4444;
+}
+
+.login-message--info {
+    background-color: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+    border: 1px solid #3b82f6;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes slideDown {
+    from { 
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =================================================================
+   RESPONSIVE DESIGN - MODAL DE LOGIN
+   ================================================================= */
+
+/* Tablet Portrait (768px y menos) */
+@media (max-width: 768px) {
+    .modal__content {
+        width: 95%;
+        max-width: 380px;
+    }
+    
+    .modal__header {
+        padding: 12px 20px;
+    }
+    
+    .modal__header h2 {
+        font-size: 1.4rem;
+    }
+    
+    .modal__body {
+        padding: 18px;
+    }
+    
+    .form-group input[type="email"],
+    .form-group input[type="password"] {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+    }
+    
+    .login-btn {
+        padding: 12px 20px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Mobile Large (480px y menos) */
+@media (max-width: 480px) {
+    .modal__content {
+        width: 98%;
+        max-width: 350px;
+        margin: 10px;
+    }
+    
+    .modal__header {
+        padding: 15px 20px;
+    }
+    
+    .modal__header h2 {
+        font-size: 1.4rem;
+    }
+    
+    .modal__body {
+        padding: 20px;
+    }
+    
+    .form-group input[type="email"],
+    .form-group input[type="password"] {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .login-btn {
+        padding: 12px 20px;
+        font-size: 0.95rem;
+    }
+    
+    .modal__footer p {
+        font-size: 0.85rem;
+    }
+}
+
+/* Mobile Small (360px y menos) */
+@media (max-width: 360px) {
+    .modal__content {
+        width: 100%;
+        max-width: 320px;
+        margin: 5px;
+    }
+    
+    .modal__header {
+        padding: 12px 15px;
+    }
+    
+    .modal__header h2 {
+        font-size: 1.2rem;
+    }
+    
+    .modal__body {
+        padding: 15px;
+    }
+    
+    .form-group input[type="email"],
+    .form-group input[type="password"] {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .login-btn {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+}
+
+/* =================================================================
+   ESTILOS ESPECÍFICOS PARA EL MODAL DE REGISTRO
+   ================================================================= */
+
+.register-form {
+    display: flex;
+        flex-direction: column;
+    gap: 12px;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="tel"] {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(153, 255, 0, 0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="tel"]:focus {
+    border-color: #99FF00;
+    background: rgba(153, 255, 0, 0.1);
+    box-shadow: 0 0 15px rgba(153, 255, 0, 0.3);
+}
+
+.register-btn {
+    background: linear-gradient(135deg, #99FF00 0%, #7ACC00 100%);
+    color: #0a0a0a;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 3px;
+}
+
+.register-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(153, 255, 0, 0.4);
+}
+
+.register-btn:active {
+    transform: translateY(0);
+}
+
+.terms-link {
+    color: #99FF00;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.terms-link:hover {
+    color: #7ACC00;
+    text-decoration: underline;
+}
+
+/* Mensajes del formulario de registro */
+.register-message {
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-weight: 600;
+    text-align: center;
+    animation: slideDown 0.3s ease-out;
+}
+
+.register-message--success {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border: 1px solid #22c55e;
+}
+
+.register-message--error {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid #ef4444;
+}
+
+.register-message--info {
+    background-color: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+    border: 1px solid #3b82f6;
+}
+
+/* =================================================================
+   RESPONSIVE DESIGN - MODAL DE REGISTRO
+   ================================================================= */
+
+/* Tablet Portrait (768px y menos) */
+@media (max-width: 768px) {
+    .form-row {
+        gap: 10px;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="tel"] {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+    }
+    
+    .register-btn {
+        padding: 12px 20px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Mobile Large (480px y menos) */
+@media (max-width: 480px) {
+    .form-group input[type="text"],
+    .form-group input[type="tel"] {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .register-btn {
+        padding: 12px 20px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Mobile Small (360px y menos) */
+@media (max-width: 360px) {
+    .form-group input[type="text"],
+    .form-group input[type="tel"] {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .register-btn {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+}
+
+/* =================================================================
+   SECCIÓN DE CURSOS ONLINE
+   ================================================================= */
+
+.courses-section {
+    padding: 80px 0;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.courses-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(34, 197, 94, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.courses-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.courses-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.courses-title {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #ffffff;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.courses-subtitle {
+    font-size: 1.2rem;
+    color: #a3a3a3;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.course-card:not(.admin-course-card) {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.course-card:not(.admin-course-card):hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.course-image:not(.admin-course-image) {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.course-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.course-card:not(.admin-course-card):hover .course-image img {
+    transform: scale(1.05);
+}
+
+.course-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.course-card:not(.admin-course-card):hover .course-overlay {
+    opacity: 1;
+}
+
+.play-button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #22c55e;
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+}
+
+.play-button:hover {
+    transform: scale(1.1);
+    background: #16a34a;
+}
+
+.course-content {
+    padding: 25px;
+}
+
+.course-category {
+    font-size: 0.9rem;
+    color: #22c55e;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.course-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+.course-description {
+    color: #a3a3a3;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+
+.course-meta {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.course-meta span {
+    font-size: 0.85rem;
+    color: #737373;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.course-price {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.price-current {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #22c55e;
+}
+
+.price-original {
+    font-size: 1rem;
+    color: #737373;
+    text-decoration: line-through;
+}
+
+.course-btn {
+    width: 100%;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.course-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+}
+
+/* =================================================================
+   RESPONSIVE DESIGN - SECCIÓN DE CURSOS
+   ================================================================= */
+
+@media (max-width: 768px) {
+    .courses-section {
+        padding: 60px 0;
+    }
+    
+    .courses-title {
+        font-size: 2.5rem;
+    }
+    
+    .courses-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .courses-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .course-meta {
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .courses-title {
+        font-size: 2rem;
+    }
+    
+    .course-content {
+        padding: 20px;
+    }
+    
+    .course-title {
+        font-size: 1.3rem;
+    }
+}
+
+/* ========================================================= */
+/* === REPRODUCTOR DE VIDEO PROFESIONAL CON VIDEO.JS === */
+/* ========================================================= */
+
+/* Opcional: Limita el ancho del contenedor del video para que no sea gigante */
+.course-video-section {
+    max-width: 800px; /* Ajusta este número como quieras */
+    margin: 0 auto; /* Centra el contenedor */
+    padding: 0 20px; /* Espacio a los lados */
+}
+
+/* ======================================= */
+/* === REPRODUCTOR ESTILO YOUTUBE EXACTO === */
+/* ======================================= */
+
+/* Contenedor principal del video */
+.course-video-section {
+  max-width: 800px; /* Ancho como YouTube */
+  margin: 0 auto 2rem auto; /* Centrado */
+}
+
+/* Reproductor Video.js con estilo YouTube exacto */
+.video-js {
+    width: 100% !important;
+    height: 0 !important;
+    padding-top: 56.25% !important; /* Proporción 16:9 exacta */
+    position: relative !important;
+    background-color: #000 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}
+
+/* Video dentro del contenedor */
+.video-js .vjs-tech {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+/* Barra de controles estilo YouTube */
+.video-js .vjs-control-bar {
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7)) !important;
+    height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 12px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Barra de progreso roja como YouTube */
+.video-js .vjs-progress-control {
+    flex: 1 !important;
+    height: 4px !important;
+    margin: 0 12px !important;
+    background-color: rgba(255, 255, 255, 0.3) !important;
+    border-radius: 2px !important;
+}
+
+.video-js .vjs-play-progress {
+    background-color: #ff0000 !important; /* Rojo YouTube */
+    height: 100% !important;
+    border-radius: 2px !important;
+}
+
+.video-js .vjs-load-progress {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Botón de play grande centrado */
+.video-js .vjs-big-play-button {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 68px !important;
+    height: 68px !important;
+    border-radius: 50% !important;
+    background-color: rgba(0, 0, 0, 0.8) !important;
+    border: 2px solid #fff !important;
+    font-size: 24px !important;
+    line-height: 64px !important;
+    color: #fff !important;
+    /* Removemos display: flex !important para permitir que Video.js controle la visibilidad */
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Controles de tiempo */
+.video-js .vjs-time-control {
+    color: #fff !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+}
+
+/* Botones de control */
+.video-js .vjs-button {
+    color: #fff !important;
+    font-size: 18px !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Asegurar que los controles siempre estén visibles */
+.video-js.vjs-user-inactive .vjs-control-bar {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* ======================================= */
+/* === FLECHITAS DE NAVEGACIÓN CON COLOR DE MARCA === */
+/* ======================================= */
+
+/* Contenedor de navegación de módulos */
+.module-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 15px 0;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(153, 255, 0, 0.2);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Botones de navegación con flechitas */
+.nav-btn {
+    background: rgba(153, 255, 0, 0.1) !important;
+    color: #99FF00 !important;
+    border: 1px solid rgba(153, 255, 0, 0.3) !important;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    backdrop-filter: blur(5px);
+    min-width: 80px;
+    justify-content: center;
+}
+
+.nav-btn:hover {
+    background: rgba(153, 255, 0, 0.2) !important;
+    border-color: rgba(153, 255, 0, 0.5) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(153, 255, 0, 0.2) !important;
+}
+
+.nav-btn:disabled {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Flechitas personalizadas con color de marca */
+.nav-btn::before {
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.prev-btn::before {
+    border-width: 6px 8px 6px 0;
+    border-color: transparent #99FF00 transparent transparent; /* Color de marca */
+}
+
+.next-btn::before {
+    border-width: 6px 0 6px 8px;
+    border-color: transparent transparent transparent #99FF00; /* Color de marca */
+}
+
+.nav-btn:disabled::before {
+    border-color: transparent #666 transparent transparent;
+}
+
+.next-btn:disabled::before {
+    border-color: transparent transparent transparent #666;
+}
+
+/* Contador de módulos */
+.module-counter {
+    background: rgba(153, 255, 0, 0.15);
+    color: #99FF00;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 11px;
+    border: 1px solid rgba(153, 255, 0, 0.3);
+    backdrop-filter: blur(5px);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ======================================= */
+/* === RESPONSIVE PARA NAVEGACIÓN DE MÓDULOS === */
+/* ======================================= */
+
+/* Tablet Portrait (768px y menos) */
+@media (max-width: 768px) {
+    .module-navigation {
+        margin: 8px 0; /* Reducir mucho el margen */
+        padding: 6px 8px; /* Reducir mucho el padding */
+    }
+    
+    .nav-btn {
+        padding: 4px 6px; /* Reducir mucho el padding */
+        font-size: 9px; /* Reducir mucho el tamaño */
+        min-width: 50px; /* Reducir mucho el ancho */
+        gap: 3px; /* Reducir gap */
+    }
+    
+    .module-counter {
+        padding: 2px 4px; /* Reducir mucho el padding */
+        font-size: 8px; /* Reducir mucho el tamaño */
+    }
+}
+
+/* Mobile Large (480px y menos) */
+@media (max-width: 480px) {
+    .module-navigation {
+        margin: 4px 0; /* Reducir al mínimo el margen */
+        padding: 4px 6px; /* Reducir al mínimo el padding */
+    }
+    
+    .nav-btn {
+        padding: 3px 4px; /* Reducir al mínimo el padding */
+        font-size: 8px; /* Reducir al mínimo el tamaño */
+        min-width: 40px; /* Reducir al mínimo el ancho */
+        gap: 2px; /* Reducir al mínimo el gap */
+    }
+    
+    .module-counter {
+        padding: 1px 3px; /* Reducir al mínimo el padding */
+        font-size: 7px; /* Reducir al mínimo el tamaño */
+    }
+}
+
+/* Mobile Extra Small (360px y menos) */
+@media (max-width: 360px) {
+    .module-navigation {
+        margin: 2px 0; /* Mínimo absoluto */
+        padding: 2px 4px; /* Mínimo absoluto */
+    }
+    
+    .nav-btn {
+        padding: 2px 3px; /* Mínimo absoluto */
+        font-size: 7px; /* Mínimo absoluto */
+        min-width: 35px; /* Mínimo absoluto */
+        gap: 1px; /* Mínimo absoluto */
+    }
+    
+    .module-counter {
+        padding: 1px 2px; /* Mínimo absoluto */
+        font-size: 6px; /* Mínimo absoluto */
+    }
+}
+
+/* Forzar color de marca en todos los botones de navegación */
+.prev-btn, .next-btn {
+    background: linear-gradient(135deg, #99FF00, #7ACC00) !important;
+    color: #0a0a0a !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(153, 255, 0, 0.3) !important;
+}
+
+.prev-btn:hover, .next-btn:hover {
+    background: linear-gradient(135deg, #7ACC00, #99FF00) !important;
+    box-shadow: 0 6px 20px rgba(153, 255, 0, 0.4) !important;
+}
+
+/* Eliminar cualquier gradiente azulado que pueda estar aplicado */
+.nav-btn[style*="background"] {
+    background: linear-gradient(135deg, #99FF00, #7ACC00) !important;
+}
+
+/* ======================================= */
+/* === FLECHITAS PARA SLIDER PRINCIPAL === */
+/* ======================================= */
+
+/* Contenedor de flechitas del slider */
+.slider__navigation-arrows {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+/* Flechitas del slider principal */
+.slider__arrow {
+    background: linear-gradient(135deg, #99FF00, #7ACC00);
+    color: #0a0a0a;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(153, 255, 0, 0.3);
+    font-size: 0;
+}
+
+.slider__arrow:hover {
+    background: linear-gradient(135deg, #7ACC00, #99FF00);
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 6px 25px rgba(153, 255, 0, 0.5);
+}
+
+.slider__arrow:active {
+    transform: translateY(-1px) scale(1.05);
+}
+
+/* Iconos de las flechitas */
+.slider__arrow .arrow-icon {
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+/* Flechita anterior */
+.slider__arrow--prev .arrow-icon {
+    margin-left: -2px;
+}
+
+/* Flechita siguiente */
+.slider__arrow--next .arrow-icon {
+    margin-right: -2px;
+}
+
+/* Efecto de pulso en hover */
+.slider__arrow:hover .arrow-icon {
+    animation: pulse 0.6s ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* ======================================= */
+/* === CARRITO DE COMPRAS SÚPER MODERNO === */
+/* ======================================= */
+
+/* Overlay del carrito */
+.cart-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 9999;
+    display: none;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.cart-overlay.show {
+    display: flex;
+    opacity: 1;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 20px;
+}
+
+/* Panel del carrito */
+.cart-panel {
+    background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+    border-radius: 20px;
+    width: 450px;
+    max-width: 90vw;
+    max-height: 90vh;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(153, 255, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.cart-overlay.show .cart-panel {
+    transform: translateX(0);
+}
+
+/* Header del carrito */
+.cart-header {
+    padding: 25px 30px 20px;
+    border-bottom: 1px solid rgba(153, 255, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(153, 255, 0, 0.05), transparent);
+}
+
+.cart-title {
+    color: #99FF00;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cart-icon {
+    font-size: 28px;
+    animation: cartBounce 2s infinite;
+}
+
+@keyframes cartBounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-5px); }
+    60% { transform: translateY(-3px); }
+}
+
+.cart-close {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+.cart-close:hover {
+    background: rgba(255, 0, 0, 0.2);
+    transform: rotate(90deg);
+}
+
+/* Contenido del carrito */
+.cart-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 30px;
+    min-height: 300px;
+}
+
+.cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.cart-item {
+    background: linear-gradient(135deg, rgba(153, 255, 0, 0.05), rgba(153, 255, 0, 0.02));
+    border: 1px solid rgba(153, 255, 0, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    display: flex;
+    gap: 15px;
+    transition: all 0.3s ease;
+    animation: slideInUp 0.4s ease;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cart-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(153, 255, 0, 0.1);
+    border-color: rgba(153, 255, 0, 0.3);
+}
+
+.cart-item-image {
+    width: 80px;
+    height: 60px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 2px solid rgba(153, 255, 0, 0.2);
+}
+
+.cart-item-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cart-item-title {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.cart-item-category {
+    color: #99FF00;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cart-item-price {
+    color: #99FF00;
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: auto;
+}
+
+.cart-item-remove {
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    color: #ff4444;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    align-self: flex-start;
+}
+
+.cart-item-remove:hover {
+    background: rgba(255, 0, 0, 0.2);
+    transform: scale(1.1);
+}
+
+/* Carrito vacío */
+.cart-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.cart-empty h4 {
+    color: #fff;
+    font-size: 20px;
+    margin: 0 0 10px 0;
+}
+
+.cart-empty p {
+    color: #999;
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Footer del carrito */
+.cart-footer {
+    padding: 25px 30px;
+    border-top: 1px solid rgba(153, 255, 0, 0.1);
+    background: linear-gradient(135deg, rgba(153, 255, 0, 0.02), transparent);
+}
+
+.cart-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.cart-total {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.total-label {
+    color: #999;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.total-amount {
+    color: #99FF00;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.cart-count {
+    color: #666;
+    font-size: 14px;
+}
+
+.cart-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-clear-cart, .btn-checkout {
+    flex: 1;
+    padding: 15px 20px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-clear-cart {
+    background: rgba(255, 255, 255, 0.1);
+    color: #999;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-clear-cart:hover {
+    background: rgba(255, 0, 0, 0.1);
+    color: #ff4444;
+    border-color: rgba(255, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-checkout {
+    background: linear-gradient(135deg, #99FF00, #7ACC00);
+    color: #0a0a0a;
+    box-shadow: 0 4px 15px rgba(153, 255, 0, 0.3);
+}
+
+.btn-checkout:hover {
+    background: linear-gradient(135deg, #7ACC00, #99FF00);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(153, 255, 0, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .cart-panel {
+        width: 100%;
+        max-width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+    
+    .cart-overlay.show {
+        padding: 0;
+    }
+}
+
+
+/* ======================================= */
+/* === ICONOS DE CARRITO EN TARJETAS === */
+/* ======================================= */
+
+.slider__card {
+    position: relative;
+}
+
+.card-cart-icon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #99FF00, #7ACC00);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    box-shadow: 0 3px 10px rgba(153, 255, 0, 0.3);
+    transition: all 0.3s ease;
+    z-index: 10;
+    opacity: 0.9;
+}
+
+.card-cart-icon:hover {
+    background: linear-gradient(135deg, #7ACC00, #99FF00);
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(153, 255, 0, 0.6);
+    opacity: 1;
+}
+
+.card-cart-icon:active {
+    transform: scale(0.95);
+}
+
+/* Animación de pulso para llamar la atención */
+.card-cart-icon::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(135deg, #99FF00, #7ACC00);
+    border-radius: 50%;
+    opacity: 0;
+    animation: cartPulse 2s infinite;
+    z-index: -1;
+}
+
+@keyframes cartPulse {
+    0% {
+        opacity: 0;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.3;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.2);
+    }
+}
+
+/* Efecto de brillo en hover */
+.card-cart-icon:hover::before {
+    animation: none;
+    opacity: 0.2;
+    transform: scale(1.2);
+}
+
+/* Responsive para iconos de carrito */
+@media (max-width: 768px) {
+    .card-cart-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+        top: 10px;
+        right: 10px;
+    }
+}

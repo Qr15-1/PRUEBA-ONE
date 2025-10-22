@@ -1,0 +1,263 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { adminSessionQueries } from '../../lib/database.js';
+
+// Verificar autenticación del lado del servidor
+const adminSessionToken = Astro.cookies.get('admin_session')?.value;
+console.log('🔍 [DASHBOARD] Token de sesión:', adminSessionToken ? adminSessionToken.substring(0, 10) + '...' : 'No encontrado');
+
+if (!adminSessionToken) {
+  console.log('❌ [DASHBOARD] No hay token de sesión, redirigiendo a login');
+  return Astro.redirect('/admin/login');
+}
+
+// Verificar que la sesión de admin es válida
+const adminSession = adminSessionQueries.findByToken(adminSessionToken);
+console.log('🔍 [DASHBOARD] Sesión encontrada:', adminSession ? 'Sí' : 'No');
+if (!adminSession) {
+  console.log('❌ [DASHBOARD] Sesión inválida, redirigiendo a login');
+  return Astro.redirect('/admin/login');
+}
+---
+
+<AdminLayout title="Dashboard Admin - RojasFitt">
+    <div class="admin-page">
+        <main class="admin-main">
+            
+
+            <!-- Contenido principal -->
+            <div id="dashboardContent">
+
+                <!-- Botones de acción -->
+                <div class="actions-grid">
+                    <a href="/admin/courses" class="action-card">
+                        <div class="action-icon">🎓</div>
+                        <h3>Gestionar Cursos</h3>
+                        <p>Administra todos los cursos</p>
+                    </a>
+                    <a href="/admin/users" class="action-card">
+                        <div class="action-icon">👥</div>
+                        <h3>Gestionar Usuarios</h3>
+                        <p>Administra usuarios registrados</p>
+                    </a>
+                    <a href="/admin/products" class="action-card">
+                        <div class="action-icon">📦</div>
+                        <h3>Gestionar Productos</h3>
+                        <p>Administra productos de la tienda</p>
+                    </a>
+                    <a href="/admin/orders" class="action-card">
+                        <div class="action-icon">📋</div>
+                        <h3>Ver Pedidos</h3>
+                        <p>Revisa pedidos y ventas</p>
+                    </a>
+                    
+                </div>
+
+                
+            </div>
+        </main>
+    </div>
+</AdminLayout>
+
+<style>
+    /* ===== PÁGINA PRINCIPAL ===== */
+    .page-header {
+        text-align: center;
+        margin-bottom: 50px;
+        padding: 40px 0;
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.05) 100%);
+        border-radius: 20px;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #22c55e, #16a34a, #22c55e);
+        background-size: 200% 100%;
+        animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    .page-title {
+        font-size: 3rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 15px;
+        text-shadow: 0 0 30px rgba(34, 197, 94, 0.3);
+    }
+
+    .page-subtitle {
+        font-size: 1.2rem;
+        color: #b0b0b0;
+        font-weight: 400;
+    }
+
+
+    /* ===== GRID DE ACCIONES ===== */
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 50px;
+    }
+
+    .action-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        text-decoration: none;
+        color: inherit;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .action-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #22c55e, #16a34a, #22c55e);
+        background-size: 200% 100%;
+        animation: shimmer 3s ease-in-out infinite;
+    }
+
+    .action-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        border-color: rgba(34, 197, 94, 0.3);
+        box-shadow: 0 20px 40px rgba(34, 197, 94, 0.2);
+    }
+
+    .action-icon {
+        font-size: 3rem;
+        margin-bottom: 20px;
+        display: block;
+    }
+
+    .action-card h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 10px;
+    }
+
+    .action-card p {
+        color: #b0b0b0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    /* ===== SECCIÓN DE USUARIOS ===== */
+    .users-section {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        padding: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #22c55e;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .users-list {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .user-item {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+
+    .user-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(34, 197, 94, 0.2);
+        transform: translateX(5px);
+    }
+
+    .user-info {
+        flex: 1;
+    }
+
+    .user-name {
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 5px;
+        font-size: 1.1rem;
+    }
+
+    .user-email {
+        color: #b0b0b0;
+        font-size: 0.95rem;
+        margin-bottom: 5px;
+    }
+
+    .user-date {
+        color: #888;
+        font-size: 0.9rem;
+    }
+
+    .user-newsletter {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        .actions-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+        }
+        
+        .action-card {
+            padding: 25px;
+        }
+    }
+</style>
+
+<script>
+
+    // (Se removió la sección de "Usuarios Registrados", por lo tanto no cargamos nada aquí)
+</script>

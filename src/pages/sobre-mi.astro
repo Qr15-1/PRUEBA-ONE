@@ -1,0 +1,673 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Sobre Mi - RojasFitt" description="Conoce a Carlos Rojas y su pasión por transformar vidas a través del fitness">
+  <section class="about-hero">
+    <div class="about-hero__container">
+      <div class="about-hero__content">
+        <h1 class="about-hero__title">Construido para tu <span class="accent-text">Estilo de Vida</span> Fitness.</h1>
+        <p class="about-hero__description">
+          Tus objetivos, tu ritmo, nuestros programas probados diseñados para ayudarte a entrenar con propósito y transformarte con confianza.
+        </p>
+      </div>
+      <div class="about-hero__image-wrapper">
+        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=800" alt="Athlete performing side plank - RojasFitt" class="about-hero__image" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Sección About RojasFitt -->
+  <section class="about-section">
+    <div class="about-section__container">
+      <div class="about-section__content">
+        <div class="about-section__tag">Mi Filosofía de Entrenamiento</div>
+        <h2 class="about-section__title">
+          Descubre un Método que te Impulsa a Ser 
+          <span class="accent-text">Más Fuerte, Más Definido,</span> y 
+          <span class="accent-text">Más Constante</span>
+        </h2>
+        <p class="about-section__description">
+          Conmigo, no solo entrenas, te unes a una comunidad de campeones. Mi enfoque se adapta a todos, desde principiantes hasta atletas de élite. Juntos nos esforzamos más, levantamos más fuerte y celebramos cada repetición.
+        </p>
+        <button class="about-section__cta">
+          Leer Más Sobre Mí
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+      <div class="about-section__stats">
+        <div class="stats-card">
+          <div class="stats-card__icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div class="stats-card__content">
+            <h3 class="stats-card__title">Vidas Transformadas</h3>
+            <p class="stats-card__number">1,000+</p>
+            <p class="stats-card__subtitle">Clientes Exitosos</p>
+          </div>
+          <div class="stats-card__avatars">
+            <div class="avatar avatar--1"></div>
+            <div class="avatar avatar--2"></div>
+            <div class="avatar avatar--3"></div>
+            <div class="avatar avatar--4"></div>
+            <div class="avatar avatar--plus">+1K</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección What We Offer -->
+  <section class="what-we-offer">
+    <div class="what-we-offer__container">
+      <div class="what-we-offer__tag">Lo Que Ofrecemos</div>
+      <h2 class="what-we-offer__title">
+        Entrena <span class="accent-text">Más Inteligente.</span> Rinde <span class="accent-text">Mejor.</span> Crece <span class="accent-text">Más Fuerte.</span>
+      </h2>
+      <p class="what-we-offer__description">
+        Ya sea que estés comenzando o persiguiendo el máximo rendimiento, nuestros programas dirigidos por expertos están diseñados para superar tus límites.
+      </p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* ======================================= */
+  /* === SECCIÓN SOBRE MI - HERO === */
+  /* ======================================= */
+  .about-hero {
+    background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
+    color: #fff;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    padding: 40px 0; /* Espacio ultra reducido */
+    position: relative;
+    overflow: hidden;
+  }
+
+  .about-hero__container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    z-index: 2;
+    min-height: 60vh;
+    justify-content: center;
+  }
+
+  .about-hero__content {
+    flex: 1;
+    text-align: center;
+    max-width: 800px;
+  }
+
+  .about-hero__title {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px rgba(153, 255, 0, 0.3);
+  }
+
+  .accent-text {
+    color: #99FF00;
+  }
+
+  .about-hero__description {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 25px;
+    max-width: 100%;
+    color: #f0f0f0;
+    margin-left: auto;
+    margin-right: auto;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    padding: 0 20px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .highlight-text {
+    color: #99FF00;
+    font-weight: 600;
+  }
+
+
+  .about-hero__image-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin-top: 10px;
+  }
+
+  .about-hero__image {
+    width: 100%;
+    height: 180px; /* Altura reducida */
+    object-fit: cover;
+    object-position: center;
+    filter: grayscale(100%) brightness(90%); /* Blanco y negro */
+    transition: all 0.5s ease;
+    border-radius: 90px; /* Forma de píldora más ancha */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Efecto curvo dinámico */
+  .about-hero__image-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
+    background: rgba(153, 255, 0, 0.05);
+    border-radius: 100px; /* Píldora más ancha */
+    z-index: -1;
+    transition: all 0.5s ease;
+    box-shadow: 0 0 15px rgba(153, 255, 0, 0.2);
+  }
+
+  .about-hero__image-wrapper:hover::before {
+    background: rgba(153, 255, 0, 0.1);
+    border-radius: 120px;
+    transform: scale(1.01);
+  }
+
+  .about-hero__image-wrapper:hover .about-hero__image {
+    filter: grayscale(0%) brightness(100%);
+    transform: scale(1.01);
+  }
+
+  /* ======================================= */
+  /* === RESPONSIVE === */
+  /* ======================================= */
+
+  /* Tablet Portrait (768px y menos) */
+  @media (max-width: 768px) {
+    .about-hero {
+      padding: 25px 0;
+      min-height: 50vh;
+    }
+
+    .about-hero__container {
+      gap: 12px;
+      min-height: 50vh;
+    }
+
+    .about-hero__title {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+    }
+
+    .about-hero__description {
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+      letter-spacing: 0.2px;
+      padding: 0 15px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+
+    .about-hero__image {
+      height: 140px;
+      border-radius: 70px; /* Píldora más ancha en tablet */
+    }
+
+    .about-hero__image-wrapper::before {
+      border-radius: 80px;
+    }
+  }
+
+  /* Mobile Large (480px y menos) */
+  @media (max-width: 480px) {
+    .about-hero {
+      padding: 20px 0;
+      min-height: 45vh;
+    }
+
+    .about-hero__container {
+      gap: 10px;
+      min-height: 45vh;
+    }
+
+    .about-hero__title {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+
+    .about-hero__description {
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+      letter-spacing: 0.2px;
+      padding: 0 10px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+
+    .about-hero__image {
+      height: 120px;
+      border-radius: 60px; /* Píldora más ancha en móvil */
+    }
+
+    .about-hero__image-wrapper::before {
+      border-radius: 70px;
+    }
+  }
+
+  /* Mobile Extra Small (360px y menos) */
+  @media (max-width: 360px) {
+    .about-hero {
+      min-height: 40vh;
+    }
+
+    .about-hero__container {
+      min-height: 40vh;
+    }
+
+    .about-hero__title {
+      font-size: 1.5rem;
+    }
+
+    .about-hero__description {
+      font-size: 0.8rem;
+      letter-spacing: 0.1px;
+      padding: 0 8px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+
+    .about-hero__image {
+      height: 100px;
+      border-radius: 50px; /* Píldora más ancha en móvil pequeño */
+    }
+
+    .about-hero__image-wrapper::before {
+      border-radius: 60px;
+    }
+  }
+
+
+  /* ======================================= */
+  /* === SECCIÓN ABOUT ROJASFITT === */
+  /* ======================================= */
+  .about-section {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 30px 0;
+    position: relative;
+  }
+
+  .about-section__container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .about-section__content {
+    flex: 2;
+  }
+
+  .about-section__tag {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.1);
+    color: #99FF00;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    border: 1px solid rgba(153, 255, 0, 0.3);
+  }
+
+  .about-section__title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 18px;
+    color: #fff;
+  }
+
+  .about-section__description {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #e0e0e0;
+    margin-bottom: 20px;
+    max-width: 450px;
+  }
+
+  .about-section__cta {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .about-section__cta:hover {
+    background: rgba(153, 255, 0, 0.1);
+    border-color: #99FF00;
+    color: #99FF00;
+    transform: translateY(-2px);
+  }
+
+  .about-section__stats {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+
+  .stats-card {
+    background: #99FF00;
+    color: #0a0a0a;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    max-width: 250px;
+    width: 100%;
+    box-shadow: 0 6px 20px rgba(153, 255, 0, 0.3);
+  }
+
+  .stats-card__icon {
+    margin-bottom: 15px;
+  }
+
+  .stats-card__icon svg {
+    color: #0a0a0a;
+    width: 20px;
+    height: 20px;
+  }
+
+  .stats-card__title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #0a0a0a;
+  }
+
+  .stats-card__number {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+    color: #0a0a0a;
+  }
+
+  .stats-card__subtitle {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #0a0a0a;
+  }
+
+  .stats-card__avatars {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #0a0a0a;
+  }
+
+  .avatar--1 {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  }
+
+  .avatar--2 {
+    background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  }
+
+  .avatar--3 {
+    background: linear-gradient(135deg, #45b7d1, #96c93d);
+  }
+
+  .avatar--4 {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+  }
+
+  .avatar--plus {
+    background: #0a0a0a;
+    color: #99FF00;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  /* ======================================= */
+  /* === RESPONSIVE - ABOUT SECTION === */
+  /* ======================================= */
+
+  /* Tablet Portrait (768px y menos) */
+  @media (max-width: 768px) {
+    .about-section {
+      padding: 40px 0;
+    }
+
+    .about-section__container {
+      flex-direction: column;
+      gap: 40px;
+    text-align: center;
+  }
+
+    .about-section__content {
+      order: 2;
+    }
+
+    .about-section__stats {
+      order: 1;
+    }
+
+    .about-section__title {
+      font-size: 2.2rem;
+      margin-bottom: 20px;
+    }
+    
+    .about-section__description {
+      font-size: 1rem;
+      margin-bottom: 25px;
+      max-width: 100%;
+    }
+
+    .stats-card {
+      max-width: 250px;
+      padding: 25px;
+    }
+
+    .stats-card__number {
+      font-size: 2rem;
+    }
+  }
+
+  /* Mobile Large (480px y menos) */
+  @media (max-width: 480px) {
+    .about-section {
+      padding: 30px 0;
+    }
+
+    .about-section__container {
+      gap: 30px;
+    }
+
+    .about-section__title {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+    }
+
+    .about-section__description {
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    .about-section__cta {
+      padding: 10px 20px;
+      font-size: 0.9rem;
+    }
+
+    .stats-card {
+      max-width: 200px;
+      padding: 20px;
+    }
+
+    .stats-card__number {
+      font-size: 1.8rem;
+    }
+
+    .avatar {
+      width: 35px;
+      height: 35px;
+    }
+  }
+
+  /* Mobile Extra Small (360px y menos) */
+  @media (max-width: 360px) {
+    .about-section__title {
+      font-size: 1.6rem;
+    }
+    
+    .about-section__description {
+      font-size: 0.85rem;
+    }
+
+    .stats-card {
+      max-width: 180px;
+      padding: 15px;
+    }
+
+    .stats-card__number {
+      font-size: 1.5rem;
+    }
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+    }
+  }
+
+  /* ======================================= */
+  /* === SECCIÓN WHAT WE OFFER === */
+  /* ======================================= */
+  .what-we-offer {
+    background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
+    color: #fff;
+    padding: 60px 0;
+    position: relative;
+  }
+
+  .what-we-offer__container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+    text-align: center;
+  }
+
+  .what-we-offer__tag {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .what-we-offer__title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 25px;
+    color: #fff;
+  }
+
+  .what-we-offer__description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #e0e0e0;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* ======================================= */
+  /* === RESPONSIVE - WHAT WE OFFER === */
+  /* ======================================= */
+
+  /* Tablet Portrait (768px y menos) */
+  @media (max-width: 768px) {
+    .what-we-offer {
+      padding: 50px 0;
+    }
+    
+    .what-we-offer__title {
+      font-size: 2.2rem;
+      margin-bottom: 20px;
+    }
+    
+    .what-we-offer__description {
+      font-size: 1rem;
+    }
+  }
+
+  /* Mobile Large (480px y menos) */
+  @media (max-width: 480px) {
+    .what-we-offer {
+      padding: 40px 0;
+    }
+    
+    .what-we-offer__title {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+    }
+    
+    .what-we-offer__description {
+      font-size: 0.95rem;
+    }
+  }
+
+  /* Mobile Extra Small (360px y menos) */
+  @media (max-width: 360px) {
+    .what-we-offer__title {
+      font-size: 1.6rem;
+    }
+    
+    .what-we-offer__description {
+      font-size: 0.9rem;
+    }
+  }
+
+</style>
