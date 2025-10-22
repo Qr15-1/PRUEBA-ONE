@@ -188,6 +188,28 @@ try {
         // La columna ya existe, ignorar error
     }
     
+    // Agregar columna video_url a course_modules si no existe
+    try {
+        db.exec(`ALTER TABLE course_modules ADD COLUMN video_url TEXT`);
+        console.log('✅ Columna video_url agregada a course_modules');
+    } catch (e) {
+        // La columna ya existe, ignorar error
+        if (!e.message.includes('duplicate column name')) {
+            console.log('ℹ️ Columna video_url ya existe o no se pudo agregar:', e.message);
+        }
+    }
+    
+    // Agregar columna is_free a course_modules si no existe
+    try {
+        db.exec(`ALTER TABLE course_modules ADD COLUMN is_free BOOLEAN DEFAULT 0`);
+        console.log('✅ Columna is_free agregada a course_modules');
+    } catch (e) {
+        // La columna ya existe, ignorar error
+        if (!e.message.includes('duplicate column name')) {
+            console.log('ℹ️ Columna is_free ya existe o no se pudo agregar:', e.message);
+        }
+    }
+    
     console.log('✅ Todas las tablas creadas/verificadas correctamente');
 } catch (error) {
     console.error('❌ Error creando tablas:', error);
@@ -249,6 +271,15 @@ export const userQueries = {
         return stmt.run(passwordHash, userId);
     },
 
+    findBySessionToken: (sessionToken) => {
+        const stmt = db.prepare(`
+            SELECT users.* FROM users
+            JOIN user_sessions ON users.id = user_sessions.user_id
+            WHERE user_sessions.session_token = ? AND user_sessions.expires_at > datetime('now')
+        `);
+        return stmt.get(sessionToken);
+    },
+
     getAll: () => {
         const stmt = db.prepare('SELECT * FROM users ORDER BY created_at DESC');
         return stmt.all();
@@ -291,10 +322,10 @@ export const sessionQueries = {
 
     findByToken: (token) => {
         const stmt = db.prepare(`
-            SELECT us.*, u.first_name, u.last_name, u.email 
-            FROM user_sessions us
-            JOIN users u ON us.user_id = u.id
-            WHERE us.session_token = ? AND us.expires_at > datetime('now')
+            SELECT user_sessions.*, u.first_name, u.last_name, u.email 
+            FROM user_sessions
+            JOIN users u ON user_sessions.user_id = u.id
+            WHERE user_sessions.session_token = ? AND user_sessions.expires_at > datetime('now')
         `);
         return stmt.get(token);
     },
@@ -419,7 +450,7 @@ export const courseQueries = {
 export const moduleQueries = {
     create: (moduleData) => {
         const stmt = db.prepare(`
-            INSERT INTO course_modules (course_id, title, description, videoUrl, duration, order_index, isFree)
+            INSERT INTO course_modules (course_id, title, description, video_url, duration, order_index, is_free)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `);
         return stmt.run(
@@ -450,7 +481,7 @@ export const moduleQueries = {
     update: (id, moduleData) => {
         const stmt = db.prepare(`
             UPDATE course_modules 
-            SET title = ?, description = ?, videoUrl = ?, duration = ?, order_index = ?, isFree = ?, updated_at = CURRENT_TIMESTAMP
+            SET title = ?, description = ?, video_url = ?, duration = ?, order_index = ?, is_free = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `);
         return stmt.run(
@@ -459,7 +490,7 @@ export const moduleQueries = {
             moduleData.videoUrl,
             moduleData.duration,
             moduleData.orderIndex,
-            moduleData.isFree,
+            moduleData.isFree ? 1 : 0,
             id
         );
     },
@@ -514,10 +545,10 @@ export const adminSessionQueries = {
 
     findByToken: (token) => {
         const stmt = db.prepare(`
-            SELECT as.*, au.username, au.email 
-            FROM admin_sessions as
-            JOIN admin_users au ON as.admin_id = au.id
-            WHERE as.session_token = ? AND as.expires_at > datetime('now')
+            SELECT admin_sessions.*, au.username, au.email 
+            FROM admin_sessions
+            JOIN admin_users au ON admin_sessions.admin_id = au.id
+            WHERE admin_sessions.session_token = ? AND admin_sessions.expires_at > datetime('now')
         `);
         return stmt.get(token);
     },
@@ -691,6 +722,135 @@ export const utils = {
                 orders: { total: 0 }
             };
         }
+    }
+};
+
+// =================================================================
+// TABLA DE PAGOS
+// =================================================================
+
+const createPaymentsTable = `
+CREATE TABLE IF NOT EXISTS payments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    user_email TEXT NOT NULL,
+    user_name TEXT NOT NULL,
+    course_ids TEXT NOT NULL,
+    course_titles TEXT NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    payment_method TEXT NOT NULL,
+    payment_proof TEXT,
+    reference_number TEXT,
+    additional_notes TEXT,
+    status TEXT DEFAULT 'pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    confirmed_at DATETIME,
+    FOREIGN KEY (user_id) REFERENCES users (id)
+)
+`;
+
+try {
+    db.exec(createPaymentsTable);
+    console.log('✅ Tabla payments creada/verificada');
+} catch (error) {
+    console.log('ℹ️ Tabla payments ya existe o no se pudo crear:', error.message);
+}
+
+// =================================================================
+// QUERIES PARA PAGOS
+// =================================================================
+
+export const paymentQueries = {
+    // Crear nuevo pago
+    create: (paymentData) => {
+        const stmt = db.prepare(`
+            INSERT INTO payments (
+                user_id, user_email, user_name, course_ids, course_titles,
+                total_amount, payment_method, payment_proof, reference_number,
+                additional_notes, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+        
+        return stmt.run(
+            paymentData.user_id,
+            paymentData.user_email,
+            paymentData.user_name,
+            paymentData.course_ids,
+            paymentData.course_titles,
+            paymentData.total_amount,
+            paymentData.payment_method,
+            paymentData.payment_proof,
+            paymentData.reference_number,
+            paymentData.additional_notes,
+            paymentData.status || 'pending'
+        );
+    },
+
+    // Obtener todos los pagos
+    getAll: () => {
+        const stmt = db.prepare(`
+            SELECT * FROM payments 
+            ORDER BY created_at DESC
+        `);
+        return stmt.all();
+    },
+
+    // Obtener pagos pendientes
+    getPending: () => {
+        const stmt = db.prepare(`
+            SELECT * FROM payments 
+            WHERE status = 'pending'
+            ORDER BY created_at DESC
+        `);
+        return stmt.all();
+    },
+
+    // Obtener pago por ID
+    getById: (id) => {
+        const stmt = db.prepare(`
+            SELECT * FROM payments WHERE id = ?
+        `);
+        return stmt.get(id);
+    },
+
+    // Confirmar pago
+    confirm: (id) => {
+        const stmt = db.prepare(`
+            UPDATE payments 
+            SET status = 'confirmed', confirmed_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `);
+        return stmt.run(id);
+    },
+
+    // Rechazar pago
+    reject: (id) => {
+        const stmt = db.prepare(`
+            UPDATE payments 
+            SET status = 'rejected'
+            WHERE id = ?
+        `);
+        return stmt.run(id);
+    },
+
+    // Obtener pagos por usuario
+    getByUserId: (userId) => {
+        const stmt = db.prepare(`
+            SELECT * FROM payments 
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+        `);
+        return stmt.all(userId);
+    },
+
+    // Obtener pagos por email de usuario
+    getByUserEmail: (email) => {
+        const stmt = db.prepare(`
+            SELECT * FROM payments 
+            WHERE user_email = ?
+            ORDER BY created_at DESC
+        `);
+        return stmt.all(email);
     }
 };
 

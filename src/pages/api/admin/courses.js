@@ -1,11 +1,22 @@
 import { courseQueries } from '../../../lib/database.js';
+import { verifyAdminSession } from '../../../lib/auth.js';
 
-export async function GET({ request }) {
+export async function GET({ request, cookies }) {
     try {
         // Verificar autenticación de admin
-        const authHeader = request.headers.get('cookie');
-        if (!authHeader || !authHeader.includes('admin_session')) {
+        const adminSessionToken = cookies.get('admin_session')?.value;
+        
+        if (!adminSessionToken) {
             return new Response(JSON.stringify({ error: 'No autorizado' }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // Verificar sesión de admin
+        const sessionResult = await verifyAdminSession(adminSessionToken);
+        if (!sessionResult.success) {
+            return new Response(JSON.stringify({ error: 'Sesión inválida' }), {
                 status: 401,
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -27,12 +38,22 @@ export async function GET({ request }) {
     }
 }
 
-export async function POST({ request }) {
+export async function POST({ request, cookies }) {
     try {
         // Verificar autenticación de admin
-        const authHeader = request.headers.get('cookie');
-        if (!authHeader || !authHeader.includes('admin_session')) {
+        const adminSessionToken = cookies.get('admin_session')?.value;
+        
+        if (!adminSessionToken) {
             return new Response(JSON.stringify({ error: 'No autorizado' }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // Verificar sesión de admin
+        const sessionResult = await verifyAdminSession(adminSessionToken);
+        if (!sessionResult.success) {
+            return new Response(JSON.stringify({ error: 'Sesión inválida' }), {
                 status: 401,
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -81,12 +102,22 @@ export async function POST({ request }) {
     }
 }
 
-export async function PUT({ request, params }) {
+export async function PUT({ request, params, cookies }) {
     try {
         // Verificar autenticación de admin
-        const authHeader = request.headers.get('cookie');
-        if (!authHeader || !authHeader.includes('admin_session')) {
+        const adminSessionToken = cookies.get('admin_session')?.value;
+        
+        if (!adminSessionToken) {
             return new Response(JSON.stringify({ error: 'No autorizado' }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // Verificar sesión de admin
+        const sessionResult = await verifyAdminSession(adminSessionToken);
+        if (!sessionResult.success) {
+            return new Response(JSON.stringify({ error: 'Sesión inválida' }), {
                 status: 401,
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -142,12 +173,22 @@ export async function PUT({ request, params }) {
     }
 }
 
-export async function DELETE({ request, params }) {
+export async function DELETE({ request, params, cookies }) {
     try {
         // Verificar autenticación de admin
-        const authHeader = request.headers.get('cookie');
-        if (!authHeader || !authHeader.includes('admin_session')) {
+        const adminSessionToken = cookies.get('admin_session')?.value;
+        
+        if (!adminSessionToken) {
             return new Response(JSON.stringify({ error: 'No autorizado' }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // Verificar sesión de admin
+        const sessionResult = await verifyAdminSession(adminSessionToken);
+        if (!sessionResult.success) {
+            return new Response(JSON.stringify({ error: 'Sesión inválida' }), {
                 status: 401,
                 headers: { 'Content-Type': 'application/json' }
             });

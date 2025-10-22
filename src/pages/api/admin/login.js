@@ -36,9 +36,9 @@ export async function POST({ request, cookies }) {
                 }
             });
 
-            // Establecer cookie de sesión de admin
+            // Establecer cookie de sesión de admin con el token correcto
             response.headers.set('Set-Cookie', 
-                `admin_session=${result.admin.id}; HttpOnly; SameSite=Lax; Max-Age=86400; Path=/`
+                `admin_session=${result.sessionToken}; HttpOnly; SameSite=Lax; Max-Age=604800; Path=/`
             );
 
             return response;

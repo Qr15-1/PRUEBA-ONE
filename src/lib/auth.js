@@ -3,7 +3,7 @@
 // =================================================================
 
 import crypto from 'crypto';
-import { userQueries, sessionQueries, adminQueries } from './database.js';
+import { userQueries, sessionQueries, adminQueries, adminSessionQueries } from './database.js';
 
 // =================================================================
 // HASH DE CONTRASEÑAS
@@ -32,7 +32,8 @@ export function generateSessionToken() {
 export function generateExpirationDate(days = 30) {
     const date = new Date();
     date.setDate(date.getDate() + days);
-    return date.toISOString();
+    // Formato compatible con SQLite
+    return date.toISOString().replace('T', ' ').substring(0, 19);
 }
 
 // =================================================================
@@ -221,7 +222,7 @@ export async function logoutUser(sessionToken) {
             };
         }
 
-        const result = sessionQueries.delete(sessionToken);
+        const result = sessionQueries.deleteByToken(sessionToken);
         return {
             success: true,
             message: 'Sesión cerrada exitosamente'
@@ -262,20 +263,104 @@ export async function loginAdmin(username, password) {
             };
         }
 
-        // Actualizar último login (comentado temporalmente - función no implementada)
-        // adminQueries.updateLastLogin(admin.id);
+        // Generar token de sesión para admin
+        const sessionToken = generateSessionToken();
+        const expiresAt = generateExpirationDate(7); // 7 días para admins
+
+        // Crear sesión de admin
+        console.log('🔐 Creando sesión de admin:', { adminId: admin.id, sessionToken: sessionToken.substring(0, 10) + '...', expiresAt });
+        const sessionResult = adminSessionQueries.create(admin.id, sessionToken, expiresAt);
+        console.log('🔐 Resultado de creación de sesión:', sessionResult);
+        
+        if (sessionResult.changes > 0) {
+            return {
+                success: true,
+                admin: {
+                    id: admin.id,
+                    username: admin.username,
+                    email: admin.email
+                },
+                sessionToken: sessionToken,
+                expiresAt: expiresAt
+            };
+        } else {
+            console.error('❌ Error: No se pudo crear la sesión de admin');
+            return {
+                success: false,
+                error: 'Error al crear la sesión de administrador'
+            };
+        }
+    } catch (error) {
+        console.error('Error en loginAdmin:', error);
+        return {
+            success: false,
+            error: 'Error interno del servidor'
+        };
+    }
+}
+
+// =================================================================
+// VERIFICAR SESIÓN DE ADMINISTRADOR
+// =================================================================
+
+export async function verifyAdminSession(sessionToken) {
+    try {
+        if (!sessionToken) {
+            console.log('❌ No hay token de sesión');
+            return {
+                success: false,
+                error: 'Token de sesión requerido'
+            };
+        }
+
+        console.log('🔍 Verificando sesión de admin:', sessionToken.substring(0, 10) + '...');
+        const session = adminSessionQueries.findByToken(sessionToken);
+        console.log('🔍 Resultado de verificación:', session ? 'Sesión encontrada' : 'Sesión no encontrada');
+        
+        if (!session) {
+            return {
+                success: false,
+                error: 'Sesión inválida o expirada'
+            };
+        }
 
         return {
             success: true,
             admin: {
-                id: admin.id,
-                username: admin.username,
-                email: admin.email,
-                role: admin.role
+                id: session.admin_id,
+                username: session.username,
+                email: session.email
             }
         };
     } catch (error) {
-        console.error('Error en loginAdmin:', error);
+        console.error('Error en verifyAdminSession:', error);
+        return {
+            success: false,
+            error: 'Error interno del servidor'
+        };
+    }
+}
+
+// =================================================================
+// LOGOUT DE ADMINISTRADOR
+// =================================================================
+
+export async function logoutAdmin(sessionToken) {
+    try {
+        if (!sessionToken) {
+            return {
+                success: false,
+                error: 'Token de sesión requerido'
+            };
+        }
+
+        const result = adminSessionQueries.deleteByToken(sessionToken);
+        return {
+            success: true,
+            message: 'Sesión de administrador cerrada exitosamente'
+        };
+    } catch (error) {
+        console.error('Error en logoutAdmin:', error);
         return {
             success: false,
             error: 'Error interno del servidor'

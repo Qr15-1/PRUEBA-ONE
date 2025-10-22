@@ -206,7 +206,7 @@ const { title, description = "Cursus Fitness - Transforma tu cuerpo y mente" } =
               <label class="custom-checkbox">
                 <input type="checkbox" id="acceptTerms" name="acceptTerms" required>
                 <span class="checkmark"></span>
-                <span class="checkbox-text">Acepto los <a href="#" class="terms-link">términos y condiciones</a></span>
+                <span class="checkbox-text">Acepto los <a href="/terminos-condiciones" class="terms-link">términos y condiciones</a> y la <a href="/aviso-privacidad" class="terms-link">política de privacidad</a></span>
               </label>
             </div>
             <div class="form-group">
@@ -420,6 +420,7 @@ const { title, description = "Cursus Fitness - Transforma tu cuerpo y mente" } =
                     // Login exitoso
                     console.log('✅ Login exitoso, guardando datos...');
                     localStorage.setItem('user_data', JSON.stringify(result.user));
+                    localStorage.setItem('user_session', 'authenticated');
                     loginModal.style.display = 'none';
                     document.body.style.overflow = '';
                     console.log('🔄 Recargando página...');
@@ -546,6 +547,7 @@ const { title, description = "Cursus Fitness - Transforma tu cuerpo y mente" } =
             function logout() {
               console.log('🚪 Cerrando sesión...');
               localStorage.removeItem('user_data');
+              localStorage.removeItem('user_session');
               
               // Limpiar cookies (opcional)
               document.cookie = 'user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
@@ -651,8 +653,95 @@ const { title, description = "Cursus Fitness - Transforma tu cuerpo y mente" } =
             // Llamar la función al cargar
             updateMobileLoginButton();
             
+            // ===== ACTUALIZAR ÍCONO DEL CARRITO (SIEMPRE NORMAL) =====
+            function updateCartIcon() {
+              const cartIcon = document.querySelector('.navbar__cart svg');
+              const cartCount = document.querySelector('.navbar__cart-count');
+              
+              if (!cartIcon || !cartCount) return;
+              
+              // 🛒 CARRITO SIEMPRE NORMAL - Mostrar carrito
+              cartIcon.innerHTML = `
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+              `;
+              
+              // Contar items del carrito normal
+              const cartItems = JSON.parse(localStorage.getItem('rojasfitt_cart') || '[]');
+              cartCount.textContent = cartItems.length;
+              cartCount.style.background = cartItems.length > 0 ? '#ff4444' : '#ccc';
+              cartCount.title = cartItems.length > 0 ? `${cartItems.length} cursos en el carrito` : 'Carrito vacío';
+            }
+            
+            // ===== VERIFICAR ESTADO DE PAGOS =====
+            async function checkPaymentStatus() {
+              const userData = localStorage.getItem('user_data');
+              if (!userData) return;
+              
+              try {
+                const user = JSON.parse(userData);
+                const response = await fetch(`/api/payments/check-status?email=${encodeURIComponent(user.email)}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                  // Actualizar localStorage con el estado real
+                  if (result.pending && result.pending.length > 0) {
+                    const pendingCourses = result.pending.flatMap(payment => {
+                      const courseIds = JSON.parse(payment.course_ids);
+                      const courseTitles = JSON.parse(payment.course_titles);
+                      return courseIds.map((id, index) => ({
+                        id: id,
+                        title: courseTitles[index],
+                        status: 'pending',
+                        paymentId: payment.id
+                      }));
+                    });
+                    localStorage.setItem('pending_courses', JSON.stringify(pendingCourses));
+                  }
+                  
+                  if (result.confirmed && result.confirmed.length > 0) {
+                    const confirmedCourses = result.confirmed.flatMap(payment => {
+                      const courseIds = JSON.parse(payment.course_ids);
+                      const courseTitles = JSON.parse(payment.course_titles);
+                      return courseIds.map((id, index) => ({
+                        id: id,
+                        title: courseTitles[index],
+                        status: 'confirmed',
+                        paymentId: payment.id
+                      }));
+                    });
+                    localStorage.setItem('confirmed_courses', JSON.stringify(confirmedCourses));
+                  }
+                  
+                  // Actualizar ícono
+                  updateCartIcon();
+                }
+              } catch (error) {
+                console.log('ℹ️ No se pudo verificar estado de pagos:', error);
+              }
+            }
+            
+            // Actualizar ícono al cargar
+            updateCartIcon();
+            
+            // Verificar estado de pagos al cargar
+            checkPaymentStatus();
+            
+            // Escuchar cambios en localStorage
+            window.addEventListener('storage', function(e) {
+              if (e.key === 'pending_courses' || e.key === 'confirmed_courses') {
+                updateCartIcon();
+              }
+            });
+            
+            // Hacer la función global para que otros scripts la puedan usar
+            window.updateCartIcon = updateCartIcon;
+            window.checkPaymentStatus = checkPaymentStatus;
+            
             console.log('✅ Modales de login/registro inicializados');
             console.log('✅ Menú hamburguesa inicializado');
+            console.log('✅ Ícono del carrito configurado');
           });
         </script>
       </body>

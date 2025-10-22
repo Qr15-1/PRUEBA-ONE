@@ -1,0 +1,3081 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Datos por defecto del usuario (se actualizarán en el frontend)
+const user = {
+  id: 1,
+  first_name: 'Usuario',
+  last_name: 'Demo',
+  email: 'demo@ejemplo.com',
+  phone: 'No proporcionado'
+};
+---
+
+<Layout title="Checkout - RojasFitt" description="Finaliza tu compra de cursos de fitness">
+  <section class="checkout-page">
+    <div class="checkout-container">
+      
+      <!-- Header de la página -->
+      <div class="checkout-header">
+        <div class="checkout-breadcrumb">
+          <a href="/">Inicio</a>
+          <span>/</span>
+          <a href="/cursos">Cursos</a>
+          <span>/</span>
+          <span>Checkout</span>
+        </div>
+        
+        <div class="checkout-title-section">
+          <h1 class="checkout-title">Finalizar <span class="highlight-green">Compra</span></h1>
+          <p class="checkout-subtitle">Confirma tus cursos y completa el pago</p>
+        </div>
+      </div>
+
+      <!-- Contenido principal del checkout -->
+      <div style="display: flex !important; gap: 30px !important; width: 100% !important; align-items: flex-start !important;">
+        
+        <!-- Columna izquierda - Formulario de pago -->
+        <div style="flex: 1 !important; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1);">
+          
+          <!-- Información del cliente -->
+          <div style="margin-bottom: 20px; background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 15px; border: 1px solid rgba(255, 255, 255, 0.1);">
+            <h2 style="display: flex; align-items: center; gap: 12px; font-size: 1.5rem; font-weight: 600; color: #99FF00; margin-bottom: 15px;">
+              <span>👤</span>
+              Información del Cliente
+            </h2>
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+                <span>Nombre:</span>
+                <span id="clientName">{user.first_name} {user.last_name}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+                <span>Email:</span>
+                <span id="clientEmail">{user.email}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+                <span>Teléfono:</span>
+                <span id="clientPhone">{user.phone || 'No proporcionado'}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Método de pago -->
+          <div class="checkout-section">
+            <h2 class="section-title">
+              <span class="section-icon">💳</span>
+              Método de Pago
+            </h2>
+            
+            <div class="payment-methods">
+              <div class="payment-method" data-method="stripe">
+                <div class="payment-icon">💳</div>
+                <div class="payment-info">
+                  <h3>Tarjeta de Crédito/Débito</h3>
+                  <p>Visa, Mastercard, American Express</p>
+                </div>
+                <div class="payment-check">✓</div>
+              </div>
+              
+              <div class="payment-method active" data-method="binance">
+                <div class="payment-icon">₿</div>
+                <div class="payment-info">
+                  <h3>Binance Pay</h3>
+                  <p>Pago con criptomonedas - BSC Network</p>
+                </div>
+                <div class="payment-check">✓</div>
+              </div>
+              
+              <div class="payment-method" data-method="paypal">
+                <div class="payment-icon">🅿️</div>
+                <div class="payment-info">
+                  <h3>PayPal</h3>
+                  <p>Pago tradicional - Red segura</p>
+                </div>
+                <div class="payment-check">✓</div>
+              </div>
+              
+              <div class="payment-method" data-method="mobile">
+                <div class="payment-icon">📱</div>
+                <div class="payment-info">
+                  <h3>Pago Móvil</h3>
+                  <p>Transferencia bancaria - Red nacional</p>
+                </div>
+                <div class="payment-check">✓</div>
+              </div>
+            </div>
+
+            <!-- Formulario de Stripe -->
+            <div class="payment-form" id="stripeForm" style="display: none;">
+              <div class="payment-info-card">
+                <div class="payment-header">
+                  <h3>💳 Datos de la Tarjeta</h3>
+                  <p class="tech-info">Pago seguro con Stripe - Visa, Mastercard, American Express</p>
+                </div>
+                
+                <div class="stripe-form">
+                  <div id="stripe-card-element">
+                    <!-- Stripe Elements se cargará aquí -->
+                  </div>
+                  
+                  <div id="stripe-card-errors" role="alert"></div>
+                  
+                  <div class="stripe-logos">
+                    <img src="https://js.stripe.com/v3/fingerprinted/img/visa-4d8849ef7cbecb1e8e5ef188dab68505ffa6b5d8d646434e8d0ebad08a6759a9.svg" alt="Visa" />
+                    <img src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8849ef7cbecb1e8e5ef188dab68505ffa6b5d8d646434e8d0ebad08a6759a9.svg" alt="Mastercard" />
+                    <img src="https://js.stripe.com/v3/fingerprinted/img/amex-4d8849ef7cbecb1e8e5ef188dab68505ffa6b5d8d646434e8d0ebad08a6759a9.svg" alt="American Express" />
+                  </div>
+                  
+                  <button id="stripe-submit-btn" class="btn-paid" style="margin-top: 20px; width: 100%;">
+                    <span class="btn-icon">💳</span>
+                    Pagar con Tarjeta
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Datos de Binance -->
+            <div class="payment-form show" id="binanceForm">
+              <div class="payment-info-card">
+                <div class="payment-header">
+                  <h3>📋 Datos para Binance Pay</h3>
+                  <p class="tech-info">Tecnología: BSC Network (Binance Smart Chain)</p>
+                </div>
+                
+                <div class="payment-details">
+                  <div class="detail-item">
+                    <label>Dirección de Wallet:</label>
+                    <div class="copy-field">
+                      <span class="wallet-address">0x742d35Cc6634C0532925a3b8D8C2E3C1a4c8e2f9</span>
+                      <button class="copy-btn" onclick="copyToClipboard('0x742d35Cc6634C0532925a3b8D8C2E3C1a4c8e2f9')">📋</button>
+                    </div>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <label>Moneda:</label>
+                    <span class="detail-value">USDT (BEP-20)</span>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <label>Red:</label>
+                    <span class="detail-value">BSC (Binance Smart Chain)</span>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <label>Monto a enviar:</label>
+                    <span class="detail-value total-amount" id="binanceAmount">$0.00</span>
+                  </div>
+                </div>
+                
+                <div class="payment-instructions">
+                  <h4>📝 Instrucciones:</h4>
+                  <ol>
+                    <li>Copia la dirección de wallet haciendo clic en 📋</li>
+                    <li>Abre Binance Pay en tu dispositivo</li>
+                    <li>Envía exactamente el monto mostrado en USDT (BEP-20)</li>
+                    <li>Confirma la transacción en Binance</li>
+                    <li>Haz clic en "Ya pagué" y espera confirmación</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+
+            <!-- Datos de PayPal -->
+            <div class="payment-form" id="paypalForm" style="display: none;">
+              <div class="payment-info-card">
+                <div class="payment-header">
+                  <h3>📋 Datos para PayPal</h3>
+                  <p class="tech-info">Tecnología: PayPal API v2.0 - Red segura SSL/TLS</p>
+                </div>
+                
+                <div class="payment-details">
+                  <div class="detail-item">
+                    <label>Email de PayPal:</label>
+                    <div class="copy-field">
+                      <span class="paypal-email">pagos@rojasfitt.com</span>
+                      <button class="copy-btn" onclick="copyToClipboard('pagos@rojasfitt.com')">📋</button>
+                    </div>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <label>Concepto:</label>
+                    <span class="detail-value">Cursos RojasFitt</span>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <label>Monto a enviar:</label>
+                    <span class="detail-value total-amount" id="paypalAmount">$0.00</span>
+                  </div>
+                </div>
+                
+                <div class="payment-instructions">
+                  <h4>📝 Instrucciones:</h4>
+                  <ol>
+                    <li>Copia el email de PayPal haciendo clic en 📋</li>
+                    <li>Abre PayPal en tu navegador o app</li>
+                    <li>Envía el pago al email copiado</li>
+                    <li>Incluye "Cursos RojasFitt" en el concepto</li>
+                    <li>Haz clic en "Ya pagué" y espera confirmación</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+
+            <!-- Datos de Pago Móvil -->
+            <div class="payment-form" id="mobileForm" style="display: none;">
+              <div class="payment-info-card">
+                <div class="payment-header">
+                  <h3>📋 Datos para Pago Móvil</h3>
+                  <p class="tech-info">Tecnología: Pago Móvil Venezuela - Red nacional interbancaria</p>
+                </div>
+                
+                <div class="payment-details">
+                  <div class="detail-item">
+                    <label>Número de teléfono:</label>
+                    <div class="copy-field">
+                      <span class="mobile-number">0414-123-4567</span>
+                      <button class="copy-btn" onclick="copyToClipboard('0414-123-4567')">📋</button>
+                    </div>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <label>Cédula:</label>
+                    <div class="copy-field">
+                      <span class="cedula">V-12.345.678</span>
+                      <button class="copy-btn" onclick="copyToClipboard('V-12.345.678')">📋</button>
+                    </div>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <label>Banco:</label>
+                    <span class="detail-value">Banesco</span>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <label>Monto a enviar:</label>
+                    <span class="detail-value total-amount" id="mobileAmount">$0.00</span>
+                  </div>
+                </div>
+                
+                <div class="payment-instructions">
+                  <h4>📝 Instrucciones:</h4>
+                  <ol>
+                    <li>Copia el número de teléfono y cédula</li>
+                    <li>Abre la app de tu banco</li>
+                    <li>Selecciona "Pago Móvil"</li>
+                    <li>Ingresa los datos copiados</li>
+                    <li>Confirma el monto exacto</li>
+                    <li>Haz clic en "Ya pagué" y espera confirmación</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botón Ya Pagué -->
+            <div class="payment-confirmation">
+              <button class="btn-paid" id="confirmPayment">
+                <span class="btn-icon">✅</span>
+                <span class="btn-text">Ya pagué</span>
+              </button>
+              <p class="confirmation-note">Tu pago será verificado en los próximos minutos</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal de Confirmación de Pago -->
+  <div id="paymentModal" class="payment-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>💳 Confirmar Pago</h3>
+        <button class="modal-close" id="closePaymentModal">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <form id="paymentForm">
+          <div class="form-group">
+            <label for="paymentMethod">Método de pago utilizado:</label>
+            <select id="paymentMethod" name="paymentMethod" required>
+              <option value="">Selecciona el método</option>
+              <option value="stripe">Tarjeta de Crédito/Débito</option>
+              <option value="bitcoin">Bitcoin</option>
+              <option value="paypal">PayPal</option>
+              <option value="nequi">Nequi</option>
+              <option value="mobile">Pago Móvil</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="referenceNumber">Número de referencia/transacción:</label>
+            <input type="text" id="referenceNumber" name="referenceNumber" placeholder="Ej: TX123456789" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="amountPaid">Monto pagado:</label>
+            <input type="number" id="amountPaid" name="amountPaid" step="0.01" placeholder="0.00" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="paymentProof">Comprobante de pago (captura de pantalla):</label>
+            <input type="file" id="paymentProof" name="paymentProof" accept="image/*" required>
+            <small>Formatos permitidos: JPG, PNG, PDF</small>
+          </div>
+          
+          <div class="form-group">
+            <label for="additionalNotes">Notas adicionales (opcional):</label>
+            <textarea id="additionalNotes" name="additionalNotes" placeholder="Cualquier información adicional sobre el pago..."></textarea>
+          </div>
+        </form>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" id="cancelPayment">Cancelar</button>
+        <button type="button" class="btn-submit" id="submitPayment">Enviar Comprobante</button>
+      </div>
+    </div>
+            </div>
+          </div>
+
+          <!-- Términos y condiciones -->
+          <div class="checkout-section">
+            <div class="terms-section">
+              <label class="custom-checkbox">
+                <input type="checkbox" id="acceptTerms" required>
+                <span class="checkmark"></span>
+                <span class="checkbox-text">
+                  Acepto los <a href="/terminos-condiciones" class="terms-link">términos y condiciones</a> y la <a href="/aviso-privacidad" class="terms-link">política de privacidad</a>
+                </span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Columna derecha - Resumen del pedido -->
+        <div style="width: 300px !important; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1); flex-shrink: 0 !important;">
+          <h2 style="display: flex; align-items: center; gap: 6px; font-size: 0.9rem; font-weight: 600; color: #99FF00; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid rgba(153, 255, 0, 0.3);">
+            <span>🛒</span>
+              Resumen del Pedido
+            </h2>
+            
+            <!-- Lista de cursos -->
+          <div id="coursesList" style="margin-bottom: 6px;">
+              <!-- Los cursos se cargarán dinámicamente desde el carrito -->
+            </div>
+            
+            <!-- Totales -->
+          <div style="border-top: 1px solid rgba(153, 255, 0, 0.3); padding-top: 8px; margin-top: 8px; background: rgba(153, 255, 0, 0.05); border-radius: 6px; padding: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1px 0; font-size: 0.85rem;">
+              <span>Subtotal:</span>
+              <span id="subtotal">$0.00</span>
+              </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1px 0; font-size: 0.85rem;">
+              <span>Descuento:</span>
+              <span id="discount">-$0.00</span>
+              </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; margin-top: 8px; background: rgba(153, 255, 0, 0.1); border-radius: 4px; padding: 8px; font-weight: 700; font-size: 1rem; color: #99FF00;">
+              <span>Total:</span>
+              <span id="total">$0.00</span>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('🛒 Inicializando página de checkout...');
+    
+    // Intentar obtener datos del usuario desde localStorage
+    const userData = localStorage.getItem('user_data');
+    
+    console.log('🔍 Datos de usuario en localStorage:', userData);
+    
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        console.log('👤 Usuario parseado:', user);
+        
+        const clientNameEl = document.getElementById('clientName');
+        const clientEmailEl = document.getElementById('clientEmail');
+        const clientPhoneEl = document.getElementById('clientPhone');
+        
+        // Construir nombre de forma más robusta
+        let fullName = '';
+        if (user.name) {
+          // El API devuelve 'name' como nombre completo
+          fullName = user.name;
+        } else if (user.first_name && user.last_name) {
+          fullName = `${user.first_name} ${user.last_name}`;
+        } else if (user.firstName && user.lastName) {
+          fullName = `${user.firstName} ${user.lastName}`;
+        } else {
+          fullName = 'Usuario';
+        }
+        
+        if (clientNameEl) {
+          clientNameEl.textContent = fullName;
+          console.log('✅ Nombre actualizado:', fullName);
+        }
+        
+        if (clientEmailEl) {
+          clientEmailEl.textContent = user.email || user.email_address || 'No proporcionado';
+          console.log('✅ Email actualizado:', user.email);
+        }
+        
+        if (clientPhoneEl) {
+          clientPhoneEl.textContent = user.phone || user.phone_number || 'No proporcionado';
+          console.log('✅ Teléfono actualizado:', user.phone);
+        }
+        
+        console.log('✅ Usuario autenticado:', fullName);
+      } catch (error) {
+        console.log('❌ Error parseando datos del usuario:', error);
+        console.log('🔄 Usando datos por defecto del servidor');
+      }
+    } else {
+      console.log('ℹ️ No hay datos de usuario en localStorage, usando datos por defecto del servidor');
+    }
+    
+    // Obtener cursos del carrito desde localStorage
+    const cartItems = JSON.parse(localStorage.getItem('rojasfitt_cart')) || [];
+    
+    if (cartItems.length === 0) {
+      // Si no hay items en el carrito, redirigir a cursos
+      alert('Tu carrito está vacío. Agrega algunos cursos antes de proceder al checkout.');
+      window.location.href = '/cursos';
+      return;
+    }
+    
+    // Limpiar carrito visual si está disponible
+    if (typeof window.cart !== 'undefined') {
+      window.cart.updateCartDisplay();
+      window.cart.updateCartIcon();
+    }
+    
+    // Cargar cursos en el resumen
+    loadOrderSummary(cartItems);
+    
+    // Configurar años de expiración de tarjeta (solo si existe)
+    try {
+      setupCardExpirationYears();
+    } catch (error) {
+      console.log('⚠️ Error configurando años de tarjeta:', error);
+    }
+    
+    // Configurar métodos de pago
+    setTimeout(() => {
+      try {
+        setupPaymentMethods();
+      } catch (error) {
+        console.log('⚠️ Error configurando métodos de pago:', error);
+      }
+    }, 100);
+    
+    // Configurar todos los métodos de pago
+    setTimeout(() => {
+      try {
+        setupAllPaymentMethods();
+      } catch (error) {
+        console.log('⚠️ Error configurando métodos de pago:', error);
+      }
+    }, 200);
+    
+    // Configurar formulario de pago (solo si existe)
+    try {
+      setupPaymentForm();
+    } catch (error) {
+      console.log('⚠️ Error configurando formulario de pago:', error);
+    }
+    
+    // Configurar botón de compra
+    try {
+      setupCheckoutButton();
+    } catch (error) {
+      console.log('⚠️ Error configurando botón de compra:', error);
+    }
+    
+    // Configurar modal de pago
+    try {
+      setupPaymentModal();
+    } catch (error) {
+      console.log('⚠️ Error configurando modal de pago:', error);
+    }
+    
+    console.log('✅ Checkout inicializado correctamente');
+    
+    // Configurar modal de pago
+    setupPaymentModal();
+  });
+
+  function loadOrderSummary(cartItems) {
+    const coursesList = document.getElementById('coursesList');
+    const subtotalEl = document.getElementById('subtotal');
+    const totalEl = document.getElementById('total');
+    
+    let subtotal = 0;
+    let html = '';
+    
+    if (cartItems.length === 0) {
+      html = `
+        <div class="empty-cart">
+          <p>No hay cursos en el carrito</p>
+          <a href="/cursos" class="btn-back-to-courses">Ver Cursos</a>
+        </div>
+      `;
+    } else {
+    cartItems.forEach(item => {
+      subtotal += item.price;
+      html += `
+        <div class="course-item" style="display: flex !important; align-items: center !important; gap: 12px !important; padding: 12px !important; background: rgba(255, 255, 255, 0.03) !important; border-radius: 8px !important; margin-bottom: 10px !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; flex-direction: row !important;">
+          <img src="${item.image}" alt="${item.title}" class="course-image" style="width: 50px !important; height: 50px !important; border-radius: 8px !important; object-fit: cover !important; flex-shrink: 0 !important; display: block !important;">
+          <div class="course-details" style="flex: 1 !important; min-width: 0 !important; display: flex !important; flex-direction: column !important; justify-content: center !important;">
+            <div class="course-title" style="font-size: 0.9rem !important; font-weight: 600 !important; color: white !important; margin-bottom: 4px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;">${item.title}</div>
+            <div class="course-category" style="font-size: 0.75rem !important; color: #99FF00 !important; margin-bottom: 4px !important; font-weight: 500 !important;">${item.category}</div>
+            <div class="course-price" style="font-size: 0.85rem !important; color: white !important; font-weight: 600 !important;">$${item.price.toFixed(2)}</div>
+            ${item.quantity > 1 ? `<div class="course-quantity" style="font-size: 0.8rem !important; color: rgba(255, 255, 255, 0.7) !important; margin-top: 2px !important;">Cantidad: ${item.quantity}</div>` : ''}
+          </div>
+        </div>
+      `;
+    });
+    }
+    
+    coursesList.innerHTML = html;
+    
+    // Calcular totales
+    const discount = subtotal > 100 ? subtotal * 0.1 : 0; // 10% de descuento si supera $100
+    const total = subtotal - discount;
+    
+    // Actualizar UI
+    subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+    document.getElementById('discount').textContent = discount > 0 ? `-$${discount.toFixed(2)}` : '$0.00';
+    totalEl.textContent = `$${total.toFixed(2)}`;
+    
+    // Actualizar montos en los métodos de pago
+    const binanceAmount = document.getElementById('binanceAmount');
+    const paypalAmount = document.getElementById('paypalAmount');
+    const mobileAmount = document.getElementById('mobileAmount');
+    
+    if (binanceAmount) binanceAmount.textContent = `$${total.toFixed(2)}`;
+    if (paypalAmount) paypalAmount.textContent = `$${total.toFixed(2)}`;
+    if (mobileAmount) mobileAmount.textContent = `$${total.toFixed(2)}`;
+    
+    // Mostrar/ocultar descuento
+    document.getElementById('discount').parentElement.style.display = discount > 0 ? 'flex' : 'none';
+  }
+
+  function setupCardExpirationYears() {
+    const yearSelect = document.getElementById('cardYear');
+    
+    // Verificar que el elemento existe antes de usarlo
+    if (!yearSelect) {
+      console.log('⚠️ Elemento cardYear no encontrado - saltando configuración');
+      return;
+    }
+    
+    const currentYear = new Date().getFullYear();
+    
+    for (let i = 0; i < 10; i++) {
+      const year = currentYear + i;
+      const option = document.createElement('option');
+      option.value = year.toString().slice(-2);
+      option.textContent = year;
+      yearSelect.appendChild(option);
+    }
+    
+    console.log('✅ Años de tarjeta configurados');
+  }
+
+  function setupPaymentMethods() {
+    console.log('🔧 Configurando métodos de pago...');
+    
+    // Verificar que los formularios existen
+    const binanceForm = document.getElementById('binanceForm');
+    const paypalForm = document.getElementById('paypalForm');
+    const mobileForm = document.getElementById('mobileForm');
+    
+    console.log('📋 Formularios encontrados:', {
+      binance: !!binanceForm,
+      paypal: !!paypalForm,
+      mobile: !!mobileForm
+    });
+    
+    // Función para cambiar método de pago
+    function switchPaymentMethod(methodType) {
+      console.log('🔄 Cambiando a método:', methodType);
+      
+      // Ocultar todos los formularios
+      if (binanceForm) binanceForm.style.display = 'none';
+      if (paypalForm) paypalForm.style.display = 'none';
+      if (mobileForm) mobileForm.style.display = 'none';
+      
+      // Remover clase active de todos los métodos
+      const allMethods = document.querySelectorAll('.payment-method');
+      allMethods.forEach(m => m.classList.remove('active'));
+      
+      // Mostrar el formulario seleccionado y activar el método
+      if (methodType === 'binance' && binanceForm) {
+        binanceForm.style.display = 'block';
+        document.querySelector('[data-method="binance"]').classList.add('active');
+        console.log('✅ Mostrando formulario Binance');
+      } else if (methodType === 'paypal' && paypalForm) {
+        paypalForm.style.display = 'block';
+        document.querySelector('[data-method="paypal"]').classList.add('active');
+        console.log('✅ Mostrando formulario PayPal');
+      } else if (methodType === 'mobile' && mobileForm) {
+        mobileForm.style.display = 'block';
+        document.querySelector('[data-method="mobile"]').classList.add('active');
+        console.log('✅ Mostrando formulario Pago Móvil');
+      }
+    }
+    
+    // Agregar event listeners a cada método
+    const binanceBtn = document.querySelector('[data-method="binance"]');
+    const paypalBtn = document.querySelector('[data-method="paypal"]');
+    const mobileBtn = document.querySelector('[data-method="mobile"]');
+    
+    if (binanceBtn) {
+      binanceBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('🖱️ Binance clickeado');
+        switchPaymentMethod('binance');
+      });
+      console.log('✅ Event listener agregado a Binance');
+    }
+    
+    if (paypalBtn) {
+      paypalBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('🖱️ PayPal clickeado');
+        switchPaymentMethod('paypal');
+      });
+      console.log('✅ Event listener agregado a PayPal');
+    }
+    
+    if (mobileBtn) {
+      mobileBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('🖱️ Pago Móvil clickeado');
+        switchPaymentMethod('mobile');
+      });
+      console.log('✅ Event listener agregado a Pago Móvil');
+    }
+    
+    console.log('✅ Métodos de pago configurados');
+  }
+
+  function setupPaymentForm() {
+    const cardNumber = document.getElementById('cardNumber');
+    const cardCvv = document.getElementById('cardCvv');
+    
+    // Verificar que los elementos existen
+    if (!cardNumber || !cardCvv) {
+      console.log('⚠️ Elementos de formulario de tarjeta no encontrados - saltando configuración');
+      return;
+    }
+    
+    // Formatear número de tarjeta
+    cardNumber.addEventListener('input', function() {
+      let value = this.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+      let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+      this.value = formattedValue;
+    });
+    
+    // Solo números en CVV
+    cardCvv.addEventListener('input', function() {
+      this.value = this.value.replace(/[^0-9]/g, '');
+    });
+    
+    console.log('✅ Formulario de pago configurado');
+  }
+
+  function setupCheckoutButton() {
+    const confirmPaymentBtn = document.getElementById('confirmPayment');
+    const acceptTerms = document.getElementById('acceptTerms');
+    
+    confirmPaymentBtn.addEventListener('click', function() {
+      // Validar términos y condiciones
+      if (!acceptTerms.checked) {
+        showCoolNotification('⚠️ Términos y Condiciones', 'Debes aceptar los términos y condiciones para continuar con tu compra.', 'warning');
+        return;
+      }
+      
+      // Abrir modal de confirmación de pago
+      console.log('💳 Abriendo modal de confirmación de pago...');
+      
+      // Obtener total del carrito
+      const cartItems = JSON.parse(localStorage.getItem('rojasfitt_cart')) || [];
+      const totalAmount = cartItems.reduce((sum, item) => sum + item.price, 0).toFixed(2);
+      
+      // Pre-llenar monto en el modal
+      const amountPaidInput = document.getElementById('amountPaid');
+      if (amountPaidInput) {
+        amountPaidInput.value = totalAmount;
+      }
+      
+      // Abrir modal
+      const paymentModal = document.getElementById('paymentModal');
+      if (paymentModal) {
+        paymentModal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+  }
+
+  function validateCardForm() {
+    const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+    const cardName = document.getElementById('cardName').value.trim();
+    const cardCvv = document.getElementById('cardCvv').value;
+    const cardMonth = document.getElementById('cardMonth').value;
+    const cardYear = document.getElementById('cardYear').value;
+    
+    if (cardNumber.length < 13) {
+      alert('El número de tarjeta debe tener al menos 13 dígitos.');
+      return false;
+    }
+    
+    if (!cardName) {
+      alert('Ingresa el nombre que aparece en la tarjeta.');
+      return false;
+    }
+    
+    if (cardCvv.length < 3) {
+      alert('El CVV debe tener al menos 3 dígitos.');
+      return false;
+    }
+    
+    if (!cardMonth || !cardYear) {
+      alert('Selecciona la fecha de expiración de la tarjeta.');
+      return false;
+    }
+    
+    return true;
+  }
+
+  async function processPayment(method) {
+    const confirmBtn = document.getElementById('confirmPayment');
+    const btnText = confirmBtn.querySelector('.btn-text');
+    const btnIcon = confirmBtn.querySelector('.btn-icon');
+    
+    // Mostrar estado de carga
+    btnText.textContent = 'Verificando...';
+    btnIcon.textContent = '⏳';
+    confirmBtn.disabled = true;
+    
+    try {
+      console.log('💳 Confirmando pago con método:', method);
+      
+      // Obtener datos del carrito
+      const cartItems = JSON.parse(localStorage.getItem('rojasfitt_cart')) || [];
+      const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0);
+      const discount = subtotal > 100 ? subtotal * 0.1 : 0;
+      const total = subtotal - discount;
+      
+      // Obtener datos del usuario
+      const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+      
+      // Preparar datos de pago en el formato correcto para el API
+      const paymentData = {
+        user_id: userData.id || 1,
+        user_email: userData.email,
+        user_name: userData.name || `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'Usuario',
+        course_ids: JSON.stringify(cartItems.map(item => item.id)),
+        course_titles: JSON.stringify(cartItems.map(item => item.title)),
+        total_amount: total,
+        payment_method: method,
+        payment_proof: null,
+        reference_number: null,
+        additional_notes: `Pago confirmado por ${method.toUpperCase()}`
+      };
+      
+      // Probar conexión primero
+      console.log('🔍 Probando conexión con el servidor...');
+      const testResponse = await fetch('/api/test');
+      if (!testResponse.ok) {
+        throw new Error('Servidor no disponible');
+      }
+      console.log('✅ Conexión con servidor OK');
+      
+      // Enviar confirmación de pago a la API
+      console.log('💳 Enviando datos de pago:', paymentData);
+      const response = await fetch('/api/payments/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(paymentData)
+      });
+      
+      console.log('📡 Respuesta del servidor:', response.status, response.statusText);
+      
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        // Comprobante enviado exitosamente
+        console.log('✅ Comprobante enviado exitosamente:', result);
+        
+        alert(`¡Comprobante enviado! 📤\n\nID de Pago: #${result.paymentId}\nMétodo: ${method.toUpperCase()}\n\nTu comprobante ha sido enviado. El admin lo revisará y te notificará cuando confirme tu pago.`);
+        
+        // Limpiar carrito completamente
+        localStorage.removeItem('rojasfitt_cart');
+        
+        // También limpiar el carrito visual si está disponible
+        if (typeof window.cart !== 'undefined') {
+          window.cart.forceClearCart();
+          console.log('🛒 Carrito limpiado visualmente');
+        }
+        
+        // Cerrar el carrito si está abierto
+        const cartOverlay = document.getElementById('cart-overlay');
+        if (cartOverlay) {
+          cartOverlay.classList.remove('show');
+          document.body.style.overflow = '';
+        }
+        
+        // Redirigir a página de confirmación o cursos
+        window.location.href = '/cursos';
+        
+      } else {
+        // Error al enviar comprobante
+        console.error('❌ Error al enviar comprobante:', result);
+        alert(result.error || 'Error al enviar comprobante. Intenta de nuevo.');
+        
+        // Restaurar botón
+        btnText.textContent = 'Ya pagué';
+        btnIcon.textContent = '✅';
+        confirmBtn.disabled = false;
+      }
+      
+    } catch (error) {
+      console.error('❌ Error al enviar comprobante:', error);
+      alert('Error de conexión. Intenta de nuevo.');
+      
+      // Restaurar botón
+      btnText.textContent = 'Ya pagué';
+      btnIcon.textContent = '✅';
+      confirmBtn.disabled = false;
+    }
+  }
+
+  // Función para copiar al portapapeles
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+      // Mostrar notificación cool de éxito
+      showCoolNotification('📋 ¡Copiado!', 'La información se ha copiado al portapapeles correctamente.', 'success');
+      console.log('📋 Texto copiado:', text);
+    }).catch(function(err) {
+      console.error('❌ Error al copiar:', err);
+      showCoolNotification('❌ Error al Copiar', 'No se pudo copiar la información. Intenta seleccionar y copiar manualmente.', 'error');
+    });
+  }
+
+  // Sistema de notificaciones cool
+  function showCoolNotification(title, message, type = 'info') {
+    // Crear contenedor de notificación
+    const notification = document.createElement('div');
+    notification.className = `cool-notification cool-notification-${type}`;
+    
+    // Configurar colores según el tipo
+    const colors = {
+      success: { bg: '#22c55e', icon: '✅', glow: 'rgba(34, 197, 94, 0.3)' },
+      error: { bg: '#ef4444', icon: '❌', glow: 'rgba(239, 68, 68, 0.3)' },
+      warning: { bg: '#f59e0b', icon: '⚠️', glow: 'rgba(245, 158, 11, 0.3)' },
+      info: { bg: '#3b82f6', icon: 'ℹ️', glow: 'rgba(59, 130, 246, 0.3)' }
+    };
+    
+    const config = colors[type] || colors.info;
+    
+    // Crear contenido de la notificación
+    notification.innerHTML = `
+      <div class="cool-notification-content">
+        <div class="cool-notification-header">
+          <span class="cool-notification-icon">${config.icon}</span>
+          <h3 class="cool-notification-title">${title}</h3>
+          <button class="cool-notification-close" onclick="this.parentElement.parentElement.parentElement.remove()">×</button>
+        </div>
+        <p class="cool-notification-message">${message}</p>
+        <div class="cool-notification-progress"></div>
+      </div>
+    `;
+    
+    // Estilos dinámicos
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, ${config.bg}, ${config.bg}dd);
+      color: white;
+      padding: 0;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px ${config.glow}, 0 0 0 1px rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      z-index: 10000;
+      min-width: 320px;
+      max-width: 400px;
+      transform: translateX(100%);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      overflow: hidden;
+    `;
+    
+    // Agregar al DOM
+    document.body.appendChild(notification);
+    
+    // Animar entrada
+    setTimeout(() => {
+      notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Iniciar barra de progreso
+    const progressBar = notification.querySelector('.cool-notification-progress');
+    progressBar.style.cssText = `
+      height: 3px;
+      background: rgba(255,255,255,0.3);
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    `;
+    
+    const progressFill = document.createElement('div');
+    progressFill.style.cssText = `
+      height: 100%;
+      background: rgba(255,255,255,0.8);
+      width: 100%;
+      transform: translateX(-100%);
+      transition: transform 5s linear;
+    `;
+    progressBar.appendChild(progressFill);
+    
+    setTimeout(() => {
+      progressFill.style.transform = 'translateX(0)';
+    }, 200);
+    
+    // Auto-remover después de 5 segundos
+    setTimeout(() => {
+      if (notification.parentElement) {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+          if (notification.parentElement) {
+            notification.remove();
+          }
+        }, 400);
+      }
+    }, 5000);
+    
+    console.log(`🔔 Notificación cool mostrada: ${title}`);
+  }
+
+  // Hacer función global
+  window.copyToClipboard = copyToClipboard;
+  window.showCoolNotification = showCoolNotification;
+  
+  // Función de prueba para cambiar métodos de pago
+  window.testPaymentMethod = function(method) {
+    console.log('🧪 Probando cambio a:', method);
+    const binanceForm = document.getElementById('binanceForm');
+    const paypalForm = document.getElementById('paypalForm');
+    const mobileForm = document.getElementById('mobileForm');
+    
+    // Ocultar todos
+    if (binanceForm) binanceForm.style.display = 'none';
+    if (paypalForm) paypalForm.style.display = 'none';
+    if (mobileForm) mobileForm.style.display = 'none';
+    
+    // Mostrar el seleccionado
+    if (method === 'binance' && binanceForm) {
+      binanceForm.style.display = 'block';
+      document.querySelector('[data-method="binance"]').classList.add('active');
+      document.querySelector('[data-method="paypal"]').classList.remove('active');
+      document.querySelector('[data-method="mobile"]').classList.remove('active');
+    } else if (method === 'paypal' && paypalForm) {
+      paypalForm.style.display = 'block';
+      document.querySelector('[data-method="paypal"]').classList.add('active');
+      document.querySelector('[data-method="binance"]').classList.remove('active');
+      document.querySelector('[data-method="mobile"]').classList.remove('active');
+    } else if (method === 'mobile' && mobileForm) {
+      mobileForm.style.display = 'block';
+      document.querySelector('[data-method="mobile"]').classList.add('active');
+      document.querySelector('[data-method="binance"]').classList.remove('active');
+      document.querySelector('[data-method="paypal"]').classList.remove('active');
+    }
+    
+    console.log('✅ Cambio completado a:', method);
+  };
+
+// ===== FUNCIÓN DEL MODAL DE PAGO =====
+function setupPaymentModal() {
+  const paymentModal = document.getElementById('paymentModal');
+  const confirmPaymentBtn = document.getElementById('confirmPayment');
+  const closeModalBtn = document.getElementById('closePaymentModal');
+  const cancelBtn = document.getElementById('cancelPayment');
+  const submitBtn = document.getElementById('submitPayment');
+  const paymentForm = document.getElementById('paymentForm');
+  const amountPaidInput = document.getElementById('amountPaid');
+
+  // Abrir modal al hacer clic en "Ya pagué"
+  if (confirmPaymentBtn) {
+    confirmPaymentBtn.addEventListener('click', function() {
+      console.log('💳 Abriendo modal de confirmación de pago...');
+      
+      // Verificar que se hayan aceptado los términos y condiciones
+      const termsCheckbox = document.getElementById('acceptTerms');
+      if (!termsCheckbox || !termsCheckbox.checked) {
+        alert('⚠️ Debes aceptar los términos y condiciones antes de proceder con el pago.');
+        return;
+      }
+      
+      // Verificar si Stripe está seleccionado
+      const activeMethod = document.querySelector('.payment-method.active');
+      if (activeMethod && activeMethod.dataset.method === 'stripe') {
+        // Procesar pago con Stripe directamente
+        console.log('💳 Procesando pago con Stripe...');
+        handleStripePayment();
+        return;
+      }
+      
+      // Establecer el monto total en el campo de monto pagado
+      const totalAmount = document.getElementById('total')?.textContent || '$0.00';
+      const numericAmount = totalAmount.replace('$', '').replace(',', '');
+      if (amountPaidInput) {
+        amountPaidInput.value = numericAmount;
+      }
+      
+      paymentModal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    });
+  }
+
+  // Cerrar modal
+  function closeModal() {
+    paymentModal.classList.remove('show');
+    document.body.style.overflow = '';
+    paymentForm.reset();
+  }
+
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', closeModal);
+  }
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', closeModal);
+  }
+
+  // Cerrar modal al hacer clic fuera
+  paymentModal.addEventListener('click', function(e) {
+    if (e.target === paymentModal) {
+      closeModal();
+    }
+  });
+
+  // Cerrar con ESC
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && paymentModal.classList.contains('show')) {
+      closeModal();
+    }
+  });
+
+  // Enviar formulario
+  if (submitBtn) {
+    submitBtn.addEventListener('click', async function() {
+      console.log('📤 Enviando comprobante de pago...');
+      
+      // Validar formulario
+      if (!paymentForm.checkValidity()) {
+        paymentForm.reportValidity();
+        return;
+      }
+
+      // Deshabilitar botón
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
+
+      // Obtener datos del formulario
+      const formData = new FormData(paymentForm);
+      const paymentProofFile = formData.get('paymentProof');
+      
+      // Convertir imagen a base64 si existe
+      let paymentProofBase64 = null;
+      if (paymentProofFile && paymentProofFile.size > 0) {
+        console.log('📷 Procesando imagen de comprobante...');
+        paymentProofBase64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(paymentProofFile);
+        });
+        console.log('✅ Imagen convertida a base64');
+      }
+      
+      const paymentData = {
+        method: formData.get('paymentMethod'),
+        reference: formData.get('referenceNumber'),
+        amount: parseFloat(formData.get('amountPaid')),
+        notes: formData.get('additionalNotes'),
+        proof: paymentProofBase64
+      };
+
+      // Obtener datos del usuario y cursos
+      const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+      const cartItems = JSON.parse(localStorage.getItem('rojasfitt_cart') || '[]');
+      
+      console.log('👤 Datos del usuario:', userData);
+      console.log('🛒 Items del carrito:', cartItems);
+
+      const fullPaymentData = {
+        ...paymentData,
+        user: {
+          name: userData.name || `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'Usuario',
+          email: userData.email
+        },
+        courses: cartItems,
+        total: cartItems.reduce((sum, item) => sum + item.price, 0),
+        timestamp: new Date().toISOString()
+      };
+
+      console.log('💳 Datos del pago:', fullPaymentData);
+
+      // Enviar pago a la base de datos
+      fetch('/api/payments/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: userData.id || 1,
+          user_email: userData.email,
+          user_name: userData.name || `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'Usuario',
+          course_ids: JSON.stringify(cartItems.map(item => item.id)),
+          course_titles: JSON.stringify(cartItems.map(item => item.title)),
+          total_amount: fullPaymentData.total,
+          payment_method: paymentData.method,
+          payment_proof: paymentData.proof, // Ahora incluye la imagen en base64
+          reference_number: paymentData.reference,
+          additional_notes: paymentData.notes
+        })
+      })
+      .then(response => response.json())
+      .then(result => {
+        if (result.success) {
+          console.log('✅ Pago guardado exitosamente:', result);
+          
+          // Mostrar mensaje de éxito
+          alert('✅ ¡Comprobante enviado! Tu pago será verificado en los próximos minutos. Te notificaremos por email cuando esté confirmado.');
+          
+          // Guardar cursos como pendientes
+          const pendingCourses = cartItems.map(item => ({
+            ...item,
+            status: 'pending',
+            paymentId: result.paymentId,
+            submittedAt: new Date().toISOString()
+          }));
+          localStorage.setItem('pending_courses', JSON.stringify(pendingCourses));
+          
+          // Limpiar carrito
+          localStorage.removeItem('rojasfitt_cart');
+          
+          // Cerrar modal
+          closeModal();
+          
+          // Limpiar carrito visual
+          if (typeof window.cart !== 'undefined') {
+            window.cart.forceClearCart();
+          }
+          
+          // Actualizar ícono del carrito
+          if (typeof window.updateCartIcon === 'function') {
+            window.updateCartIcon();
+          }
+          
+          // Redirigir a la página principal
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 2000);
+        } else {
+          console.error('❌ Error guardando pago:', result.error);
+          alert('❌ Error al enviar el comprobante. Intenta nuevamente.');
+        }
+      })
+      .catch(error => {
+        console.error('❌ Error de conexión:', error);
+        alert('❌ Error de conexión. Intenta nuevamente.');
+      })
+      .finally(() => {
+        // Rehabilitar botón
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enviar Comprobante';
+      });
+    });
+  }
+}
+
+// Configurar todos los métodos de pago
+function setupAllPaymentMethods() {
+  const paymentMethods = document.querySelectorAll('.payment-method');
+  
+  console.log('🔧 Configurando métodos de pago:', paymentMethods.length);
+  
+  paymentMethods.forEach(method => {
+    method.addEventListener('click', function() {
+      const methodType = method.dataset.method;
+      console.log('🖱️ Método clickeado:', methodType);
+      
+      // Remover clase active de todos
+      paymentMethods.forEach(m => m.classList.remove('active'));
+      // Agregar clase active al seleccionado
+      method.classList.add('active');
+      
+      // Ocultar todos los formularios
+      const allForms = document.querySelectorAll('.payment-form');
+      allForms.forEach(form => {
+        form.style.display = 'none';
+        form.style.visibility = 'hidden';
+        form.classList.remove('show');
+        console.log('❌ Ocultando formulario:', form.id);
+      });
+      
+      // Mostrar formulario correspondiente
+      const targetForm = document.getElementById(methodType + 'Form');
+      if (targetForm) {
+        targetForm.style.display = 'block';
+        targetForm.style.visibility = 'visible';
+        targetForm.classList.add('show');
+        console.log('✅ Mostrando formulario:', targetForm.id);
+      } else {
+        console.log('❌ No se encontró formulario para:', methodType);
+      }
+    });
+  });
+}
+
+// Configurar formulario de Stripe
+function setupStripeForm() {
+  // Formatear número de tarjeta
+  const cardNumberInput = document.getElementById('cardNumber');
+  if (cardNumberInput) {
+    cardNumberInput.addEventListener('input', (e) => {
+      let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+      let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+      e.target.value = formattedValue;
+    });
+  }
+  
+  // Formatear fecha de vencimiento
+  const expiryInput = document.getElementById('expiryDate');
+  if (expiryInput) {
+    expiryInput.addEventListener('input', (e) => {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+      }
+      e.target.value = value;
+    });
+  }
+  
+  // Solo números para CVV
+  const cvvInput = document.getElementById('cvv');
+  if (cvvInput) {
+    cvvInput.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    });
+  }
+}
+
+// Inicializar Stripe cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(() => {
+    setupStripeForm();
+    initializeStripe();
+    console.log('🔧 Stripe inicializado');
+  }, 500);
+});
+
+// Inicializar Stripe Elements
+let stripe;
+let elements;
+let cardElement;
+
+async function initializeStripe() {
+  // Cargar Stripe.js
+  if (!window.Stripe) {
+    const script = document.createElement('script');
+    script.src = 'https://js.stripe.com/v3/';
+    script.onload = () => setupStripeElements();
+    document.head.appendChild(script);
+  } else {
+    setupStripeElements();
+  }
+}
+
+function setupStripeElements() {
+  stripe = Stripe('pk_test_51SKgYlPe7rNHxC6TlazgSfsrVK9oDamI9se3xw9Na0xSPd4bAflxkDPMTr4GI76QMJq4slUgK90Vf3K4fDu9itFg00s8es6JQN');
+  elements = stripe.elements();
+  
+  const style = {
+    base: {
+      fontSize: '16px',
+      color: '#ffffff',
+      fontFamily: 'Arial, sans-serif',
+      '::placeholder': {
+        color: 'rgba(255, 255, 255, 0.5)',
+      },
+    },
+    invalid: {
+      color: '#ff6b6b',
+    },
+  };
+  
+  cardElement = elements.create('card', { style });
+  cardElement.mount('#stripe-card-element');
+  
+  // Manejar errores
+  cardElement.on('change', ({error}) => {
+    const displayError = document.getElementById('stripe-card-errors');
+    if (error) {
+      displayError.textContent = error.message;
+    } else {
+      displayError.textContent = '';
+    }
+  });
+  
+  // Configurar botón de pago
+  const submitButton = document.getElementById('stripe-submit-btn');
+  if (submitButton) {
+    submitButton.addEventListener('click', handleStripePayment);
+  }
+}
+
+async function handleStripePayment() {
+  const submitButton = document.getElementById('stripe-submit-btn');
+  const displayError = document.getElementById('stripe-card-errors');
+  
+  // Deshabilitar botón
+  submitButton.disabled = true;
+  submitButton.textContent = 'Procesando...';
+  
+  try {
+    // Obtener datos del carrito
+    const cartItems = JSON.parse(localStorage.getItem('rojasfitt_cart')) || [];
+    const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const courseIds = cartItems.map(item => item.id);
+    
+    // Crear PaymentMethod
+    const {error, paymentMethod} = await stripe.createPaymentMethod({
+      type: 'card',
+      card: cardElement,
+    });
+    
+    if (error) {
+      displayError.textContent = error.message;
+      submitButton.disabled = false;
+      submitButton.innerHTML = '<span class="btn-icon">💳</span> Pagar con Tarjeta';
+      return;
+    }
+    
+    // Procesar pago
+    const response = await fetch('/api/checkout/process-stripe-payment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        amount: total,
+        currency: 'usd',
+        paymentMethodId: paymentMethod.id,
+        customerEmail: document.getElementById('clientEmail')?.textContent || '',
+        courseIds: courseIds
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      // Pago exitoso
+      alert('¡Pago procesado exitosamente!');
+      localStorage.removeItem('rojasfitt_cart');
+      window.location.href = '/';
+    } else {
+      displayError.textContent = result.error || 'Error procesando el pago';
+    }
+    
+  } catch (error) {
+    console.error('Error:', error);
+    displayError.textContent = 'Error de conexión. Intenta nuevamente.';
+  } finally {
+    submitButton.disabled = false;
+    submitButton.innerHTML = '<span class="btn-icon">💳</span> Pagar con Tarjeta';
+  }
+}
+
+</script>
+
+<style>
+  /* =================================================================
+     PÁGINA DE CHECKOUT - DISEÑO CONSISTENTE
+     ================================================================= */
+
+  .checkout-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    padding: 120px 0 60px;
+  }
+
+  .checkout-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* ===== HEADER DE LA PÁGINA ===== */
+  .checkout-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  .checkout-breadcrumb {
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    color: #737373;
+  }
+
+  .checkout-breadcrumb a {
+    color: #99FF00;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .checkout-breadcrumb a:hover {
+    color: #ffffff;
+  }
+
+  .checkout-breadcrumb span {
+    margin: 0 10px;
+  }
+
+  .checkout-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: #ffffff;
+    margin-bottom: 10px;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+
+  .highlight-green {
+    color: #99FF00;
+    text-shadow: 0 0 15px rgba(153, 255, 0, 0.8), 0 0 30px rgba(153, 255, 0, 0.4);
+  }
+
+  .checkout-subtitle {
+    font-size: 1.2rem;
+    color: #e0e0e0;
+    font-weight: 300;
+  }
+
+  /* ===== CONTENIDO PRINCIPAL ===== */
+  /* .checkout-content {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+  } */
+  
+  .checkout-main {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .checkout-sidebar {
+    width: 350px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* ===== COLUMNA IZQUIERDA - FORMULARIO ===== */
+
+  .checkout-section {
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .checkout-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #99FF00;
+    margin-bottom: 20px;
+  }
+
+  .section-icon {
+    font-size: 1.8rem;
+  }
+
+  /* ===== INFORMACIÓN DEL CLIENTE ===== */
+  .client-info {
+    background: rgba(153, 255, 0, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid rgba(153, 255, 0, 0.2);
+  }
+
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .info-item:last-child {
+    border-bottom: none;
+  }
+
+  .info-label {
+    font-weight: 600;
+    color: #e0e0e0;
+  }
+
+  .info-value {
+    color: #99FF00;
+    font-weight: 500;
+  }
+
+  /* ===== MÉTODOS DE PAGO ===== */
+  .payment-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+
+  .payment-method {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .payment-method:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .payment-method.active {
+    background: rgba(153, 255, 0, 0.1);
+    border-color: #99FF00;
+  }
+
+  .payment-icon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(153, 255, 0, 0.2);
+    border-radius: 12px;
+  }
+
+  .payment-info {
+    flex: 1;
+  }
+
+  .payment-info h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 5px;
+  }
+
+  .payment-info p {
+    font-size: 0.9rem;
+    color: #e0e0e0;
+  }
+
+  .payment-check {
+    font-size: 1.5rem;
+    color: #99FF00;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .payment-method.active .payment-check {
+    opacity: 1;
+  }
+
+  /* ===== FORMULARIO DE PAGO ===== */
+  .payment-form {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .form-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #e0e0e0;
+    margin-bottom: 8px;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: #99FF00;
+    background: rgba(153, 255, 0, 0.1);
+    box-shadow: 0 0 0 3px rgba(153, 255, 0, 0.2);
+  }
+
+  .form-group input::placeholder {
+    color: #737373;
+  }
+
+  /* ===== TARJETAS DE INFORMACIÓN DE PAGO ===== */
+  .payment-info-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+    border-radius: 20px;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    margin-bottom: 25px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .payment-info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    border-color: rgba(153, 255, 0, 0.3);
+  }
+
+  .payment-header {
+    margin-bottom: 25px;
+    text-align: center;
+  }
+
+  .payment-header h3 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #99FF00;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px rgba(153, 255, 0, 0.3);
+  }
+
+  .tech-info {
+    font-size: 0.9rem;
+    color: #a0a0a0;
+    font-style: italic;
+    margin: 0;
+    background: rgba(153, 255, 0, 0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+
+  .payment-details {
+    margin-bottom: 25px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+  }
+
+  .detail-item:hover {
+    background: rgba(153, 255, 0, 0.05);
+    border-radius: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .detail-item:last-child {
+    border-bottom: none;
+  }
+
+  .detail-item label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    min-width: 140px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .detail-value {
+    font-size: 1rem;
+    color: #99FF00;
+    font-weight: 600;
+    text-shadow: 0 0 5px rgba(153, 255, 0, 0.3);
+  }
+
+  .copy-field {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .wallet-address,
+  .paypal-email,
+  .mobile-number,
+  .cedula {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: #ffffff;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    word-break: break-all;
+    max-width: 250px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .wallet-address:hover,
+  .paypal-email:hover,
+  .mobile-number:hover,
+  .cedula:hover {
+    background: linear-gradient(135deg, rgba(153, 255, 0, 0.2) 0%, rgba(153, 255, 0, 0.1) 100%);
+    border-color: #99FF00;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(153, 255, 0, 0.2);
+  }
+
+  .copy-btn {
+    background: linear-gradient(135deg, rgba(153, 255, 0, 0.3) 0%, rgba(153, 255, 0, 0.1) 100%);
+    border: 2px solid #99FF00;
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: #99FF00;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .copy-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .copy-btn:hover::before {
+    left: 100%;
+  }
+
+  .copy-btn:hover {
+    background: linear-gradient(135deg, rgba(153, 255, 0, 0.4) 0%, rgba(153, 255, 0, 0.2) 100%);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(153, 255, 0, 0.3);
+  }
+
+  .copy-btn:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .total-amount {
+    font-size: 1.2rem !important;
+    font-weight: 800 !important;
+    color: #22c55e !important;
+    text-shadow: 0 0 10px rgba(34, 197, 94, 0.5) !important;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.1) 100%) !important;
+    padding: 8px 16px !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(34, 197, 94, 0.3) !important;
+  }
+
+  .payment-instructions {
+    background: linear-gradient(135deg, rgba(153, 255, 0, 0.1) 0%, rgba(153, 255, 0, 0.05) 100%);
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid rgba(153, 255, 0, 0.3);
+    box-shadow: 0 4px 16px rgba(153, 255, 0, 0.1);
+  }
+
+  .payment-instructions h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #99FF00;
+    margin-bottom: 15px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px rgba(153, 255, 0, 0.3);
+  }
+
+  .payment-instructions ol {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+    counter-reset: step-counter;
+  }
+
+  .payment-instructions li {
+    font-size: 0.95rem;
+    color: #ffffff;
+    margin-bottom: 12px;
+    line-height: 1.6;
+    padding: 12px 16px 12px 50px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border-left: 4px solid #99FF00;
+    position: relative;
+    counter-increment: step-counter;
+    transition: all 0.3s ease;
+  }
+
+  .payment-instructions li::before {
+    content: counter(step-counter);
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #99FF00;
+    color: #000000;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    box-shadow: 0 2px 8px rgba(153, 255, 0, 0.3);
+    z-index: 1;
+  }
+
+  .payment-instructions li:hover {
+    background: rgba(153, 255, 0, 0.1);
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(153, 255, 0, 0.2);
+  }
+
+  .payment-instructions li:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ===== BOTÓN YA PAGUÉ ===== */
+  .payment-confirmation {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .btn-paid {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .btn-paid:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
+  }
+
+  .btn-paid:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .confirmation-note {
+    font-size: 0.85rem;
+    color: #737373;
+    margin: 0;
+    font-style: italic;
+  }
+
+  /* ===== NOTIFICACIÓN DE COPIA ===== */
+  .copy-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(34, 197, 94, 0.9);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  /* ===== NOTIFICACIONES COOL ===== */
+  .cool-notification-content {
+    padding: 20px;
+  }
+
+  .cool-notification-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .cool-notification-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .cool-notification-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    flex: 1;
+  }
+
+  .cool-notification-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.3s ease;
+  }
+
+  .cool-notification-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .cool-notification-message {
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.4;
+    opacity: 0.95;
+  }
+
+  .cool-notification-progress {
+    margin-top: 12px;
+    border-radius: 2px;
+  }
+
+  /* Animaciones para las notificaciones */
+  @keyframes coolSlideIn {
+    from {
+      transform: translateX(100%) scale(0.8);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes coolSlideOut {
+    from {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%) scale(0.8);
+      opacity: 0;
+    }
+  }
+
+  .cool-notification {
+    animation: coolSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .cool-notification-removing {
+    animation: coolSlideOut 0.4s ease-in;
+  }
+
+  /* ===== TÉRMINOS Y CONDICIONES ===== */
+  .terms-section {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .terms-link {
+    color: #99FF00;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid transparent;
+  }
+
+  .terms-link:hover {
+    color: #ffffff;
+    border-bottom-color: #99FF00;
+    text-shadow: 0 0 8px rgba(153, 255, 0, 0.5);
+  }
+
+  /* ===== COLUMNA DERECHA - RESUMEN ===== */
+
+  .order-summary {
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+    backdrop-filter: none;
+    border: none;
+    margin-bottom: 0;
+  }
+
+  .summary-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #99FF00;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(153, 255, 0, 0.3);
+  }
+
+  .summary-icon {
+    font-size: 1rem;
+  }
+
+  /* ===== LISTA DE CURSOS ===== */
+  .courses-list {
+    margin-bottom: 8px;
+  }
+
+  .course-item {
+    display: flex;
+    gap: 6px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .course-item:last-child {
+    border-bottom: none;
+  }
+
+  .course-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .course-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .empty-cart {
+    text-align: center;
+    padding: 20px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .empty-cart p {
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+  }
+  
+  .btn-back-to-courses {
+    display: inline-block;
+    background: linear-gradient(135deg, #99FF00, #7ACC00);
+    color: #000;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-back-to-courses:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(153, 255, 0, 0.3);
+  }
+
+  .course-info {
+    flex: 1;
+  }
+
+  .course-title {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 1px;
+    line-height: 1.0;
+  }
+
+  .course-category {
+    font-size: 0.55rem;
+    color: #99FF00;
+    margin-bottom: 1px;
+  }
+
+  .course-price {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #22c55e;
+  }
+
+  /* ===== TOTALES ===== */
+  .order-totals {
+    border-top: 1px solid rgba(153, 255, 0, 0.3);
+    padding-top: 10px;
+    margin-top: 10px;
+    background: rgba(153, 255, 0, 0.05);
+    border-radius: 8px;
+    padding: 15px;
+  }
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 0;
+  }
+
+  .total-row.total-final {
+    border-top: 1px solid rgba(153, 255, 0, 0.4);
+    padding-top: 10px;
+    margin-top: 10px;
+    background: rgba(153, 255, 0, 0.1);
+    border-radius: 6px;
+    padding: 12px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #99FF00;
+  }
+
+  .total-label {
+    font-size: 0.7rem;
+    color: #e0e0e0;
+  }
+
+  .total-final .total-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .total-value {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #ffffff;
+  }
+
+  .total-final .total-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #99FF00;
+  }
+
+  .total-value.discount {
+    color: #22c55e;
+  }
+
+
+  /* ===== INFORMACIÓN DE SEGURIDAD ===== */
+  .security-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: center;
+    padding: 6px;
+    background: rgba(34, 197, 94, 0.1);
+    border-radius: 4px;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  }
+
+  .security-icon {
+    font-size: 0.7rem;
+  }
+
+  .security-info p {
+    font-size: 0.6rem;
+    color: #e0e0e0;
+    margin: 0;
+  }
+
+  /* ===== RESPONSIVE DESIGN ===== */
+  @media (max-width: 1200px) {
+    .checkout-container {
+      max-width: 1000px;
+      padding: 0 30px;
+    }
+    
+    /* .checkout-content {
+      gap: 35px;
+    } */
+  }
+
+  @media (max-width: 768px) {
+    .checkout-main {
+      padding: 20px;
+    }
+    
+    .payment-info-card {
+      padding: 25px;
+    }
+    
+    .detail-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    
+    .detail-item label {
+      min-width: auto;
+      margin-bottom: 5px;
+    }
+    
+    .copy-field {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .checkout-page {
+      padding: 100px 0 40px;
+    }
+    
+    .checkout-container {
+      padding: 0 20px;
+    }
+    
+    .checkout-title {
+      font-size: 2.5rem;
+    }
+    
+    .checkout-main {
+      padding: 30px 25px;
+    }
+    
+    .order-summary {
+      padding: 25px;
+    }
+    
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+    
+    .payment-method {
+      padding: 18px;
+      flex-direction: column;
+      text-align: center;
+      gap: 12px;
+    }
+    
+    .payment-icon {
+      width: 60px;
+      height: 60px;
+      font-size: 2.5rem;
+    }
+    
+    .payment-info h3 {
+      font-size: 1.2rem;
+    }
+    
+    .payment-info p {
+      font-size: 1rem;
+    }
+    
+    .btn-paid {
+      padding: 20px;
+      font-size: 1.1rem;
+    }
+    
+    
+    .course-image {
+      width: 50px;
+      height: 50px;
+    }
+    
+    .payment-info-card {
+      padding: 20px;
+    }
+    
+    .payment-header h3 {
+      font-size: 1.2rem;
+    }
+    
+    .tech-info {
+      font-size: 0.8rem;
+      padding: 6px 12px;
+    }
+    
+    .wallet-address,
+    .paypal-email,
+    .mobile-number,
+    .cedula {
+      font-size: 0.8rem;
+      padding: 10px 12px;
+      max-width: 200px;
+    }
+    
+    .copy-btn {
+      padding: 10px 14px;
+      font-size: 1rem;
+    }
+    
+    .payment-instructions {
+      padding: 20px;
+    }
+    
+    .payment-instructions li {
+      font-size: 0.9rem;
+      padding: 10px 14px 10px 45px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .checkout-page {
+      padding: 80px 0 30px;
+    }
+    
+    .checkout-container {
+      padding: 0 15px;
+    }
+    
+    .checkout-title {
+      font-size: 2rem;
+    }
+    
+    .checkout-main {
+      padding: 25px 20px;
+    }
+    
+    .order-summary {
+      padding: 20px;
+    }
+    
+    .checkout-section {
+      margin-bottom: 30px;
+    }
+    
+    .section-title {
+      font-size: 1.3rem;
+    }
+    
+    .payment-method {
+      padding: 15px;
+    }
+    
+    .payment-icon {
+      width: 50px;
+      height: 50px;
+      font-size: 2rem;
+    }
+    
+    .payment-info h3 {
+      font-size: 1.1rem;
+    }
+    
+    .payment-info p {
+      font-size: 0.9rem;
+    }
+    
+    .payment-info-card {
+      padding: 18px;
+    }
+    
+    .payment-header h3 {
+      font-size: 1.1rem;
+    }
+    
+    .detail-item {
+      padding: 12px 0;
+    }
+    
+    .detail-item label {
+      font-size: 0.9rem;
+    }
+    
+    .detail-value {
+      font-size: 0.9rem;
+    }
+    
+    .wallet-address,
+    .paypal-email,
+    .mobile-number,
+    .cedula {
+      font-size: 0.75rem;
+      padding: 8px 10px;
+      max-width: 150px;
+    }
+    
+    .copy-btn {
+      padding: 8px 12px;
+      font-size: 0.9rem;
+    }
+    
+    .payment-instructions {
+      padding: 18px;
+    }
+    
+    .payment-instructions h4 {
+      font-size: 1rem;
+    }
+    
+    .payment-instructions li {
+      font-size: 0.85rem;
+      padding: 8px 12px 8px 40px;
+    }
+    
+    .btn-paid {
+      padding: 18px;
+      font-size: 1rem;
+    }
+    
+    
+    .course-image {
+      width: 45px;
+      height: 45px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .checkout-container {
+      padding: 0 10px;
+    }
+    
+    .checkout-title {
+      font-size: 1.8rem;
+    }
+    
+    .checkout-main {
+      padding: 20px 15px;
+    }
+    
+    .order-summary {
+      padding: 15px;
+    }
+    
+    .payment-info-card {
+      padding: 15px;
+    }
+    
+    .wallet-address,
+    .paypal-email,
+    .mobile-number,
+    .cedula {
+      max-width: 120px;
+      font-size: 0.7rem;
+    }
+    
+  .copy-btn {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+}
+
+/* ===== MEJORAS ADICIONALES ===== */
+/* Animaciones de entrada */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.checkout-section {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.payment-info-card {
+  animation: slideInRight 0.8s ease-out;
+}
+
+/* Efectos de hover mejorados */
+.payment-method:hover .payment-icon {
+  transform: scale(1.1) rotate(5deg);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.payment-method:hover .payment-info h3 {
+  color: #99FF00;
+  text-shadow: 0 0 10px rgba(153, 255, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+/* Mejoras en el botón de pago */
+.btn-paid {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-paid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s;
+}
+
+.btn-paid:hover::before {
+  left: 100%;
+}
+
+/* Efectos de scroll suave */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mejoras en las notificaciones */
+.cool-notification {
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Efectos de focus mejorados */
+.copy-btn:focus,
+.btn-paid:focus {
+  outline: 2px solid #99FF00;
+  outline-offset: 2px;
+}
+
+/* Mejoras en la accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Mejoras para modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .payment-info-card {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 100%);
+  }
+}
+
+/* ===== ESTILOS DEL MODAL DE PAGO ===== */
+.payment-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+.payment-modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid rgba(153, 255, 0, 0.2);
+  animation: slideInUp 0.4s ease;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 1px solid rgba(153, 255, 0, 0.2);
+}
+
+.modal-header h3 {
+  color: #99FF00;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1.8rem;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+  background: rgba(255, 0, 0, 0.2);
+  color: #ff4444;
+}
+
+.modal-body {
+  padding: 25px;
+}
+
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  color: #ffffff;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid rgba(153, 255, 0, 0.3);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #99FF00;
+  box-shadow: 0 0 15px rgba(153, 255, 0, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.form-group small {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  margin-top: 5px;
+  display: block;
+}
+
+.form-group textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 15px;
+  padding: 20px 25px;
+  border-top: 1px solid rgba(153, 255, 0, 0.2);
+}
+
+.btn-cancel,
+.btn-submit {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-cancel:hover {
+  background: rgba(255, 0, 0, 0.2);
+  border-color: #ff4444;
+  color: #ff4444;
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, #99FF00, #7ACC00);
+  color: #000000;
+  font-weight: 700;
+}
+
+.btn-submit:hover {
+  background: linear-gradient(135deg, #7ACC00, #5AA300);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(153, 255, 0, 0.4);
+}
+
+.btn-submit:disabled {
+  background: rgba(153, 255, 0, 0.3);
+  color: rgba(0, 0, 0, 0.5);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Animaciones del modal */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive del modal */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 15px 20px;
+  }
+  
+  .modal-header h3 {
+    font-size: 1.2rem;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Efectos de partículas sutiles */
+.payment-info-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(153, 255, 0, 0.03) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(153, 255, 0, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+  border-radius: 20px;
+  }
+
+  /* Estilos para Stripe */
+  .stripe-form {
+    margin-top: 20px;
+  }
+  
+  .form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .form-row .form-group {
+    flex: 1;
+  }
+  
+  .stripe-form input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+  
+  .stripe-form input:focus {
+    outline: none;
+    border-color: #99FF00;
+    box-shadow: 0 0 0 2px rgba(153, 255, 0, 0.2);
+  }
+  
+  .stripe-form input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  .stripe-logos {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    justify-content: center;
+  }
+  
+  .stripe-logos img {
+    height: 30px;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+  }
+  
+  .stripe-logos img:hover {
+    opacity: 1;
+  }
+  
+  /* Estilos para Stripe Elements */
+  #stripe-card-element {
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    margin-bottom: 15px;
+  }
+  
+  #stripe-card-errors {
+    color: #ff6b6b;
+    font-size: 14px;
+    margin-bottom: 15px;
+    min-height: 20px;
+  }
+  
+  #stripe-submit-btn {
+    background: linear-gradient(135deg, #99FF00 0%, #7ACC00 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 15px 25px;
+    color: #000;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  #stripe-submit-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #7ACC00 0%, #5AA300 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(153, 255, 0, 0.3);
+  }
+  
+  #stripe-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  /* Ocultar formularios por defecto */
+  .payment-form {
+    display: none;
+  }
+  
+  .payment-form.show {
+    display: block !important;
+  }
+
+  /* Estilos para el resumen del pedido */
+  .course-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-radius: 8px !important;
+    margin-bottom: 10px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    flex-direction: row !important;
+  }
+  
+  .course-image {
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 8px !important;
+    object-fit: cover !important;
+    flex-shrink: 0 !important;
+    display: block !important;
+  }
+  
+  .course-details {
+    flex: 1 !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+  
+  .course-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .course-category {
+    font-size: 0.75rem;
+    color: #99FF00;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  
+  .course-price {
+    font-size: 0.85rem;
+    color: white;
+    font-weight: 600;
+  }
+  
+  .course-quantity {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 2px;
+  }
+
+  /* Responsive simple */
+  @media (max-width: 768px) {
+    /* .checkout-content {
+      flex-direction: column !important;
+    } */
+    
+    .checkout-sidebar {
+      width: 100% !important;
+      margin-top: 20px !important;
+    }
+    
+    .form-row {
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .course-item {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .course-image {
+      width: 60px;
+      height: 60px;
+    }
+  }
+</style>

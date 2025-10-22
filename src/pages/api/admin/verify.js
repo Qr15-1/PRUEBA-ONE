@@ -2,7 +2,7 @@
 // API ENDPOINT: VERIFICAR SESIÓN DE ADMINISTRADOR
 // =================================================================
 
-import { adminQueries } from '../../../lib/database.js';
+import { adminSessionQueries } from '../../../lib/database.js';
 
 export async function GET({ cookies }) {
     try {
@@ -23,13 +23,13 @@ export async function GET({ cookies }) {
             });
         }
 
-        // Buscar administrador por ID de sesión
-        console.log('🔍 Buscando administrador con ID:', adminSession);
-        const admin = adminQueries.findById(adminSession);
-        console.log('👤 Administrador encontrado:', admin);
+        // Buscar sesión de administrador por token
+        console.log('🔍 Buscando sesión con token:', adminSession.substring(0, 10) + '...');
+        const session = adminSessionQueries.findByToken(adminSession);
+        console.log('🔍 Sesión encontrada:', session ? 'Sí' : 'No');
         
-        if (!admin) {
-            console.log('❌ Administrador no encontrado');
+        if (!session) {
+            console.log('❌ Sesión no encontrada');
             return new Response(JSON.stringify({
                 success: false,
                 error: 'Sesión de administrador inválida'
@@ -41,14 +41,13 @@ export async function GET({ cookies }) {
             });
         }
 
-        console.log('✅ Administrador válido:', admin.username);
+        console.log('✅ Sesión válida para admin:', session.username);
         return new Response(JSON.stringify({
             success: true,
             admin: {
-                id: admin.id,
-                username: admin.username,
-                email: admin.email,
-                role: admin.role
+                id: session.admin_id,
+                username: session.username,
+                email: session.email
             }
         }), {
             status: 200,
