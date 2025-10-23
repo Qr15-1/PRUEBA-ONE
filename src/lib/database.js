@@ -154,6 +154,20 @@ CREATE TABLE IF NOT EXISTS order_items (
 )
 `;
 
+const createUserCourseAccessTable = `
+CREATE TABLE IF NOT EXISTS user_course_access (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    course_id INTEGER NOT NULL,
+    payment_id INTEGER NOT NULL,
+    granted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES courses (id) ON DELETE CASCADE,
+    FOREIGN KEY (payment_id) REFERENCES payments (id) ON DELETE CASCADE,
+    UNIQUE(user_id, course_id)
+)
+`;
+
 // Ejecutar la creación de tablas
 try {
     db.exec(createUsersTable);
@@ -165,6 +179,8 @@ try {
     db.exec(createProductsTable);
     db.exec(createOrdersTable);
     db.exec(createOrderItemsTable);
+    db.exec(createUserCourseAccessTable);
+    console.log('✅ Tabla user_course_access creada/verificada');
     
     // Agregar columnas faltantes a la tabla courses si no existen
     try {
@@ -466,7 +482,18 @@ export const moduleQueries = {
 
     getByCourse: (courseId) => {
         const stmt = db.prepare(`
-            SELECT * FROM course_modules 
+            SELECT 
+                id,
+                course_id,
+                title,
+                description,
+                video_url as videoUrl,
+                duration,
+                order_index as orderIndex,
+                is_free as isFree,
+                created_at,
+                updated_at
+            FROM course_modules 
             WHERE course_id = ? 
             ORDER BY order_index ASC, created_at ASC
         `);
@@ -474,25 +501,57 @@ export const moduleQueries = {
     },
 
     findById: (id) => {
-        const stmt = db.prepare('SELECT * FROM course_modules WHERE id = ?');
+        const stmt = db.prepare(`
+            SELECT 
+                id,
+                course_id,
+                title,
+                description,
+                video_url as videoUrl,
+                duration,
+                order_index as orderIndex,
+                is_free as isFree,
+                created_at,
+                updated_at
+            FROM course_modules 
+            WHERE id = ?
+        `);
         return stmt.get(id);
     },
 
     update: (id, moduleData) => {
+        console.log('🗄️ [DATABASE] moduleQueries.update llamado con:');
+        console.log('   - id:', id);
+        console.log('   - moduleData.isFree:', moduleData.isFree);
+        console.log('   - Tipo:', typeof moduleData.isFree);
+        
+        const isFreeValue = moduleData.isFree ? 1 : 0;
+        console.log('   - isFreeValue a guardar:', isFreeValue);
+        
         const stmt = db.prepare(`
             UPDATE course_modules 
             SET title = ?, description = ?, video_url = ?, duration = ?, order_index = ?, is_free = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `);
-        return stmt.run(
+        
+        const result = stmt.run(
             moduleData.title,
             moduleData.description,
             moduleData.videoUrl,
             moduleData.duration,
             moduleData.orderIndex,
-            moduleData.isFree ? 1 : 0,
+            isFreeValue,
             id
         );
+        
+        console.log('   - Resultado:', result);
+        
+        // Verificar lo que quedó guardado
+        const verifyStmt = db.prepare('SELECT id, title, is_free FROM course_modules WHERE id = ?');
+        const savedModule = verifyStmt.get(id);
+        console.log('   - ✅ VERIFICACIÓN - Módulo guardado:', savedModule);
+        
+        return result;
     },
 
     delete: (id) => {
@@ -851,6 +910,64 @@ export const paymentQueries = {
             ORDER BY created_at DESC
         `);
         return stmt.all(email);
+    }
+};
+
+// =================================================================
+// QUERIES PARA ACCESO A CURSOS
+// =================================================================
+
+export const courseAccessQueries = {
+    // Otorgar acceso a un curso
+    grant: (userId, courseId, paymentId) => {
+        const stmt = db.prepare(`
+            INSERT OR IGNORE INTO user_course_access (user_id, course_id, payment_id)
+            VALUES (?, ?, ?)
+        `);
+        return stmt.run(userId, courseId, paymentId);
+    },
+
+    // Verificar si un usuario tiene acceso a un curso
+    hasAccess: (userId, courseId) => {
+        const stmt = db.prepare(`
+            SELECT * FROM user_course_access 
+            WHERE user_id = ? AND course_id = ?
+        `);
+        return stmt.get(userId, courseId);
+    },
+
+    // Obtener todos los cursos de un usuario
+    getUserCourses: (userId) => {
+        const stmt = db.prepare(`
+            SELECT c.*, uca.granted_at, uca.payment_id
+            FROM user_course_access uca
+            JOIN courses c ON uca.course_id = c.id
+            WHERE uca.user_id = ?
+            ORDER BY uca.granted_at DESC
+        `);
+        return stmt.all(userId);
+    },
+
+    // Obtener cursos por email de usuario
+    getUserCoursesByEmail: (email) => {
+        const stmt = db.prepare(`
+            SELECT c.*, uca.granted_at, uca.payment_id
+            FROM user_course_access uca
+            JOIN courses c ON uca.course_id = c.id
+            JOIN users u ON uca.user_id = u.id
+            WHERE u.email = ?
+            ORDER BY uca.granted_at DESC
+        `);
+        return stmt.all(email);
+    },
+
+    // Revocar acceso a un curso
+    revoke: (userId, courseId) => {
+        const stmt = db.prepare(`
+            DELETE FROM user_course_access 
+            WHERE user_id = ? AND course_id = ?
+        `);
+        return stmt.run(userId, courseId);
     }
 };
 

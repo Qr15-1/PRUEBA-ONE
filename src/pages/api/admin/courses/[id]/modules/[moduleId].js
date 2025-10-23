@@ -40,7 +40,6 @@ export async function PUT({ request, params, cookies }) {
     try {
         console.log('🔄 Iniciando actualización de módulo...');
         console.log('📝 Parámetros recibidos:', params);
-        console.log('🍪 Cookies recibidas:', cookies.getAll());
         
         // Verificar autenticación de admin
         const adminSession = cookies.get('admin_session')?.value;
@@ -63,15 +62,29 @@ export async function PUT({ request, params, cookies }) {
         console.log('📊 Tipo de datos:', typeof moduleData);
         
         // Validar datos requeridos
-        const requiredFields = ['title', 'description', 'duration'];
-        for (const field of requiredFields) {
-            if (!moduleData[field]) {
-                console.log(`❌ Campo requerido faltante: ${field}`);
-                return new Response(JSON.stringify({ error: `Campo requerido: ${field}` }), {
-                    status: 400,
-                    headers: { 'Content-Type': 'application/json' }
-                });
-            }
+        if (!moduleData.title || moduleData.title.trim() === '') {
+            console.log('❌ Campo requerido faltante: title');
+            return new Response(JSON.stringify({ error: 'Campo requerido: título' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+        
+        if (!moduleData.description || moduleData.description.trim() === '') {
+            console.log('❌ Campo requerido faltante: description');
+            return new Response(JSON.stringify({ error: 'Campo requerido: descripción' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+        
+        // Duration puede ser string o number, validamos que sea convertible
+        if (moduleData.duration === undefined || moduleData.duration === null || moduleData.duration === '') {
+            console.log('❌ Campo requerido faltante: duration');
+            return new Response(JSON.stringify({ error: 'Campo requerido: duración' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
         }
 
         // Si no hay videoUrl, usar placeholder
@@ -83,10 +96,10 @@ export async function PUT({ request, params, cookies }) {
         const updateData = {
             title: moduleData.title,
             description: moduleData.description,
-            videoUrl: moduleData.videoUrl,
-            duration: moduleData.duration,
-            orderIndex: moduleData.orderIndex || 0,
-            isFree: moduleData.isFree
+            videoUrl: moduleData.videoUrl || 'sin_video',
+            duration: parseInt(moduleData.duration) || 0,
+            orderIndex: parseInt(moduleData.orderIndex) || 0,
+            isFree: (moduleData.isFree === true || moduleData.isFree === 1 || moduleData.isFree === "1") ? 1 : 0
         };
 
         console.log('📊 Datos preparados para actualización:', updateData);
@@ -119,7 +132,12 @@ export async function PUT({ request, params, cookies }) {
         });
     } catch (error) {
         console.error('❌ Error al actualizar módulo:', error);
-        return new Response(JSON.stringify({ error: 'Error interno del servidor' }), {
+        console.error('❌ Stack trace:', error.stack);
+        console.error('❌ Mensaje:', error.message);
+        return new Response(JSON.stringify({ 
+            error: 'Error interno del servidor',
+            details: error.message 
+        }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
         });

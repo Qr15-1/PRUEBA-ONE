@@ -16,7 +16,7 @@ if (!adminSession) {
 }
 
 const { id } = Astro.params;
-const courseId = parseInt(id);
+const courseId = parseInt(id || '0');
 
 // Obtener datos del curso
 const course = await courseQueries.findById(courseId);
@@ -26,18 +26,22 @@ if (!course) {
 
 // Obtener módulos del curso (ahora incluyen videos)
 const modules = await moduleQueries.getByCourse(courseId);
+
+// Tipos para TypeScript
+type Course = typeof course;
+type Module = typeof modules[0];
 ---
 
-<AdminLayout title={`Gestionar Curso - ${course.title}`}>
+<AdminLayout title={`Gestionar Curso - ${(course as any).title}`}>
   <div class="course-management">
     <!-- Header del curso -->
     <div class="course-header">
-      <h1 class="course-title">{course.title}</h1>
+      <h1 class="course-title">{(course as any).title}</h1>
       <div class="course-meta">
-        <span class="meta-item">📁 {course.category}</span>
-        <span class="meta-item">👤 {course.instructor || 'Instructor'}</span>
-        <span class="meta-item">⏱️ {course.duration}h</span>
-        <span class="meta-item">👥 {course.students} estudiantes</span>
+        <span class="meta-item">📁 {(course as any).category}</span>
+        <span class="meta-item">👤 {(course as any).instructor || 'Instructor'}</span>
+        <span class="meta-item">⏱️ {(course as any).duration}h</span>
+        <span class="meta-item">👥 {(course as any).students} estudiantes</span>
       </div>
     </div>
 
@@ -55,7 +59,7 @@ const modules = await moduleQueries.getByCourse(courseId);
       </div>
       
       <div class="modules-list">
-        {modules.map((module, index) => (
+        {modules.map((module: any, index: number) => (
           <div class="module-item">
             <div class="module-number">{index + 1}</div>
             <div class="module-content">
@@ -72,8 +76,8 @@ const modules = await moduleQueries.getByCourse(courseId);
               </div>
             </div>
             <div class="module-actions">
-              <button class="btn-edit" onclick={`editModule('${module.id}')`}>✏️ Editar</button>
-              <button class="btn-delete" onclick={`deleteModule('${module.id}')`}>🗑️ Eliminar</button>
+              <button class="btn-edit" data-module-id={module.id}>✏️ Editar</button>
+              <button class="btn-delete" data-module-id={module.id}>🗑️ Eliminar</button>
             </div>
           </div>
         ))}
@@ -94,7 +98,7 @@ const modules = await moduleQueries.getByCourse(courseId);
           </div>
           <div class="info-item">
             <span class="info-icon">💾</span>
-            <span>Tamaño máximo: 100MB por video</span>
+            <span>Tamaño: SIN LÍMITE ✅ (sube videos de cualquier tamaño)</span>
           </div>
           <div class="info-item">
             <span class="info-icon">🔒</span>
@@ -149,7 +153,7 @@ const modules = await moduleQueries.getByCourse(courseId);
         <div class="form-group">
           <label for="moduleVideoFile">Video del Módulo</label>
           <input type="file" id="moduleVideoFile" name="videoFile" accept="video/*">
-          <small class="form-help">Selecciona un archivo de video desde tu computadora (MP4, WebM, OGG, AVI, MOV - Máx. 100MB)</small>
+          <small class="form-help">Selecciona un archivo de video desde tu computadora (MP4, WebM, OGG, AVI, MOV - SIN LÍMITE DE TAMAÑO ✅)</small>
           <div id="uploadProgress" class="upload-progress" style="display: none;">
             <div class="progress-bar">
               <div class="progress-fill" id="progressFill"></div>
@@ -161,10 +165,10 @@ const modules = await moduleQueries.getByCourse(courseId);
           <label for="moduleVideoUrl">URL del Video (opcional)</label>
           <input type="text" id="moduleVideoUrl" name="videoUrl" placeholder="/videos/mi-video.mp4 o https://www.youtube.com/embed/... (opcional)">
         </div>
-        <div class="form-group">
-          <label>
-            <input type="checkbox" id="moduleIsFree" name="isFree">
-            Módulo Gratuito
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="moduleIsFree" name="isFree" value="1">
+            <span class="checkbox-text">Módulo Gratuito</span>
           </label>
         </div>
         <div class="form-actions">
@@ -178,6 +182,7 @@ const modules = await moduleQueries.getByCourse(courseId);
 </AdminLayout>
 
 <script>
+  // @ts-nocheck
   let currentTab = 'modules';
   let editingModuleId = null;
   
@@ -329,31 +334,42 @@ const modules = await moduleQueries.getByCourse(courseId);
     }
   }
 
-  function editModule(moduleId) {
-    console.log('Editando módulo con ID:', moduleId);
-    console.log('Tipo de ID:', typeof moduleId);
-    const parsedId = parseInt(moduleId);
-    console.log('ID parseado:', parsedId);
-    showModuleModal(parsedId);
-  }
+  // ===== EVENT LISTENERS PARA BOTONES DE EDITAR Y ELIMINAR =====
+  document.addEventListener('click', function(e) {
+    // Editar módulo
+    if (e.target.classList.contains('btn-edit') || e.target.closest('.btn-edit')) {
+      const button = e.target.classList.contains('btn-edit') ? e.target : e.target.closest('.btn-edit');
+      const moduleId = parseInt(button.dataset.moduleId);
+      console.log('Editando módulo con ID:', moduleId);
+      console.log('Tipo de ID:', typeof moduleId);
+      showModuleModal(moduleId);
+    }
+    
+    // Eliminar módulo
+    if (e.target.classList.contains('btn-delete') || e.target.closest('.btn-delete')) {
+      const button = e.target.classList.contains('btn-delete') ? e.target : e.target.closest('.btn-delete');
+      const moduleId = parseInt(button.dataset.moduleId);
+      if (confirm('¿Estás seguro de que quieres eliminar este módulo?')) {
+        deleteModule(moduleId);
+      }
+    }
+  });
 
   async function deleteModule(moduleId) {
-    if (confirm('¿Estás seguro de que quieres eliminar este módulo?')) {
-      try {
-        const response = await fetch(`/api/admin/courses/${courseId}/modules/${moduleId}`, {
-          method: 'DELETE',
-          credentials: 'include'
-        });
-        
-        if (response.ok) {
-          location.reload();
-        } else {
-          alert('Error al eliminar el módulo');
-        }
-      } catch (error) {
-        console.error('Error:', error);
+    try {
+      const response = await fetch(`/api/admin/courses/${courseId}/modules/${moduleId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        location.reload();
+      } else {
         alert('Error al eliminar el módulo');
       }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al eliminar el módulo');
     }
   }
 
@@ -370,7 +386,18 @@ const modules = await moduleQueries.getByCourse(courseId);
     // Convertir FormData a objeto, pero manejar el archivo por separado
     const data = Object.fromEntries(formData.entries());
     data.moduleVideoFile = videoFile; // Asignar el archivo correctamente
+    
+    console.log('🔍 VALOR DEL CHECKBOX ANTES DE PROCESAR:');
+    console.log('- data.isFree (raw):', data.isFree);
+    console.log('- Tipo:', typeof data.isFree);
+    
+    // El checkbox solo aparece en FormData si está marcado
+    // Si está marcado, el valor es "1" (string), si no está marcado, es undefined
     data.isFree = data.isFree ? 1 : 0;
+    
+    console.log('🔍 VALOR DEL CHECKBOX DESPUÉS DE PROCESAR:');
+    console.log('- data.isFree (procesado):', data.isFree);
+    console.log('- Tipo:', typeof data.isFree);
 
     // Validar campos requeridos antes de enviar
     if (!data.title || data.title.trim() === '') {
@@ -504,6 +531,12 @@ const modules = await moduleQueries.getByCourse(courseId);
     console.log('📋 DATOS COMPLETOS A ENVIAR:', JSON.stringify(dataToSend, null, 2));
     console.log('Datos a enviar:', dataToSend);
 
+    // Mostrar indicador de carga
+    const submitButton = e.target.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+    submitButton.textContent = '⏳ Guardando...';
+    submitButton.disabled = true;
+
     try {
       const url = editingModuleId 
         ? `/api/admin/courses/${courseId}/modules/${editingModuleId}`
@@ -511,6 +544,8 @@ const modules = await moduleQueries.getByCourse(courseId);
       
       const method = editingModuleId ? 'PUT' : 'POST';
 
+      console.log('🚀 Enviando al servidor:', method, url);
+      
       const response = await fetch(url, {
         method: method,
         headers: { 'Content-Type': 'application/json' },
@@ -518,19 +553,26 @@ const modules = await moduleQueries.getByCourse(courseId);
         body: JSON.stringify(dataToSend)
       });
 
+      console.log('📥 Respuesta recibida:', response.status, response.statusText);
+
       if (response.ok) {
         const result = await response.json();
-        console.log('Módulo guardado:', result);
+        console.log('✅ Módulo guardado exitosamente:', result);
+        alert('✅ Módulo guardado correctamente!');
         closeModuleModal();
         location.reload();
       } else {
         const error = await response.json();
-        console.error('Error del servidor:', error);
+        console.error('❌ Error del servidor:', error);
         alert('Error al guardar el módulo: ' + (error.error || 'Error desconocido'));
+        submitButton.textContent = originalText;
+        submitButton.disabled = false;
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('❌ Error fatal:', error);
       alert('Error al guardar el módulo: ' + error.message);
+      submitButton.textContent = originalText;
+      submitButton.disabled = false;
     }
   });
 
@@ -617,7 +659,6 @@ const modules = await moduleQueries.getByCourse(courseId);
   window.showTab = showTab;
   window.showModuleModal = showModuleModal;
   window.closeModuleModal = closeModuleModal;
-  window.editModule = editModule;
   window.deleteModule = deleteModule;
 </script>
 
@@ -1078,6 +1119,41 @@ const modules = await moduleQueries.getByCourse(courseId);
     color: #ffffff;
     font-weight: 600;
     margin-bottom: 8px;
+  }
+
+  /* Estilos para checkbox */
+  .checkbox-group {
+    margin: 20px 0;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    transition: background 0.3s ease;
+  }
+
+  .checkbox-label:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  .checkbox-text {
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 1rem;
+    user-select: none;
   }
 
   .form-group input,

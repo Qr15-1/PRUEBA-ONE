@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { courseQueries, moduleQueries } from '../../lib/database.js';
+import { courseQueries, moduleQueries, courseAccessQueries, userQueries } from '../../lib/database.js';
 
 // ❌ ELIMINADO: getStaticPaths ya no es necesario en modo SSR
 // La página ahora se genera dinámicamente en el servidor para cada petición
@@ -16,6 +16,34 @@ if (!course) {
 
 // Obtener módulos del curso (ahora incluyen videos)
 const modules = await moduleQueries.getByCourse((course as any).id);
+
+// ===== VERIFICAR ACCESO DEL USUARIO =====
+let userHasAccess = false;
+const sessionToken = Astro.cookies.get('user_session')?.value;
+
+console.log('🔍 Cookie de sesión:', sessionToken ? 'Encontrada' : 'No encontrada');
+
+if (sessionToken) {
+  try {
+    // Buscar sesión en la base de datos
+    const { sessionQueries } = await import('../../lib/database.js');
+    const session = sessionQueries.findByToken(sessionToken);
+    
+    console.log('🔍 Sesión encontrada:', session ? 'Sí' : 'No');
+    
+    if (session && session.user_id) {
+      const user = userQueries.findById(session.user_id);
+      console.log('🔍 Usuario encontrado:', user ? user.email : 'No');
+      
+      if (user) {
+        userHasAccess = courseAccessQueries.hasAccess(user.id, (course as any).id);
+        console.log(`✅ Usuario ${user.email} - Acceso al curso ${(course as any).title}: ${userHasAccess}`);
+      }
+    }
+  } catch (error) {
+    console.error('❌ Error verificando acceso:', error);
+  }
+}
 
 // Asegurar que course y modules tienen los tipos correctos
 interface CourseData {
@@ -48,21 +76,22 @@ const courseData = course as CourseData;
 const modulesData = modules as ModuleData[];
 
 // AÑADE ESTO PARA DEPURAR
-console.log('=== DEBUG COMPLETO ===');
+console.log('=== DEBUG COMPLETO DE TODOS LOS MÓDULOS ===');
 console.log('Curso encontrado:', courseData);
 console.log('Course ID:', courseData.id);
-console.log('Módulos recibidos de la BD:', modulesData);
 console.log('Total módulos:', modulesData.length);
-if (modulesData.length > 0) {
-  console.log('Primer módulo:', modulesData[0]);
-  console.log('Primer módulo isFree:', modulesData[0].isFree);
-  console.log('Primer módulo videoUrl:', modulesData[0].videoUrl);
-  console.log('¿Es gratuito?', modulesData[0].isFree === 1);
-  console.log('¿Es video externo?', modulesData[0].videoUrl.startsWith('http'));
-  console.log('¿Es video local?', modulesData[0].videoUrl.startsWith('/'));
-  console.log('URL completa del video:', `http://localhost:4321${modulesData[0].videoUrl}`);
-}
-console.log('========================');
+console.log('\n📋 LISTADO COMPLETO DE MÓDULOS:');
+modulesData.forEach((mod, index) => {
+  console.log(`\n🔹 Módulo ${index + 1}: ${mod.title}`);
+  console.log(`   - ID: ${mod.id}`);
+  console.log(`   - isFree (valor): ${mod.isFree}`);
+  console.log(`   - isFree (tipo): ${typeof mod.isFree}`);
+  console.log(`   - ¿Es gratuito? (=== 1): ${mod.isFree === 1}`);
+  console.log(`   - ¿Es gratuito? (== 1): ${mod.isFree == 1}`);
+  console.log(`   - videoUrl: ${mod.videoUrl}`);
+  console.log(`   - duration: ${mod.duration}`);
+});
+console.log('\n========================');
 
 // Obtener el índice del módulo desde la URL
 const url = new URL(Astro.request.url);
@@ -128,7 +157,7 @@ const courseDisplayData = {
             <!-- === SECCIÓN DE VIDEO LIMPIA Y FUNCIONAL === -->
             <!-- ========================================================= -->
             <div class="course-video-section">
-              {currentModule && currentModule.isFree === 1 ? (
+              {currentModule && (currentModule.isFree === 1 || userHasAccess) ? (
                 currentModule.videoUrl.startsWith('http') ? (
                   <!-- Video externo (YouTube, Vimeo, etc.) -->
                   <iframe 
@@ -156,8 +185,11 @@ const courseDisplayData = {
               ) : (
                 <!-- Video bloqueado -->
                 <div class="video-locked">
-                  <h3>Video Bloqueado</h3>
+                  <h3>🔒 Video Bloqueado</h3>
                   <p>Compra el curso para acceder a este contenido</p>
+                  <button class="unlock-btn" onclick="window.location.href='/checkout'">
+                    🛒 Comprar Curso
+                  </button>
                 </div>
               )}
               
@@ -370,9 +402,105 @@ const courseDisplayData = {
     }, 1500);
   }
 
-  // Hacer la función global
+  // ===== VERIFICAR ACCESO DEL USUARIO AL CURSO =====
+  async function checkUserAccess() {
+    const userData = localStorage.getItem('user_data');
+    if (!userData) {
+      console.log('ℹ️ No hay usuario autenticado');
+      return;
+    }
+    
+    try {
+      const user = JSON.parse(userData);
+      const courseId = course.id; // Variable disponible del servidor
+      
+      console.log('🔍 Verificando acceso del usuario:', user.email, 'al curso:', courseId);
+      
+      const response = await fetch(`/api/courses/check-access?email=${encodeURIComponent(user.email)}&courseId=${courseId}`);
+      const result = await response.json();
+      
+      console.log('📡 Respuesta de verificación:', result);
+      
+      if (result.success && result.hasAccess) {
+        console.log('✅ Usuario tiene acceso al curso');
+        
+        // 1. DESBLOQUEAR TODOS LOS MÓDULOS
+        document.querySelectorAll('.curriculum-item').forEach((item) => {
+          // Cambiar etiquetas de "Bloqueado" a "Disponible"
+          const lockedTag = item.querySelector('.meta-tag.locked');
+          if (lockedTag) {
+            lockedTag.textContent = 'Disponible';
+            lockedTag.classList.remove('locked');
+            lockedTag.classList.add('available');
+          }
+        });
+        
+        // 2. CAMBIAR BOTÓN DE COMPRA
+        const buyButton = document.querySelector('.course-btn');
+        if (buyButton) {
+          buyButton.textContent = '✅ Ya tienes este curso';
+          buyButton.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+          buyButton.style.cursor = 'not-allowed';
+          buyButton.disabled = true;
+          buyButton.onclick = null;
+        }
+        
+        // 3. CAMBIAR BOTÓN DE COMPRA EN LA SIDEBAR
+        const sidebarButton = document.querySelector('.course-purchase-card .course-btn');
+        if (sidebarButton) {
+          sidebarButton.textContent = '✅ Ya tienes este curso';
+          sidebarButton.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+          sidebarButton.style.cursor = 'not-allowed';
+          sidebarButton.disabled = true;
+          sidebarButton.onclick = null;
+        }
+        
+        // 4. HABILITAR NAVEGACIÓN ENTRE MÓDULOS
+        // Almacenar que el usuario tiene acceso
+        sessionStorage.setItem(`course_${courseId}_access`, 'true');
+        
+        // 5. MOSTRAR MENSAJE DE ÉXITO
+        console.log('🎉 ¡Curso desbloqueado! Disfruta del contenido completo.');
+        
+      } else {
+        console.log('ℹ️ Usuario no tiene acceso al curso');
+        sessionStorage.removeItem(`course_${courseId}_access`);
+      }
+    } catch (error) {
+      console.error('❌ Error verificando acceso:', error);
+    }
+  }
+
+  // Hacer las funciones globales
   window.showPurchaseModal = showPurchaseModal;
   window.purchaseCourse = purchaseCourse;
+  
+  // Marcar módulos gratuitos como disponibles (sin necesidad de comprar)
+  function markFreeModulesAsAvailable() {
+    console.log('🆓 Marcando módulos gratuitos como disponibles...');
+    document.querySelectorAll('.curriculum-item').forEach((item) => {
+      const lockedTag = item.querySelector('.meta-tag.locked');
+      const freeTag = item.querySelector('.meta-tag.free');
+      
+      if (freeTag && lockedTag) {
+        console.log('✅ Módulo gratuito encontrado, marcando como disponible');
+        lockedTag.textContent = 'Gratis';
+        lockedTag.classList.remove('locked');
+        lockedTag.classList.add('available');
+      }
+    });
+  }
+  
+  // Ejecutar al cargar la página
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      markFreeModulesAsAvailable();
+      checkUserAccess();
+    });
+  } else {
+    markFreeModulesAsAvailable();
+    checkUserAccess();
+  }
 </script>
 
   <style>
@@ -1170,51 +1298,4 @@ const courseDisplayData = {
           });
         }
       });
-
-      // ===== VERIFICAR ACCESO DEL USUARIO AL CURSO =====
-      async function checkUserAccess() {
-        const userData = localStorage.getItem('user_data');
-        if (!userData) return;
-        
-        try {
-          const user = JSON.parse(userData);
-          const courseId = courseData.id;
-          
-          const response = await fetch(`/api/courses/check-access?email=${encodeURIComponent(user.email)}&courseId=${courseId}`);
-          const result = await response.json();
-          
-          if (result.success && result.hasAccess) {
-            console.log('✅ Usuario tiene acceso al curso');
-            
-            // Desbloquear todos los módulos
-            document.querySelectorAll('.curriculum-item').forEach((item, index) => {
-              const lockedTag = item.querySelector('.meta-tag.locked');
-              if (lockedTag) {
-                lockedTag.textContent = 'Disponible';
-                lockedTag.className = 'meta-tag available';
-                lockedTag.style.background = '#22c55e';
-                lockedTag.style.color = 'white';
-              }
-            });
-            
-            // Actualizar botón de compra
-            const buyButton = document.querySelector('.course-buy-button');
-            if (buyButton) {
-              buyButton.textContent = '✅ Ya tienes este curso';
-              buyButton.style.background = '#22c55e';
-              buyButton.disabled = true;
-            }
-            
-            // Mostrar mensaje de éxito
-            console.log('🎉 ¡Curso desbloqueado! Todos los módulos están disponibles.');
-          } else {
-            console.log('ℹ️ Usuario no tiene acceso al curso');
-          }
-        } catch (error) {
-          console.log('ℹ️ No se pudo verificar acceso al curso:', error);
-        }
-      }
-      
-      // Verificar acceso al cargar la página
-      checkUserAccess();
     </script>

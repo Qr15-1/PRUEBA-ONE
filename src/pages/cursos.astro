@@ -565,6 +565,30 @@ const activeCourses = courses.filter((course: Course) => course.is_active === 1)
     color: #b0b0b0;
     font-size: 1rem;
   }
+
+  /* ===== ESTADOS DE ACCESO A CURSOS ===== */
+  /* Estado de curso comprado */
+  .course-card.owned {
+    border: 2px solid #22c55e;
+    box-shadow: 0 4px 20px rgba(34, 197, 94, 0.2);
+  }
+
+  .course-payment-status {
+    position: relative;
+  }
+
+  .meta-tag.available {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+  }
+
+  /* Botón deshabilitado */
+  .course-btn:disabled,
+  .course-btn[disabled] {
+    opacity: 0.8;
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+  }
 </style>
 
   <script>
@@ -617,86 +641,127 @@ const activeCourses = courses.filter((course: Course) => course.is_active === 1)
           }
         }
       });
-      // ===== VERIFICAR ESTADO DE PAGOS DE CURSOS =====
-      async function checkCoursePaymentStatus() {
+      // ===== VERIFICAR ACCESO DEL USUARIO A LOS CURSOS =====
+      async function checkUserCoursesAccess() {
         const userData = localStorage.getItem('user_data');
         if (!userData) return;
         
         try {
           const user = JSON.parse(userData);
-          const response = await fetch(`/api/payments/check-status?email=${encodeURIComponent(user.email)}`);
+          const courseCards = document.querySelectorAll('.course-card');
+          
+          for (const card of courseCards) {
+            const courseId = card.getAttribute('data-course-id');
+            if (!courseId) continue;
+            
+            // Verificar acceso directo desde la base de datos
+            const response = await fetch(`/api/courses/check-access?email=${encodeURIComponent(user.email)}&courseId=${courseId}`);
+            const result = await response.json();
+            
+            const statusDiv = card.querySelector('.course-payment-status') as HTMLElement;
+            const cartIcon = card.querySelector('.card-cart-icon') as HTMLButtonElement;
+            const buyBtn = card.querySelector('.course-btn') as HTMLButtonElement;
+            
+            if (result.success && result.hasAccess) {
+              // Usuario tiene acceso - mostrar badge
+              if (statusDiv) {
+                statusDiv.innerHTML = `
+                  <div style="
+                    position: absolute;
+                    top: 10px;
+                    left: 10px;
+                    background: linear-gradient(135deg, #22c55e, #16a34a);
+                    color: white;
+                    padding: 6px 12px;
+                    border-radius: 20px;
+                    font-size: 0.75rem;
+                    font-weight: 700;
+                    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+                    z-index: 10;
+                  ">
+                    ✓ Comprado
+                  </div>
+                `;
+              }
+              
+              // Cambiar botón
+              if (buyBtn) {
+                buyBtn.textContent = 'Ver Curso';
+                buyBtn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+              }
+              
+              // Ocultar o deshabilitar botón de carrito
+              if (cartIcon) {
+                cartIcon.style.display = 'none';
+              }
+            }
+          }
+          
+          // También verificar estado de pagos pendientes para mostrar "⏳ Pendiente"
+          await checkPendingPayments(user.email);
+          
+        } catch (error) {
+          console.error('Error verificando acceso a cursos:', error);
+        }
+      }
+      
+      // Verificar pagos pendientes
+      async function checkPendingPayments(userEmail) {
+        try {
+          const response = await fetch(`/api/payments/check-status?email=${encodeURIComponent(userEmail)}`);
           const result = await response.json();
           
-          if (result.success) {
-            // Obtener todos los IDs de cursos pendientes y confirmados
+          if (result.success && result.pending && result.pending.length > 0) {
             const pendingCourseIds = new Set();
-            const confirmedCourseIds = new Set();
             
-            if (result.pending && result.pending.length > 0) {
               result.pending.forEach(payment => {
                 const courseIds = JSON.parse(payment.course_ids);
                 courseIds.forEach(id => pendingCourseIds.add(parseInt(id)));
               });
-            }
             
-            if (result.confirmed && result.confirmed.length > 0) {
-              result.confirmed.forEach(payment => {
-                const courseIds = JSON.parse(payment.course_ids);
-                courseIds.forEach(id => confirmedCourseIds.add(parseInt(id)));
-              });
-            }
-            
-            // Actualizar estado visual de cada curso
+            // Actualizar cursos con pago pendiente
             document.querySelectorAll('.course-card').forEach(card => {
               const courseId = parseInt(card.getAttribute('data-course-id') || '0');
-              const statusElement = card.querySelector('.course-payment-status') as HTMLElement;
-              const cartButton = card.querySelector('.card-cart-icon') as HTMLButtonElement;
+              const statusDiv = card.querySelector('.course-payment-status') as HTMLElement;
+              const cartIcon = card.querySelector('.card-cart-icon') as HTMLButtonElement;
               
-              if (statusElement) {
-                if (confirmedCourseIds.has(courseId)) {
-                  statusElement.className = 'course-payment-status confirmed';
-                  statusElement.textContent = 'Disponible';
-                  // Deshabilitar botón de carrito para cursos confirmados
-                  if (cartButton) {
-                    cartButton.disabled = true;
-                    cartButton.textContent = '✅';
-                    cartButton.title = 'Ya tienes este curso';
-                    cartButton.style.background = '#22c55e';
-                    cartButton.style.cursor = 'not-allowed';
-                  }
-                } else if (pendingCourseIds.has(courseId)) {
-                  statusElement.className = 'course-payment-status pending';
-                  statusElement.textContent = 'Pendiente';
-                  // Deshabilitar botón de carrito para cursos pendientes
-                  if (cartButton) {
-                    cartButton.disabled = true;
-                    cartButton.textContent = '⏳';
-                    cartButton.title = 'Pago pendiente de confirmación';
-                    cartButton.style.background = '#ffa500';
-                    cartButton.style.cursor = 'not-allowed';
-                  }
-                } else {
-                  statusElement.className = 'course-payment-status';
-                  statusElement.textContent = '';
-                  // Habilitar botón de carrito para cursos normales
-                  if (cartButton) {
-                    cartButton.disabled = false;
-                    cartButton.textContent = '🛒';
-                    cartButton.title = 'Agregar al carrito';
-                    cartButton.style.background = 'linear-gradient(135deg, #99FF00, #7ACC00)';
-                    cartButton.style.cursor = 'pointer';
-                  }
+              // Solo actualizar si no tiene el badge de "Comprado"
+              if (pendingCourseIds.has(courseId) && statusDiv && !statusDiv.innerHTML.includes('Comprado')) {
+                statusDiv.innerHTML = `
+                  <div style="
+                    position: absolute;
+                    top: 10px;
+                    left: 10px;
+                    background: linear-gradient(135deg, #ffa500, #ff8c00);
+                    color: white;
+                    padding: 6px 12px;
+                    border-radius: 20px;
+                    font-size: 0.75rem;
+                    font-weight: 700;
+                    box-shadow: 0 4px 12px rgba(255, 165, 0, 0.4);
+                    z-index: 10;
+                  ">
+                    ⏳ Pendiente
+                  </div>
+                `;
+                
+                if (cartIcon) {
+                  cartIcon.disabled = true;
+                  cartIcon.textContent = '⏳';
+                  cartIcon.title = 'Pago pendiente de confirmación';
+                  cartIcon.style.background = '#ffa500';
+                  cartIcon.style.cursor = 'not-allowed';
                 }
               }
             });
           }
         } catch (error) {
-          console.log('ℹ️ No se pudo verificar estado de pagos:', error);
+          console.log('ℹ️ No se pudo verificar pagos pendientes:', error);
         }
       }
       
-      // Verificar estado al cargar la página
-      checkCoursePaymentStatus();
+      // Ejecutar al cargar la página
+      checkUserCoursesAccess();
     });
   </script>
 </Layout>

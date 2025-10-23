@@ -32,14 +32,16 @@ export async function POST({ request }) {
             });
         }
 
-        // Validar tamaño del archivo (máximo 100MB)
-        const maxSize = 100 * 1024 * 1024; // 100MB
-        if (file.size > maxSize) {
-            return new Response(JSON.stringify({ error: 'El archivo es demasiado grande. Máximo 100MB' }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
+        // Validar tamaño del archivo (SIN LÍMITE - comentado)
+        // const maxSize = 500 * 1024 * 1024; // 500MB
+        // if (file.size > maxSize) {
+        //     return new Response(JSON.stringify({ error: 'El archivo es demasiado grande. Máximo 500MB' }), {
+        //         status: 400,
+        //         headers: { 'Content-Type': 'application/json' }
+        //     });
+        // }
+        
+        // ✅ AHORA PUEDES SUBIR VIDEOS DE CUALQUIER TAMAÑO
 
         // Crear nombre único para el archivo
         const timestamp = Date.now();

@@ -1,4 +1,4 @@
-import { paymentQueries } from '../../../lib/database.js';
+import { courseAccessQueries, userQueries } from '../../../lib/database.js';
 
 export async function GET({ url }) {
   try {
@@ -15,31 +15,44 @@ export async function GET({ url }) {
       });
     }
     
-    // Buscar pagos confirmados del usuario
-    const userPayments = paymentQueries.getByUserEmail(userEmail);
-    const confirmedPayments = userPayments.filter(p => p.status === 'confirmed');
+    // Buscar usuario por email
+    const user = userQueries.findByEmail(userEmail);
     
-    // Verificar si el curso está en algún pago confirmado
-    let hasAccess = false;
-    let paymentId = null;
-    
-    for (const payment of confirmedPayments) {
-      const courseIds = JSON.parse(payment.course_ids);
-      if (courseIds.includes(parseInt(courseId))) {
-        hasAccess = true;
-        paymentId = payment.id;
-        break;
-      }
+    if (!user) {
+      return new Response(JSON.stringify({ 
+        success: true,
+        hasAccess: false,
+        message: 'Usuario no encontrado'
+      }), { 
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
+
+    // Verificar acceso directo desde la tabla user_course_access
+    const access = courseAccessQueries.hasAccess(user.id, parseInt(courseId));
     
-    return new Response(JSON.stringify({ 
-      success: true,
-      hasAccess: hasAccess,
-      paymentId: paymentId
-    }), { 
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    if (access) {
+      console.log(`✅ Usuario ${userEmail} tiene acceso al curso ${courseId} (Payment ID: ${access.payment_id})`);
+      return new Response(JSON.stringify({ 
+        success: true,
+        hasAccess: true,
+        paymentId: access.payment_id,
+        grantedAt: access.granted_at
+      }), { 
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    } else {
+      console.log(`❌ Usuario ${userEmail} NO tiene acceso al curso ${courseId}`);
+      return new Response(JSON.stringify({ 
+        success: true,
+        hasAccess: false
+      }), { 
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
     
   } catch (error) {
     console.error('❌ Error verificando acceso al curso:', error);

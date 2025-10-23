@@ -5,20 +5,20 @@ import { paymentQueries, userQueries, courseQueries } from '../../lib/database.j
 const payments = paymentQueries.getAll();
 
 // Obtener detalles adicionales para cada pago
-const paymentsWithDetails = payments.map(payment => {
+const paymentsWithDetails = payments.map((payment: any) => {
   const user = userQueries.findById(payment.user_id);
   const courseIds = JSON.parse(payment.course_ids);
   const courseTitles = JSON.parse(payment.course_titles);
   
-  const courses = courseIds.map((id, index) => ({
+  const courses = courseIds.map((id: any, index: number) => ({
     id: id,
     title: courseTitles[index]
   }));
 
   return {
     ...payment,
-    user_name: user ? user.first_name : payment.user_name,
-    user_email: user ? user.email : payment.user_email,
+    user_name: user ? (user as any).first_name : payment.user_name,
+    user_email: user ? (user as any).email : payment.user_email,
     courses: courses,
     created_at_formatted: new Date(payment.created_at).toLocaleDateString('es-ES', {
       year: 'numeric', month: '2-digit', day: '2-digit'
@@ -61,7 +61,7 @@ const paymentsWithDetails = payments.map(payment => {
             <div class="courses-section">
               <h4>Cursos Seleccionados:</h4>
               <div class="course-list">
-                {payment.courses.map(course => (
+                {payment.courses.map((course: any) => (
                   <div class="course-item">
                     <input type="checkbox" id={`course-${payment.id}-${course.id}`} checked disabled />
                     <label for={`course-${payment.id}-${course.id}`}>{course.title}</label>
@@ -113,7 +113,8 @@ const paymentsWithDetails = payments.map(payment => {
     document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.btn-confirm').forEach(button => {
         button.addEventListener('click', async (e) => {
-          const paymentId = e.target.dataset.paymentId;
+          const target = e.target as HTMLElement;
+          const paymentId = target.dataset.paymentId;
           if (confirm(`¿Estás seguro de que quieres confirmar el pago #${paymentId}?`)) {
             try {
               const response = await fetch(`/api/admin/payments/${paymentId}/confirm`, {
@@ -133,12 +134,12 @@ const paymentsWithDetails = payments.map(payment => {
                   const confirmedCourses = JSON.parse(localStorage.getItem('confirmed_courses') || '[]');
                   
                   // Filtrar cursos que ya no están pendientes
-                  const newPendingCourses = pendingCourses.filter(course => 
+                  const newPendingCourses = pendingCourses.filter((course: any) => 
                     !courseIds.includes(parseInt(course.id))
                   );
                   
                   // Agregar cursos confirmados
-                  const newConfirmedCourses = courseIds.map((id, index) => ({
+                  const newConfirmedCourses = courseIds.map((id: any, index: number) => ({
                     id: id,
                     title: courseTitles[index],
                     status: 'confirmed',
@@ -167,7 +168,8 @@ const paymentsWithDetails = payments.map(payment => {
 
       document.querySelectorAll('.btn-reject').forEach(button => {
         button.addEventListener('click', async (e) => {
-          const paymentId = e.target.dataset.paymentId;
+          const target = e.target as HTMLElement;
+          const paymentId = target.dataset.paymentId;
           if (confirm(`¿Estás seguro de que quieres rechazar el pago #${paymentId}?`)) {
             try {
               const response = await fetch(`/api/admin/payments/${paymentId}/reject`, {
