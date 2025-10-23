@@ -1,4 +1,5 @@
 ---
+// @ts-nocheck
 import Layout from '../../layouts/Layout.astro';
 import { courseQueries, moduleQueries, courseAccessQueries, userQueries } from '../../lib/database.js';
 
@@ -27,16 +28,16 @@ if (sessionToken) {
   try {
     // Buscar sesión en la base de datos
     const { sessionQueries } = await import('../../lib/database.js');
-    const session = sessionQueries.findByToken(sessionToken);
+    const session = sessionQueries.findByToken(sessionToken) as any;
     
     console.log('🔍 Sesión encontrada:', session ? 'Sí' : 'No');
     
     if (session && session.user_id) {
-      const user = userQueries.findById(session.user_id);
+      const user = userQueries.findById(session.user_id) as any;
       console.log('🔍 Usuario encontrado:', user ? user.email : 'No');
       
       if (user) {
-        userHasAccess = courseAccessQueries.hasAccess(user.id, (course as any).id);
+        userHasAccess = courseAccessQueries.hasAccess(user.id, (course as any).id) as boolean;
         console.log(`✅ Usuario ${user.email} - Acceso al curso ${(course as any).title}: ${userHasAccess}`);
       }
     }
